@@ -6,21 +6,11 @@
 **Status:** Work in Progress  
 **Current mechanical revision:** SR-MEC-001 Rev.F
 
----
-
 ## 1. Purpose
 
-SmartRoll is a project for developing an automated roller-blind control system.
+SmartRoll is a project for developing an automated control system for **external roller blinds** equipped with **ERTE ET 45E tubular motors**.
 
-The project consists of:
-
-- mechanical drive and coupling components,
-- rotational position and direction sensing,
-- Hall sensors and magnets,
-- electronics,
-- firmware,
-- Home Assistant integration,
-- testing and manufacturing documentation.
+The project consists of mechanical drive and coupling components, rotational position and direction sensing, Hall sensors and magnets, electronics, firmware, Home Assistant integration, testing and manufacturing documentation.
 
 This document is the technical source of truth for the project.
 
@@ -48,7 +38,15 @@ Unknown dimensions shall be marked `OPEN`, not invented.
 
 # 3. Mechanical System
 
-## 3.1 Roller-blind shaft
+## 3.1 Roller-blind application
+
+The SmartRoll mechanical system is intended for **external roller blinds** using **ERTE ET 45E tubular motors**.
+
+The motor type and the associated mechanical installation are project-level constraints when designing the carrier, sensor arrangement and available mounting space.
+
+**Status: CONFIRMED**
+
+## 3.2 Roller-blind shaft
 
 The roller blind uses an octagonal shaft.
 
@@ -208,6 +206,8 @@ A new revision must not overwrite the historical definition of a previous revisi
 
 ### Confirmed
 
+- external roller-blind application,
+- ERTE ET 45E tubular motor,
 - octagonal shaft,
 - 16.70 mm across flats,
 - 5 + 6.7 + 5 mm geometry on the slat side,
