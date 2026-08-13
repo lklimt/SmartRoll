@@ -1,0 +1,267 @@
+# -*- coding: utf-8 -*-
+# ============================================================
+# SMARTROLL / SR-MEC-001 - Rev.E5
+# Magneticky unasec pro roletovou hridel
+# FreeCAD 1.1
+#
+# E5:
+# - upinaci cast 0-6 mm: skutecny osmihran 16.70 mm AF
+# - magneticky limec 6-11 mm: kruhova svetlost Ø21 mm
+# - jedna prubezna sterbina pres vsech 11 mm
+# - dva UZAVRENE M3 BOSSY / OKA po stranach sterbiny
+# - M3 je mimo rotacni svetlost Ø21 mm
+# - hlava sroubu + matice maji zapusteni
+# - magnety 4x2 mm radialne z obvodu, 180 deg
+# ============================================================
+
+import FreeCAD as App
+import Part
+import math
+
+DOC_NAME = "SR-MEC-001_RevE5"
+
+# ---------------- PARAMETRY ----------------
+SHAFT_AF = 16.70
+SHAFT_CLEARANCE = 0.20
+
+CLAMP_W = 6.00
+COLLAR_W = 5.00
+TOTAL_W = 11.00
+
+OD = 26.00
+ROTATION_BORE = 21.00
+
+SLOT_W = 0.80
+
+# M3 closed ears
+EAR_OUTER_D = 6.80
+EAR_BORE_D = 3.30
+EAR_RING_W = 2.40       # sirka uska ve smeru osy Z
+EAR_RADIAL_LEN = 4.20
+EAR_CENTER_X = 13.10
+EAR_CENTER_Z = TOTAL_W / 2.0
+
+HEAD_D = 6.00
+HEAD_DEPTH = 1.20
+
+NUT_AF = 5.50
+NUT_DEPTH = 2.60
+
+# radialni magnety
+MAG_D = 4.00
+MAG_LEN = 2.00
+MAG_POCKET_D = 4.20
+MAG_POCKET_DEPTH = 2.15
+MAG_ANGLES = (90.0, 270.0)
+
+def V(x,y,z=0):
+    return App.Vector(float(x),float(y),float(z))
+
+def cyl(d,h,z=0):
+    s=Part.makeCylinder(d/2.0,h)
+    s.translate(V(0,0,z))
+    return s
+
+def oct_prism(flat,h,z=0):
+    r=flat/(2.0*math.cos(math.radians(22.5)))
+    p=[]
+    for i in range(8):
+        a=math.radians(22.5+i*45.0)
+        p.append(V(r*math.cos(a),r*math.sin(a),z))
+    p.append(p[0])
+    return Part.Face(Part.makePolygon(p)).extrude(V(0,0,h))
+
+def radial_cyl(d,length,ang,r,z):
+    a=math.radians(ang)
+    start=V(r*math.cos(a),r*math.sin(a),z)
+    return Part.makeCylinder(d/2.0,length,start,
+                             V(math.cos(a),math.sin(a),0))
+
+def radial_pocket(d,depth,ang,r,z):
+    a=math.radians(ang)
+    start=V(r*math.cos(a),r*math.sin(a),z)
+    return Part.makeCylinder(d/2.0,depth,start,
+                             V(-math.cos(a),-math.sin(a),0))
+
+def make_closed_ear(y0):
+    # Plny valcovy prstenec; zadna vnejsi strana neni otevrena.
+    # Valecova osa je Y, proto se prstenec chova jako skutecne oko.
+    outer=Part.makeCylinder(EAR_OUTER_D/2.0, EAR_RING_W,
+                            V(EAR_CENTER_X,y0,EAR_CENTER_Z),
+                            V(0,1,0))
+    inner=Part.makeCylinder(EAR_BORE_D/2.0, EAR_RING_W+0.10,
+                            V(EAR_CENTER_X,y0-0.05,EAR_CENTER_Z),
+                            V(0,1,0))
+    return outer.cut(inner)
+
+try:
+    App.closeDocument(DOC_NAME)
+except:
+    pass
+doc=App.newDocument(DOC_NAME)
+
+# ============================================================
+# 1. ZAKLADNI PRSTENEC
+# ============================================================
+body=cyl(OD,TOTAL_W)
+
+# 0-6 mm: osmihranny otvor
+body=body.cut(oct_prism(SHAFT_AF+SHAFT_CLEARANCE,CLAMP_W+0.04,-0.02))
+
+# 6-11 mm: kruhova svetlost pro volne otaceni kolem pevne casti
+body=body.cut(cyl(ROTATION_BORE,COLLAR_W+0.04,CLAMP_W-0.02))
+
+# ============================================================
+# 2. JEDINA STERBINA PRO ROZEVRENI
+# ============================================================
+slot=Part.makeBox(OD/2.0+4.0,SLOT_W,TOTAL_W+2.0)
+slot.translate(V(0,-SLOT_W/2.0,-1.0))
+body=body.cut(slot)
+
+# ============================================================
+# 3. DVA UZAVRENE M3 BOSSY
+# ============================================================
+#
+# Oka jsou skutecne uzavrene kruhy.
+# Jsou umistena na strane sterbiny, ale jejich kruhovy prstenec
+# je cely v materialu.
+#
+# Horní oko: +Y
+# Dolni oko: -Y
+#
+
+ear1=make_closed_ear(SLOT_W/2.0)
+ear2=make_closed_ear(-SLOT_W/2.0-EAR_RING_W)
+
+body=body.fuse(ear1).fuse(ear2)
+
+# Oka jsou pripojena k obvodu pres kratke spojovaci mustky.
+# Mustek zasahuje jen k OD a nezmenšuje rotacni svetlost.
+bridge_w=EAR_RING_W
+bridge_len=EAR_CENTER_X-OD/2.0+0.20
+
+bridge1=Part.makeBox(bridge_len,EAR_RING_W,EAR_RING_W)
+bridge1.translate(V(OD/2.0-0.10,SLOT_W/2.0,EAR_CENTER_Z-EAR_RING_W/2.0))
+
+bridge2=Part.makeBox(bridge_len,EAR_RING_W,EAR_RING_W)
+bridge2.translate(V(OD/2.0-0.10,-SLOT_W/2.0-EAR_RING_W,EAR_CENTER_Z-EAR_RING_W/2.0))
+
+body=body.fuse(bridge1).fuse(bridge2)
+
+# ============================================================
+# 4. HLAVA SROUBU + MATICE
+# ============================================================
+#
+# Sroub jde v ose Y.
+# Hlava je zapustena pouze 1.2 mm do predniho oka.
+#
+x=EAR_CENTER_X
+z=EAR_CENTER_Z
+
+through=Part.makeCylinder(EAR_BORE_D/2.0,
+                          2*EAR_RING_W+0.30,
+                          V(x,-SLOT_W/2.0-EAR_RING_W-0.10,z),
+                          V(0,1,0))
+body=body.cut(through)
+
+head=Part.makeCylinder(HEAD_D/2.0,HEAD_DEPTH+0.05,
+                       V(x,SLOT_W/2.0+EAR_RING_W-HEAD_DEPTH,z),
+                       V(0,1,0))
+body=body.cut(head)
+
+# sestiuhelna kapsa matice v zadnim oku
+r=NUT_AF/math.sqrt(3.0)
+pts=[]
+for i in range(6):
+    a=math.radians(30+i*60)
+    pts.append(V(x+r*math.cos(a),
+                 -SLOT_W/2.0-EAR_RING_W-0.05,
+                 z+r*math.sin(a)))
+pts.append(pts[0])
+nutface=Part.Face(Part.makePolygon(pts))
+nutpocket=nutface.extrude(V(0,NUT_DEPTH,0))
+body=body.cut(nutpocket)
+
+# ============================================================
+# 5. RADIALNI MAGNETY
+# ============================================================
+r_outer=OD/2.0+0.01
+zmag=CLAMP_W+COLLAR_W/2.0
+
+for ang in MAG_ANGLES:
+    body=body.cut(radial_pocket(MAG_POCKET_D,MAG_POCKET_DEPTH,
+                                ang,r_outer,zmag))
+
+# ============================================================
+# 6. TISKOVY OBJEKT
+# ============================================================
+obj=doc.addObject("PartDesign::Feature","SR_MEC_001")
+obj.Label="SR-MEC-001 Rev.E5 - magneticky unasec"
+obj.Shape=body
+obj.addProperty("App::PropertyString","Revision","Dokumentace")
+obj.Revision="Rev.E5"
+obj.addProperty("App::PropertyStringList","Notes","Dokumentace")
+obj.Notes=[
+ "Upinaci osmihran: 16.70 mm pres plosky + 0.20 mm vule.",
+ "Upinaci delka: 6.00 mm.",
+ "Magneticky limec: 5.00 mm.",
+ "Magneticka svetlost: kruh Ø21.00 mm.",
+ "Jedina sterbina: 0.80 mm, pres celou vysku 11 mm.",
+ "Dve M3 oka jsou plne uzavrene kruhove bossy.",
+ "M3 otvor Ø3.30 mm.",
+ "Hlava M3: zapusteni 1.20 mm.",
+ "Matice M3: sestihranna kapsa AF 5.50 mm.",
+ "Magnety: 4x2 mm radialne, 180 deg."
+]
+
+for n,v in [
+ ("OuterDiameter",OD),("ShaftAcrossFlats",SHAFT_AF),
+ ("ClampWidth",CLAMP_W),("CollarWidth",COLLAR_W),
+ ("RotationBore",ROTATION_BORE),("SlotWidth",SLOT_W),
+ ("M3Clearance",EAR_BORE_D),("EarOuterDiameter",EAR_OUTER_D),
+ ("HeadRecess",HEAD_DEPTH),("MagnetDiameter",MAG_D),
+ ("MagnetPocketDiameter",MAG_POCKET_D)
+]:
+    obj.addProperty("App::PropertyLength",n,"Parametry")
+    setattr(obj,n,v)
+
+# ============================================================
+# 7. REFERENCE
+# ============================================================
+ref=doc.addObject("App::Part","REFERENCE")
+ref.Label="REFERENCE - kontrola"
+
+shaft=doc.addObject("PartDesign::Feature","ReferenceShaft")
+shaft.Label="Osmihranna hridel 16.70 mm"
+shaft.Shape=oct_prism(SHAFT_AF,CLAMP_W)
+ref.addObject(shaft)
+
+holder=doc.addObject("PartDesign::Feature","ReferenceHolder")
+holder.Label="Pevny uchyt Ø20.60 mm"
+holder.Shape=cyl(20.60,TOTAL_W)
+ref.addObject(holder)
+
+mags=doc.addObject("App::Part","ReferenceMagnets")
+mags.Label="Magnety radialne 180 deg"
+ref.addObject(mags)
+
+for i,ang in enumerate(MAG_ANGLES,1):
+    mo=doc.addObject("PartDesign::Feature","ReferenceMagnet%d"%i)
+    mo.Label="Magnet %d - radialni"%i
+    mo.Shape=radial_cyl(MAG_D,MAG_LEN,ang,OD/2.0-MAG_POCKET_DEPTH,zmag)
+    mags.addObject(mo)
+
+ref.Visibility=False
+
+obj.ViewObject.ShapeColor=(0.20,0.20,0.20)
+obj.ViewObject.LineColor=(0.05,0.05,0.05)
+
+doc.recompute()
+
+try:
+    doc.saveAs(App.getUserAppDataDir()+DOC_NAME+".FCStd")
+except:
+    pass
+
+Gui.activeDocument().activeView().viewAxonometric()
+Gui.activeDocument().activeView().fitAll()

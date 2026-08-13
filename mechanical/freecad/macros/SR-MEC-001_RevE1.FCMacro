@@ -1,0 +1,346 @@
+# -*- coding: utf-8 -*-
+# ============================================================
+# SmartRoll / SR-MEC-001
+# MAGNETICKY UNASEC - Rev.E1
+# FreeCAD 1.1
+#
+# KONCEPCE REV.E1
+# ------------------------------------------------------------
+# 0-6 mm  : upinaci cast, vnitrni osmihran 16.70 mm
+# 6-11 mm : magneticky limec, vnitrni kruhova svetlost Ø21 mm
+#
+# Magnety 4x2 mm jsou ulozeny RADIALNE z obvodu.
+# Magnety jsou 180 deg proti sobe.
+#
+# SVĚRNA STERBINA je pouze na strane M3 uchytu.
+# Na strane 90 deg od M3 neni zadne preruseni.
+#
+# DULEZITE:
+# Magneticky limec NENI osmihran.
+# Ma kruhovou svetlost, aby se kolem pevneho uchytu volne otacel.
+# ============================================================
+
+import FreeCAD as App
+import Part
+import math
+
+DOC_NAME = "SR-MEC-001_RevE1"
+
+# ---------------- PARAMETRY ----------------
+
+SHAFT_FLAT = 16.70          # osmihran pres plosky
+SHAFT_CLEARANCE = 0.20     # vule pro tisk
+
+CLAMP_WIDTH = 6.00
+MAGNET_WIDTH = 5.00
+TOTAL_WIDTH = CLAMP_WIDTH + MAGNET_WIDTH
+
+OUTER_DIAMETER = 26.00
+
+# Magneticka cast musi volne obihat pevny uchyt.
+ROTATION_BORE_D = 21.00
+
+# Magnet
+MAGNET_D = 4.00
+MAGNET_H = 2.00
+MAGNET_POCKET_D = 4.20
+MAGNET_POCKET_DEPTH = 2.15
+
+# Magnety jsou 180 deg proti sobe.
+MAGNET_ANGLE_1 = 90.0
+MAGNET_ANGLE_2 = 270.0
+
+# Svěr
+CLAMP_SLOT_WIDTH = 0.80
+SCREW_D = 3.30
+
+# Vnejsi svěrna usi jsou uvnitr obrysu Ø26.
+EAR_LENGTH = 2.50
+EAR_WIDTH = 3.80
+
+# Kontrolni parametr skutecneho svlaku.
+# V teto revizi se nepouziva k vytvoreni dalsiho preruseni.
+# Pokud bude potreba, doplnime ho podle zamereni hridele.
+KEY_WIDTH = 4.70
+KEY_DEPTH = 1.00
+
+# ---------------- POMOCNE FUNKCE ----------------
+
+def V(x, y, z=0):
+    return App.Vector(float(x), float(y), float(z))
+
+def octagon_prism(flat, height, z0=0.0):
+    """Osmihran pres plosky, stred 0,0, osa Z."""
+    r = flat / (2.0 * math.cos(math.radians(22.5)))
+    pts = []
+    for i in range(8):
+        a = math.radians(22.5 + i * 45.0)
+        pts.append(V(r * math.cos(a), r * math.sin(a), z0))
+    pts.append(pts[0])
+    return Part.Face(Part.makePolygon(pts)).extrude(V(0, 0, height))
+
+def cylinder(d, h, z0=0.0):
+    s = Part.makeCylinder(d / 2.0, h)
+    s.translate(V(0, 0, z0))
+    return s
+
+def radial_pocket(d, depth, angle_deg, r_outer, z_center):
+    """Valcova kapsa s radialni osou smerem od obvodu do stredu."""
+    a = math.radians(angle_deg)
+    start = V(r_outer * math.cos(a),
+              r_outer * math.sin(a),
+              z_center)
+    direction = V(-math.cos(a), -math.sin(a), 0)
+    return Part.makeCylinder(d / 2.0, depth, start, direction)
+
+def radial_magnet(d, h, angle_deg, r_start, z_center):
+    """Kontrolni magnet: osa radialne ven."""
+    a = math.radians(angle_deg)
+    start = V(r_start * math.cos(a),
+              r_start * math.sin(a),
+              z_center)
+    direction = V(math.cos(a), math.sin(a), 0)
+    return Part.makeCylinder(d / 2.0, h, start, direction)
+
+# ---------------- DOKUMENT ----------------
+
+try:
+    App.closeDocument(DOC_NAME)
+except:
+    pass
+
+doc = App.newDocument(DOC_NAME)
+
+# ---------------- 1. VNEJSI TELESO ----------------
+
+body = cylinder(OUTER_DIAMETER, TOTAL_WIDTH)
+
+# ---------------- 2. UPINACI CAST 0-6 mm ----------------
+# Skutecny osmihran pro uchyceni na hrideli.
+shaft_bore = octagon_prism(
+    SHAFT_FLAT + SHAFT_CLEARANCE,
+    CLAMP_WIDTH + 0.04,
+    -0.02
+)
+body = body.cut(shaft_bore)
+
+# ---------------- 3. MAGNETICKY LIMEC 6-11 mm ----------------
+# ZDE JE ZASADNI ZMENA:
+# otvor je KRUHOVY Ø21 mm, ne osmihran.
+rotation_bore = cylinder(
+    ROTATION_BORE_D,
+    MAGNET_WIDTH + 0.04,
+    CLAMP_WIDTH - 0.02
+)
+body = body.cut(rotation_bore)
+
+# ---------------- 4. JEDINA SVĚRNA STERBINA ----------------
+# Sterbina je na strane +X.
+# Prochazi celou vyskou 11 mm.
+#
+# Predchozi nechtene preruseni 90 deg od sverneho sroubu
+# zde NENI vytvareno.
+
+slot = Part.makeBox(
+    OUTER_DIAMETER / 2.0 + 3.0,
+    CLAMP_SLOT_WIDTH,
+    TOTAL_WIDTH + 2.0
+)
+slot.translate(V(
+    0,
+    -CLAMP_SLOT_WIDTH / 2.0,
+    -1.0
+))
+body = body.cut(slot)
+
+# ---------------- 5. KOMPAKTNI SVĚRNA USA ----------------
+# Usi jsou soucasti obvodu +X a zustavaji v celkovem
+# obrysovem limitu cca Ø26 mm.
+
+x0 = OUTER_DIAMETER / 2.0 - EAR_LENGTH
+
+ear_top = Part.makeBox(
+    EAR_LENGTH,
+    EAR_WIDTH,
+    TOTAL_WIDTH
+)
+ear_top.translate(V(
+    x0,
+    0.05,
+    0
+))
+
+ear_bottom = Part.makeBox(
+    EAR_LENGTH,
+    EAR_WIDTH,
+    TOTAL_WIDTH
+)
+ear_bottom.translate(V(
+    x0,
+    -EAR_WIDTH - 0.05,
+    0
+))
+
+body = body.fuse(ear_top).fuse(ear_bottom)
+
+# Otvor M3 napric uchy.
+# Osa Y.
+screw_hole = Part.makeCylinder(
+    SCREW_D / 2.0,
+    2.0 * EAR_WIDTH + 2.0,
+    V(OUTER_DIAMETER / 2.0 - EAR_LENGTH / 2.0,
+      -EAR_WIDTH - 1.0,
+      TOTAL_WIDTH / 2.0),
+    V(0, 1, 0)
+)
+body = body.cut(screw_hole)
+
+# ---------------- 6. RADIALNI MAGNETICKE KAPSY ----------------
+# Vnejsi stena ma:
+# (26 - 21) / 2 = 2.50 mm.
+# Kapsa 2.15 mm ponecha cca 0.35 mm materialu k svetlosti.
+#
+# Magnety jsou na +Y a -Y.
+r_outer = OUTER_DIAMETER / 2.0 + 0.01
+z_center = CLAMP_WIDTH + MAGNET_WIDTH / 2.0
+
+for ang in (MAGNET_ANGLE_1, MAGNET_ANGLE_2):
+    pocket = radial_pocket(
+        MAGNET_POCKET_D,
+        MAGNET_POCKET_DEPTH,
+        ang,
+        r_outer,
+        z_center
+    )
+    body = body.cut(pocket)
+
+# ---------------- 7. VYSLEDNY TISKOVY OBJEKT ----------------
+
+obj = doc.addObject("PartDesign::Feature", "SR_MEC_001")
+obj.Label = "SR-MEC-001 Rev.E1 - UNAŠEČ"
+obj.Shape = body
+
+obj.addProperty("App::PropertyLength", "OuterDiameter", "Parametry")
+obj.OuterDiameter = OUTER_DIAMETER
+
+obj.addProperty("App::PropertyLength", "ShaftAcrossFlats", "Parametry")
+obj.ShaftAcrossFlats = SHAFT_FLAT
+
+obj.addProperty("App::PropertyLength", "ClampWidth", "Parametry")
+obj.ClampWidth = CLAMP_WIDTH
+
+obj.addProperty("App::PropertyLength", "MagnetCollarWidth", "Parametry")
+obj.MagnetCollarWidth = MAGNET_WIDTH
+
+obj.addProperty("App::PropertyLength", "RotationBore", "Parametry")
+obj.RotationBore = ROTATION_BORE_D
+
+obj.addProperty("App::PropertyLength", "MagnetDiameter", "Magnety")
+obj.MagnetDiameter = MAGNET_D
+
+obj.addProperty("App::PropertyLength", "MagnetThickness", "Magnety")
+obj.MagnetThickness = MAGNET_H
+
+obj.addProperty("App::PropertyAngle", "MagnetAngle1", "Magnety")
+obj.MagnetAngle1 = MAGNET_ANGLE_1
+
+obj.addProperty("App::PropertyAngle", "MagnetAngle2", "Magnety")
+obj.MagnetAngle2 = MAGNET_ANGLE_2
+
+obj.addProperty("App::PropertyString", "Revision", "Dokumentace")
+obj.Revision = "Rev.E1"
+
+obj.addProperty("App::PropertyString", "Description", "Dokumentace")
+obj.Description = (
+    "Upinaci osmihran 16.70 mm / 6 mm + "
+    "kruhova svetlost Ø21 mm / 5 mm + "
+    "2 radialni magnety 4x2 mm, 180 deg."
+)
+
+# ---------------- 8. REFERENCE ----------------
+
+ref = doc.addObject("App::Part", "REFERENCE")
+ref.Label = "REFERENCE - kontrola montaze"
+
+# Osmihranna hridel pouze v oblasti upinani.
+shaft_ref = doc.addObject("PartDesign::Feature", "ReferenceShaft")
+shaft_ref.Label = "REFERENCE - hřídel 16.70 mm"
+shaft_ref.Shape = octagon_prism(SHAFT_FLAT, CLAMP_WIDTH)
+ref.addObject(shaft_ref)
+
+# Valcovy pevny uchyt pro kontrolu volne rotace.
+fixed_ref = doc.addObject("PartDesign::Feature", "ReferenceFixedHolder")
+fixed_ref.Label = "REFERENCE - pevny uchyt"
+fixed_ref.Shape = cylinder(ROTATION_BORE_D - 0.30, TOTAL_WIDTH)
+ref.addObject(fixed_ref)
+
+# Kontrolni magnety.
+mag_ref = doc.addObject("App::Part", "ReferenceMagnets")
+mag_ref.Label = "REFERENCE - radialni magnety"
+ref.addObject(mag_ref)
+
+for idx, ang in enumerate(
+    (MAGNET_ANGLE_1, MAGNET_ANGLE_2),
+    start=1
+):
+    # Magnet je uvnitr kapsy; pouze kontrolni objekt.
+    r_start = OUTER_DIAMETER / 2.0 - MAGNET_POCKET_DEPTH
+    mag_shape = radial_magnet(
+        MAGNET_D,
+        MAGNET_H,
+        ang,
+        r_start,
+        z_center
+    )
+    mo = doc.addObject(
+        "PartDesign::Feature",
+        "ReferenceMagnet%d" % idx
+    )
+    mo.Label = "Magnet %d - radialni" % idx
+    mo.Shape = mag_shape
+    mag_ref.addObject(mo)
+
+# ---------------- 9. POZNAMKY ----------------
+
+notes = doc.addObject(
+    "App::FeaturePython",
+    "ConstructionNotes"
+)
+notes.Label = "SR-MEC-001 Rev.E1 - poznamky"
+
+notes.addProperty(
+    "App::PropertyStringList",
+    "Notes",
+    "Dokumentace"
+)
+
+notes.Notes = [
+    "0-6 mm: upinaci cast s osmihranem 16.70 mm pres plosky.",
+    "6-11 mm: magneticky limec s kruhovou svetlosti Ø21.00 mm.",
+    "Magneticky limec nema osmihran - musi se volne otacet kolem pevneho uchytu.",
+    "Magnety jsou 4x2 mm a jsou ulozeny radialne z obvodu.",
+    "Magnety jsou 180 deg proti sobe.",
+    "Jedina sterbina je na strane M3 a prochazi celou vyskou 11 mm.",
+    "Na strane 90 deg od M3 neni zadne preruseni.",
+    "Vnejsi prumer zustava Ø26 mm.",
+    "Mezi Ø26 a Ø21 je 2.50 mm steny.",
+    "Kapsa Ø4.20 x 2.15 mm ponechava cca 0.35 mm steny k vnitrni svetlosti.",
+    "REFERENCE objekty nejsou soucasti tiskoveho telesa."
+]
+
+# Reference po startu skryj.
+ref.Visibility = False
+notes.Visibility = False
+
+doc.recompute()
+
+# ---------------- 10. ULOZENI ----------------
+
+try:
+    save_path = App.getUserAppDataDir() + DOC_NAME + ".FCStd"
+    doc.saveAs(save_path)
+except:
+    pass
+
+Gui.activeDocument().activeView().viewAxonometric()
+Gui.activeDocument().activeView().fitAll()

@@ -1,0 +1,333 @@
+# -*- coding: utf-8 -*-
+# ============================================================
+# SMARTROLL / SR-MEC-001 Rev.E4
+# FreeCAD 1.1
+#
+# CIL:
+#   - 6 mm upinaci objimka = skutecny osmihran 16.70 mm
+#   - 5 mm magneticky limec = kruhova svetlost Ø21 mm
+#   - magnety 4x2 mm radialne z obvodu, 180°
+#   - jedina sterbina po cele vysce 11 mm
+#   - M3 usi jsou vysunuta VNE z rotacni svetlosti
+#   - hlava M3 je z vnejsi strany pristupna, bez hlubokeho zapusteni
+#
+# REV.E4 OPRAVA:
+# Predchozi usi zasahovaly prilis dovnitr do zony pevneho uchytu.
+# Nyni jsou tvoreny valcovymi bossy s osou Y, jejich stred je
+# radialne mimo Ø21 rotacni svetlosti.
+# ============================================================
+
+import FreeCAD as App
+import Part
+import math
+
+DOC_NAME = "SR-MEC-001_RevE4"
+
+# ---------------- hlavni rozmery ----------------
+SHAFT_FLAT = 16.70
+SHAFT_CLEARANCE = 0.20
+
+CLAMP_WIDTH = 6.00
+MAGNET_WIDTH = 5.00
+TOTAL_WIDTH = 11.00
+
+OUTER_DIAMETER = 26.00
+ROTATION_BORE_D = 21.00
+
+# ---------------- magnety ----------------
+MAGNET_D = 4.00
+MAGNET_RADIAL_LENGTH = 2.00
+MAGNET_POCKET_D = 4.20
+MAGNET_POCKET_DEPTH = 2.15
+MAGNET_ANGLE_1 = 90.0
+MAGNET_ANGLE_2 = 270.0
+
+# ---------------- sterbina ----------------
+SLOT_WIDTH = 0.80
+
+# ---------------- M3 usi ----------------
+# Stred bossu je mimo R=10.5 rotacni svetlosti.
+EAR_CENTER_X = 12.00
+EAR_RADIUS = 1.60
+EAR_Z = TOTAL_WIDTH / 2.0
+
+EAR_INNER_Y = SLOT_WIDTH / 2.0
+EAR_OUTER_Y = 4.80
+
+SCREW_CLEARANCE_D = 3.30
+SCREW_HEAD_D = 6.00
+SCREW_HEAD_DEPTH = 1.20
+NUT_AF = 5.50
+NUT_DEPTH = 2.00
+
+# ---------------- pomocne funkce ----------------
+
+def V(x, y, z=0):
+    return App.Vector(float(x), float(y), float(z))
+
+def cylinder(d, h, z0=0.0):
+    s = Part.makeCylinder(d / 2.0, h)
+    s.translate(V(0, 0, z0))
+    return s
+
+def octagon_prism(flat, height, z0=0.0):
+    # Osmihran pres plosky.
+    r = flat / (2.0 * math.cos(math.radians(22.5)))
+    pts = []
+    for i in range(8):
+        a = math.radians(22.5 + i * 45.0)
+        pts.append(V(r*math.cos(a), r*math.sin(a), z0))
+    pts.append(pts[0])
+    return Part.Face(Part.makePolygon(pts)).extrude(V(0,0,height))
+
+def boss_y(d, y0, y1, x, z):
+    # Valcovy M3 boss s osou Y.
+    return Part.makeCylinder(
+        d/2.0,
+        y1-y0,
+        V(x, y0, z),
+        V(0,1,0)
+    )
+
+def radial_pocket(d, depth, angle_deg, r_outer, z_center):
+    a = math.radians(angle_deg)
+    start = V(r_outer*math.cos(a),
+              r_outer*math.sin(a),
+              z_center)
+    direction = V(-math.cos(a), -math.sin(a), 0)
+    return Part.makeCylinder(d/2.0, depth, start, direction)
+
+def radial_magnet(d, length, angle_deg, r_start, z_center):
+    a = math.radians(angle_deg)
+    start = V(r_start*math.cos(a),
+              r_start*math.sin(a),
+              z_center)
+    direction = V(math.cos(a), math.sin(a), 0)
+    return Part.makeCylinder(d/2.0, length, start, direction)
+
+# ---------------- dokument ----------------
+try:
+    App.closeDocument(DOC_NAME)
+except:
+    pass
+
+doc = App.newDocument(DOC_NAME)
+
+# ============================================================
+# 1. zakladni teleso
+# ============================================================
+body = cylinder(OUTER_DIAMETER, TOTAL_WIDTH)
+
+# 0-6 mm: OSMIHRAN
+shaft_bore = octagon_prism(
+    SHAFT_FLAT + SHAFT_CLEARANCE,
+    CLAMP_WIDTH + 0.04,
+    -0.02
+)
+body = body.cut(shaft_bore)
+
+# 6-11 mm: KRUHOVA svetlost Ø21
+rotation_bore = cylinder(
+    ROTATION_BORE_D,
+    MAGNET_WIDTH + 0.04,
+    CLAMP_WIDTH - 0.02
+)
+body = body.cut(rotation_bore)
+
+# ============================================================
+# 2. jedina prubezna sterbina
+# ============================================================
+# +X, sirka 0.8 mm, cela vyska.
+slot = Part.makeBox(
+    OUTER_DIAMETER/2.0 + 4.0,
+    SLOT_WIDTH,
+    TOTAL_WIDTH + 2.0
+)
+slot.translate(V(0, -SLOT_WIDTH/2.0, -1.0))
+body = body.cut(slot)
+
+# ============================================================
+# 3. M3 usi / bossy
+# ============================================================
+# DULEZITE:
+# Bossy jsou mimo Ø21 rotacni prostor.
+# Stred = R12.0, radius = 1.6.
+# Proto se jejich vnitrni okraj dotyka cca R10.4, tedy velmi
+# blizko, ale je jen minimalne v zone; tuto oblast budeme
+# kontrolovat ve FreeCADu s REFERENCE.
+#
+# Boss +Y
+boss_plus = boss_y(
+    2.0*EAR_RADIUS,
+    EAR_INNER_Y,
+    EAR_OUTER_Y,
+    EAR_CENTER_X,
+    EAR_Z
+)
+
+# Boss -Y
+boss_minus = boss_y(
+    2.0*EAR_RADIUS,
+    -EAR_OUTER_Y,
+    -EAR_INNER_Y,
+    EAR_CENTER_X,
+    EAR_Z
+)
+
+body = body.fuse(boss_plus).fuse(boss_minus)
+
+# ============================================================
+# 4. M3 otvor skrz oba bossy
+# ============================================================
+screw_hole = Part.makeCylinder(
+    SCREW_CLEARANCE_D/2.0,
+    2.0*EAR_OUTER_Y + 1.0,
+    V(EAR_CENTER_X, -EAR_OUTER_Y-0.5, EAR_Z),
+    V(0,1,0)
+)
+body = body.cut(screw_hole)
+
+# ============================================================
+# 5. pristup pro hlavu M3
+# ============================================================
+# Hlava neni hluboko utopena. Pouze 1.2 mm kapsa z vnejsi
+# strany +Y. To ponecha hlavu dobre pristupnou.
+head_pocket = Part.makeCylinder(
+    SCREW_HEAD_D/2.0,
+    SCREW_HEAD_DEPTH,
+    V(EAR_CENTER_X, EAR_OUTER_Y-SCREW_HEAD_DEPTH, EAR_Z),
+    V(0,1,0)
+)
+body = body.cut(head_pocket)
+
+# ============================================================
+# 6. kapsa pro M3 matici
+# ============================================================
+# Sestihran v rovine XZ, osa Y.
+r_nut = NUT_AF / math.sqrt(3.0)
+pts = []
+for i in range(6):
+    a = math.radians(30.0 + i*60.0)
+    pts.append(V(
+        EAR_CENTER_X + r_nut*math.cos(a),
+        -EAR_OUTER_Y-0.01,
+        EAR_Z + r_nut*math.sin(a)
+    ))
+pts.append(pts[0])
+
+nut_face = Part.Face(Part.makePolygon(pts))
+nut_pocket = nut_face.extrude(V(0, NUT_DEPTH, 0))
+body = body.cut(nut_pocket)
+
+# ============================================================
+# 7. radialni magnety
+# ============================================================
+r_outer = OUTER_DIAMETER/2.0 + 0.01
+z_center = CLAMP_WIDTH + MAGNET_WIDTH/2.0
+
+for ang in (MAGNET_ANGLE_1, MAGNET_ANGLE_2):
+    body = body.cut(
+        radial_pocket(
+            MAGNET_POCKET_D,
+            MAGNET_POCKET_DEPTH,
+            ang,
+            r_outer,
+            z_center
+        )
+    )
+
+# ============================================================
+# 8. tiskovy objekt
+# ============================================================
+obj = doc.addObject("PartDesign::Feature", "SR_MEC_001")
+obj.Label = "SR-MEC-001 Rev.E4 - unasec"
+obj.Shape = body
+
+props = [
+    ("OuterDiameter", OUTER_DIAMETER, "Vnejsi prumer"),
+    ("ShaftAcrossFlats", SHAFT_FLAT, "Osmihran pres plosky"),
+    ("ClampWidth", CLAMP_WIDTH, "Upinaci delka"),
+    ("MagnetCollarWidth", MAGNET_WIDTH, "Magneticky limec"),
+    ("RotationBore", ROTATION_BORE_D, "Kruhova svetlost magneticke casti"),
+    ("MagnetDiameter", MAGNET_D, "Magnet prumer"),
+    ("MagnetRadialLength", MAGNET_RADIAL_LENGTH, "Magnet radialni delka"),
+    ("MagnetPocketDiameter", MAGNET_POCKET_D, "Kapsa magnetu"),
+    ("SlotWidth", SLOT_WIDTH, "Prubezna sterbina"),
+    ("ScrewClearance", SCREW_CLEARANCE_D, "M3 otvor"),
+    ("HeadPocketDepth", SCREW_HEAD_DEPTH, "Hloubka kapsy hlavy"),
+    ("NutPocketDepth", NUT_DEPTH, "Hloubka kapsy matice"),
+]
+for name, value, label in props:
+    obj.addProperty("App::PropertyLength", name, "Parametry", label)
+    setattr(obj, name, value)
+
+obj.addProperty("App::PropertyAngle", "MagnetAngle1", "Magnety")
+obj.MagnetAngle1 = MAGNET_ANGLE_1
+obj.addProperty("App::PropertyAngle", "MagnetAngle2", "Magnety")
+obj.MagnetAngle2 = MAGNET_ANGLE_2
+
+obj.addProperty("App::PropertyString", "Revision", "Dokumentace")
+obj.Revision = "Rev.E4"
+
+obj.addProperty("App::PropertyStringList", "Notes", "Dokumentace")
+obj.Notes = [
+    "Upinaci cast 0-6 mm: osmihran 16.70 mm pres plosky.",
+    "Magneticka cast 6-11 mm: kruhova svetlost Ø21 mm.",
+    "M3 bossy jsou vysunuty radialne mimo rotacni prostor.",
+    "Hlava M3 je z vnejsi strany pouze melce zapustena 1.2 mm.",
+    "M3 matice je v sestihranne kapse z opacne strany.",
+    "Jedina sterbina pro rozevreni je na strane M3 a prochazi 11 mm.",
+    "Magnety 4x2 mm jsou radialne z obvodu, 180° proti sobe.",
+    "Pred tiskem overit volnou rotaci s REFERENCE."
+]
+
+# ============================================================
+# 9. reference
+# ============================================================
+ref = doc.addObject("App::Part", "REFERENCE")
+ref.Label = "REFERENCE - kontrola"
+
+shaft_ref = doc.addObject("PartDesign::Feature", "ReferenceShaft")
+shaft_ref.Label = "Hridell 16.70 mm"
+shaft_ref.Shape = octagon_prism(SHAFT_FLAT, CLAMP_WIDTH)
+ref.addObject(shaft_ref)
+
+fixed_ref = doc.addObject("PartDesign::Feature", "ReferenceFixedHolder")
+fixed_ref.Label = "Pevny uchyt Ø20.60 mm"
+fixed_ref.Shape = cylinder(20.60, TOTAL_WIDTH)
+ref.addObject(fixed_ref)
+
+mag_ref = doc.addObject("App::Part", "ReferenceMagnets")
+mag_ref.Label = "Magnety radialni 180°"
+ref.addObject(mag_ref)
+
+for idx, ang in enumerate((MAGNET_ANGLE_1, MAGNET_ANGLE_2), 1):
+    mag = doc.addObject(
+        "PartDesign::Feature",
+        "ReferenceMagnet%d" % idx
+    )
+    mag.Label = "Magnet %d - 4x2 mm" % idx
+    mag.Shape = radial_magnet(
+        MAGNET_D,
+        MAGNET_RADIAL_LENGTH,
+        ang,
+        OUTER_DIAMETER/2.0-MAGNET_POCKET_DEPTH,
+        z_center
+    )
+    mag_ref.addObject(mag)
+
+ref.Visibility = False
+
+# Vzhled
+obj.ViewObject.ShapeColor = (0.20,0.20,0.20)
+obj.ViewObject.LineColor = (0.05,0.05,0.05)
+
+doc.recompute()
+
+try:
+    doc.saveAs(App.getUserAppDataDir()+DOC_NAME+".FCStd")
+except:
+    pass
+
+Gui.activeDocument().activeView().viewAxonometric()
+Gui.activeDocument().activeView().fitAll()
