@@ -1,0 +1,486 @@
+# -*- coding: utf-8 -*-
+# ============================================================
+# SmartRoll - SR-MEC-001
+# MAGNETICKY UNASEC PRO 2x HALL
+# REVIZE D
+# FreeCAD 1.1.x
+#
+# Konstrukcni zaklad:
+#   osmihran pres plosky              16.70 mm
+#   vule na osmihranu                 0.20 mm
+#   upinaci delka                     6.00 mm
+#   magneticky limec                  5.00 mm
+#   celkova axialni sirka            11.00 mm
+#   maximalni prumer telesa           26.00 mm
+#   2x magnet 4x2 mm                  180 deg
+#   svlak na jedne plosce             6.70 x 1.50 mm
+#
+# Rev.D zmeny proti Rev.C:
+#   - kompaktnejsi svorna usi
+#   - zadne dlouhe bloky na magnetickem limci
+#   - vnejsi prumer 26 mm
+#   - magneticke kapsy 4.15 mm / 2.15 mm
+#   - reference lze skryt jednim parametrem
+#   - tiskove teleso je pouze SR_MEC_001
+# ============================================================
+
+import FreeCAD as App
+import Part
+import math
+import os
+
+# ============================================================
+# PARAMETRY
+# ============================================================
+
+SHAFT_FLAT          = 16.70
+SHAFT_CLEARANCE     = 0.20
+
+CLAMP_WIDTH         = 6.00
+FLANGE_WIDTH        = 5.00
+TOTAL_WIDTH         = CLAMP_WIDTH + FLANGE_WIDTH
+
+OUTER_DIAMETER      = 26.00
+
+# Svlak / vybrani na jedne plosce osmihranu.
+GROOVE_WIDTH        = 6.70
+GROOVE_DEPTH        = 1.50
+
+# Vnitrni klic proti pootoceni. Je zamerne mensi nez svlak.
+KEY_WIDTH           = 6.40
+KEY_HEIGHT          = 0.95
+KEY_CLEARANCE       = 0.10
+
+# Svěrna sterbina je proti klici.
+SPLIT_WIDTH         = 1.20
+SPLIT_RELIEF_D      = 2.40
+
+# Kompaktni svorna usi.
+# Usi jsou jen prodlouzenim obvodu o nutne minimum.
+EAR_LENGTH          = 3.60
+EAR_WIDTH           = 2.80
+EAR_BLEND           = 0.80
+
+# M3.
+M3_CLEAR_D          = 3.30
+M3_HEAD_D           = 6.00
+M3_HEAD_DEPTH       = 2.20
+M3_NUT_AF           = 5.50
+M3_NUT_DEPTH        = 2.70
+
+# Magnety.
+MAGNET_D            = 4.00
+MAGNET_H            = 2.00
+MAGNET_POCKET_D     = 4.15
+MAGNET_POCKET_DEPTH = 2.15
+MAGNET_RADIUS       = 9.50
+MAGNET_ANGLE_1      = 0.0
+MAGNET_ANGLE_2      = 180.0
+
+# Kontrolni objekty.
+CREATE_SHAFT_REFERENCE   = True
+CREATE_MAGNET_REFERENCES = True
+REFERENCE_TRANSPARENCY  = 82
+
+SAVE_FCSTD = True
+
+# ============================================================
+# POMOCNE FUNKCE
+# ============================================================
+
+def V(x, y, z=0.0):
+    return App.Vector(float(x), float(y), float(z))
+
+
+def polar(radius, angle_deg, z=0.0):
+    a = math.radians(angle_deg)
+    return V(radius * math.cos(a), radius * math.sin(a), z)
+
+
+def octagon_radius(flat):
+    return flat / (2.0 * math.cos(math.radians(22.5)))
+
+
+def make_octagon_prism(flat, height, z0=0.0):
+    # Jedna ploska je kolma k +X.
+    r = octagon_radius(flat)
+    pts = []
+    for i in range(8):
+        a = -22.5 + i * 45.0
+        pts.append(polar(r, a, z0))
+    pts.append(pts[0])
+    return Part.Face(Part.makePolygon(pts)).extrude(V(0, 0, height))
+
+
+def make_cylinder(radius, height, z0=0.0):
+    return Part.makeCylinder(radius, height, V(0, 0, z0), V(0, 0, 1))
+
+
+def fuse(a, b):
+    return a.fuse(b)
+
+
+def cut(a, b):
+    return a.cut(b)
+
+
+def safe_remove_splitter(shape):
+    try:
+        return shape.removeSplitter()
+    except Exception:
+        return shape
+
+
+# ============================================================
+# UPINACI CAST
+# ============================================================
+
+def build_clamp_ring():
+    outer = make_cylinder(OUTER_DIAMETER / 2.0, CLAMP_WIDTH)
+    inner = make_octagon_prism(SHAFT_FLAT + SHAFT_CLEARANCE, CLAMP_WIDTH)
+    return cut(outer, inner)
+
+
+# ============================================================
+# SVLAK / VNITRNI KLIC
+# ============================================================
+
+def add_key(shape):
+    # Klic zasahuje do vnitrniho otvoru na +X.
+    inner_flat = SHAFT_FLAT + SHAFT_CLEARANCE
+    x_face = inner_flat / 2.0
+
+    key = Part.makeBox(
+        KEY_HEIGHT,
+        KEY_WIDTH,
+        CLAMP_WIDTH,
+        V(x_face - KEY_HEIGHT + KEY_CLEARANCE, -KEY_WIDTH / 2.0, 0)
+    )
+    return fuse(shape, key)
+
+
+# ============================================================
+# SVORNA STERBINA
+# ============================================================
+
+def add_split(shape):
+    # Sterbina je vedena radialne smerem k -Y.
+    # Je pres celou axialni sirku, tedy i magneticky limec.
+    # Magnety jsou na +/-X, proto sterbina jejich kapsy neprotina.
+    y_start = -OUTER_DIAMETER / 2.0 - 1.0
+    y_end = -SHAFT_FLAT / 2.0 + 1.0
+
+    split = Part.makeBox(
+        SPLIT_WIDTH,
+        y_end - y_start,
+        TOTAL_WIDTH + 0.30,
+        V(-SPLIT_WIDTH / 2.0, y_start, -0.15)
+    )
+    shape = cut(shape, split)
+
+    # Odlehcovaci otvor na konci sterbiny.
+    relief_y = -SHAFT_FLAT / 2.0 + 0.90
+    relief = Part.makeCylinder(
+        SPLIT_RELIEF_D / 2.0,
+        TOTAL_WIDTH + 0.30,
+        V(0, relief_y, -0.15),
+        V(0, 0, 1)
+    )
+    return cut(shape, relief)
+
+
+# ============================================================
+# KOMPAKTNI SVORNA USI
+# ============================================================
+
+def add_clamp_ears(shape):
+    # Rev.D nema zadne vnejsi svorna usi.
+    # Svěrny mechanismus je zapusten uvnitr obrysu Ø26 mm.
+    return shape
+
+
+# ============================================================
+# M3 PRUCHODI OTVOR
+# ============================================================
+
+def add_m3_hole(shape):
+    # M3 prochazi kolmo na sterbinu, tj. ve smeru X.
+    # Je umisten v telese tesne nad vnitrnim otvorem.
+    y = -OUTER_DIAMETER / 2.0 + 1.50
+    z = CLAMP_WIDTH / 2.0
+    x0 = -6.20
+    length = 12.40
+
+    hole = Part.makeCylinder(
+        M3_CLEAR_D / 2.0,
+        length,
+        V(x0, y, z),
+        V(1, 0, 0)
+    )
+    return cut(shape, hole)
+
+
+# ============================================================
+# KAPSA PRO HLAVU M3
+# ============================================================
+
+def add_m3_head_pocket(shape):
+    # Kapsa hlavy je zapustena do leve strany obvodu.
+    y = -OUTER_DIAMETER / 2.0 + 1.50
+    z = CLAMP_WIDTH / 2.0
+
+    pocket = Part.makeCylinder(
+        M3_HEAD_D / 2.0,
+        M3_HEAD_DEPTH + 0.05,
+        V(-6.10, y, z),
+        V(1, 0, 0)
+    )
+    return cut(shape, pocket)
+
+
+# ============================================================
+# Sestihranna KAPSA PRO DIN934 M3
+# ============================================================
+
+def make_hex_prism_x(across_flats, depth, x0, cy, cz):
+    r = across_flats / (2.0 * math.cos(math.radians(30.0)))
+    pts = []
+    for i in range(6):
+        a = math.radians(30.0 + i * 60.0)
+        pts.append(V(x0, cy + r * math.cos(a), cz + r * math.sin(a)))
+    pts.append(pts[0])
+    return Part.Face(Part.makePolygon(pts)).extrude(V(depth, 0, 0))
+
+
+def add_m3_nut_pocket(shape):
+    # Kapsa pro DIN934 M3 je zapustena do prave strany obvodu.
+    y = -OUTER_DIAMETER / 2.0 + 1.50
+    z = CLAMP_WIDTH / 2.0
+
+    pocket = make_hex_prism_x(
+        M3_NUT_AF,
+        M3_NUT_DEPTH + 0.10,
+        6.10 - M3_NUT_DEPTH,
+        y,
+        z
+    )
+    return cut(shape, pocket)
+
+
+# ============================================================
+# MAGNETICKY LIMEC
+# ============================================================
+
+def add_flange(shape):
+    # Límec je plny valec pouze v axialni casti 6..11 mm.
+    flange = make_cylinder(OUTER_DIAMETER / 2.0, FLANGE_WIDTH, CLAMP_WIDTH)
+    return fuse(shape, flange)
+
+
+# ============================================================
+# MAGNETICKE KAPSY
+# ============================================================
+
+def add_magnet_pockets(shape):
+    z0 = TOTAL_WIDTH - MAGNET_POCKET_DEPTH
+
+    for angle in (MAGNET_ANGLE_1, MAGNET_ANGLE_2):
+        p = polar(MAGNET_RADIUS, angle, z0)
+        pocket = Part.makeCylinder(
+            MAGNET_POCKET_D / 2.0,
+            MAGNET_POCKET_DEPTH + 0.05,
+            p,
+            V(0, 0, 1)
+        )
+        shape = cut(shape, pocket)
+
+    return shape
+
+
+# ============================================================
+# CELKOVE TISKOVE TELESO
+# ============================================================
+
+def build_carrier():
+    shape = build_clamp_ring()
+    shape = add_key(shape)
+    shape = add_clamp_ears(shape)
+    shape = add_flange(shape)
+    # Sterbina musi byt vyrezana az po spojeni s limcem,
+    # jinak by limec uzavrel svěrnou cast.
+    shape = add_split(shape)
+    shape = add_m3_hole(shape)
+    shape = add_m3_head_pocket(shape)
+    shape = add_m3_nut_pocket(shape)
+    shape = add_magnet_pockets(shape)
+    return safe_remove_splitter(shape)
+
+
+# ============================================================
+# KONTROLNI OSMIHRAN SE SVLAKEM
+# ============================================================
+
+def build_shaft_reference():
+    shaft = make_octagon_prism(SHAFT_FLAT, TOTAL_WIDTH + 4.0, -2.0)
+    x_face = SHAFT_FLAT / 2.0
+
+    groove = Part.makeBox(
+        GROOVE_DEPTH + 0.20,
+        GROOVE_WIDTH,
+        TOTAL_WIDTH + 6.0,
+        V(x_face - GROOVE_DEPTH, -GROOVE_WIDTH / 2.0, -3.0)
+    )
+    return cut(shaft, groove)
+
+
+# ============================================================
+# KONTROLNI MAGNET
+# ============================================================
+
+def build_magnet_reference(angle):
+    p = polar(MAGNET_RADIUS, angle, TOTAL_WIDTH - MAGNET_H)
+    return Part.makeCylinder(MAGNET_D / 2.0, MAGNET_H, p, V(0, 0, 1))
+
+
+# ============================================================
+# NOVY DOKUMENT
+# ============================================================
+
+DOC_NAME = "SR-MEC-001_RevD"
+
+try:
+    if App.ActiveDocument:
+        App.closeDocument(App.ActiveDocument.Name)
+except Exception:
+    pass
+
+doc = App.newDocument(DOC_NAME)
+
+# ============================================================
+# VYTVORENI TISKOVEHO DILU
+# ============================================================
+
+carrier_shape = build_carrier()
+
+carrier = doc.addObject("PartDesign::Feature", "SR_MEC_001")
+carrier.Label = "SR-MEC-001 Magneticky unasec Rev.D"
+carrier.Shape = carrier_shape
+
+# Parametry jsou ulozeny i v objektu FreeCADu.
+props = [
+    ("ShaftFlat", SHAFT_FLAT),
+    ("ShaftClearance", SHAFT_CLEARANCE),
+    ("ClampWidth", CLAMP_WIDTH),
+    ("FlangeWidth", FLANGE_WIDTH),
+    ("TotalWidth", TOTAL_WIDTH),
+    ("OuterDiameter", OUTER_DIAMETER),
+    ("GrooveWidth", GROOVE_WIDTH),
+    ("GrooveDepth", GROOVE_DEPTH),
+    ("MagnetDiameter", MAGNET_D),
+    ("MagnetPocketDiameter", MAGNET_POCKET_D),
+    ("MagnetPocketDepth", MAGNET_POCKET_DEPTH),
+    ("MagnetRadius", MAGNET_RADIUS),
+    ("SplitWidth", SPLIT_WIDTH),
+    ("M3HoleDiameter", M3_CLEAR_D),
+]
+
+for name, value in props:
+    try:
+        carrier.addProperty("App::PropertyLength", name, "SmartRoll")
+        setattr(carrier, name, value)
+    except Exception:
+        pass
+
+# ============================================================
+# KONTROLNI OBJEKTY - ODDĚLENÉ OD TISKOVÉHO DILU
+# ============================================================
+
+reference_objects = []
+
+if CREATE_SHAFT_REFERENCE:
+    shaft_obj = doc.addObject("PartDesign::Feature", "SHAFT_REFERENCE")
+    shaft_obj.Label = "KONTROLA - osmihran 16.70 mm + svlak"
+    shaft_obj.Shape = build_shaft_reference()
+    reference_objects.append(shaft_obj)
+    try:
+        shaft_obj.ViewObject.Transparency = REFERENCE_TRANSPARENCY
+    except Exception:
+        pass
+
+if CREATE_MAGNET_REFERENCES:
+    for idx, angle in enumerate((MAGNET_ANGLE_1, MAGNET_ANGLE_2), start=1):
+        magnet = doc.addObject("PartDesign::Feature", "MAGNET_%d" % idx)
+        magnet.Label = "KONTROLA - magnet %d 4x2 mm" % idx
+        magnet.Shape = build_magnet_reference(angle)
+        reference_objects.append(magnet)
+        try:
+            magnet.ViewObject.Transparency = 30
+        except Exception:
+            pass
+
+try:
+    group = doc.addObject("App::DocumentObjectGroup", "REFERENCE")
+    for obj in reference_objects:
+        group.addObject(obj)
+except Exception:
+    pass
+
+# Kontrolni objekty jsou po otevreni skryte, aby byl videt jen tiskovy dil.
+for obj in reference_objects:
+    try:
+        obj.ViewObject.Visibility = False
+    except Exception:
+        pass
+
+# ============================================================
+# RECOMPUTE
+# ============================================================
+
+doc.recompute()
+
+# ============================================================
+# KONTROLNI VYPIS
+# ============================================================
+
+print("")
+print("============================================================")
+print(" SmartRoll SR-MEC-001 Rev.D")
+print("============================================================")
+print(" Osmihran pres plosky       : %.2f mm" % SHAFT_FLAT)
+print(" Vule                       : %.2f mm" % SHAFT_CLEARANCE)
+print(" Upinaci cast               : %.2f mm" % CLAMP_WIDTH)
+print(" Magneticky limec           : %.2f mm" % FLANGE_WIDTH)
+print(" Celkova sirka              : %.2f mm" % TOTAL_WIDTH)
+print(" Vnejsi prumer              : %.2f mm" % OUTER_DIAMETER)
+print(" Svlak                      : %.2f x %.2f mm" % (GROOVE_WIDTH, GROOVE_DEPTH))
+print(" Magnety                    : 2 x %.2f x %.2f mm" % (MAGNET_D, MAGNET_H))
+print(" Kapsa magnetu              : %.2f x %.2f mm" % (MAGNET_POCKET_D, MAGNET_POCKET_DEPTH))
+print(" Polomer magnetu            : %.2f mm" % MAGNET_RADIUS)
+print(" M3 otvor                   : %.2f mm" % M3_CLEAR_D)
+print("============================================================")
+print(" Tiskovy dil: SR_MEC_001")
+print(" Reference jsou skryte.")
+print("============================================================")
+
+# ============================================================
+# ULOZENI FCSTD
+# ============================================================
+
+if SAVE_FCSTD:
+    try:
+        macro_dir = os.path.dirname(os.path.abspath(__file__))
+    except Exception:
+        macro_dir = ""
+
+    if macro_dir:
+        fcstd_path = os.path.join(macro_dir, DOC_NAME + ".FCStd")
+        try:
+            doc.recompute()
+            doc.saveAs(fcstd_path)
+            print("FCStd ulozeno: %s" % fcstd_path)
+        except Exception as exc:
+            print("FCStd se nepodarilo ulozit: %s" % exc)
+
+print("")
+print("HOTOVO - SR-MEC-001 Rev.D")
+print("")
