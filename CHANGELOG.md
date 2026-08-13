@@ -33,7 +33,11 @@ Decided:
 - circular clearance in the magnetic section,
 - two radial magnets,
 - magnets 180° apart,
-- nominal magnets 4 × 2 mm.
+- nominal magnets 4 × 2 mm,
+- magnets inserted radially from the outside,
+- carrier installed as two separate halves rather than opening a complete ring,
+- approximately 30 mm wound-blind condition is the critical clearance state,
+- production FreeCAD macros must expose open dimensions instead of silently guessing them.
 
 Open:
 
@@ -42,5 +46,8 @@ Open:
 - final magnetic-section dimensions,
 - final outer diameter,
 - final M3 boss geometry,
+- final magnet-pocket dimensions,
 - final printing tolerances,
-- final material and printing parameters.
+- final material and printing parameters,
+- final CAD coordinate convention,
+- detailed Hall sensor geometry.
