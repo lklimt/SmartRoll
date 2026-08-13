@@ -14,6 +14,8 @@
 
 Confirmed:
 
+- external roller-blind application,
+- ERTE ET 45E tubular motor,
 - octagonal shaft,
 - 16.70 mm across flats,
 - 5 + 6.7 + 5 mm geometry on the slat side,
