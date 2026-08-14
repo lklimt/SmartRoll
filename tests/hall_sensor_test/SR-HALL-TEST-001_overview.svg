@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="650" viewBox="0 0 1000 650">
+<rect width="1000" height="650" fill="white"/>
+<text x="500" y="45" text-anchor="middle" font-family="Arial" font-size="28" font-weight="bold">SmartRoll – SR-HALL-TEST-001</text>
+<text x="500" y="78" text-anchor="middle" font-family="Arial" font-size="18">Princip testovacího přípravku Hall A / Hall B + 2 magnety</text>
+
+<!-- base -->
+<rect x="120" y="145" width="760" height="430" rx="12" fill="#eeeeee" stroke="#222" stroke-width="3"/>
+<text x="500" y="555" text-anchor="middle" font-family="Arial" font-size="18">základová deska testovacího přípravku</text>
+
+<!-- carrier -->
+<circle cx="500" cy="350" r="145" fill="#dddddd" stroke="#222" stroke-width="4"/>
+<circle cx="500" cy="350" r="38" fill="white" stroke="#555" stroke-width="3"/>
+<text x="500" y="350" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="16">otočný<br/>nosič</text>
+
+<!-- magnets -->
+<circle cx="500" cy="205" r="15" fill="#555" stroke="#111" stroke-width="3"/>
+<circle cx="500" cy="495" r="15" fill="#555" stroke="#111" stroke-width="3"/>
+<text x="535" y="207" font-family="Arial" font-size="17">Magnet 1</text>
+<text x="535" y="500" font-family="Arial" font-size="17">Magnet 2</text>
+<text x="500" y="165" text-anchor="middle" font-family="Arial" font-size="16">180°</text>
+
+<!-- sensors -->
+<rect x="475" y="130" width="50" height="30" rx="4" fill="#f4b400" stroke="#222" stroke-width="3"/>
+<rect x="650" y="325" width="50" height="30" rx="4" fill="#f4b400" stroke="#222" stroke-width="3"/>
+<text x="535" y="150" font-family="Arial" font-size="18" font-weight="bold">Hall A</text>
+<text x="710" y="348" font-family="Arial" font-size="18" font-weight="bold">Hall B</text>
+
+<!-- 45 degree hypothesis -->
+<path d="M500 250 A100 100 0 0 1 571 279" fill="none" stroke="#777" stroke-width="3"/>
+<text x="575" y="260" font-family="Arial" font-size="16">start: 45°</text>
+<text x="575" y="282" font-family="Arial" font-size="13">POUZE HYPOTÉZA</text>
+
+<!-- rotation -->
+<path d="M395 245 A145 145 0 0 0 420 470" fill="none" stroke="#222" stroke-width="4"/>
+<polygon points="414,465 423,486 402,479" fill="#222"/>
+<text x="260" y="370" font-family="Arial" font-size="18">otáčet ručně</text>
+
+<!-- dimensions -->
+<line x1="500" y1="205" x2="500" y2="130" stroke="#555" stroke-dasharray="6,5"/>
+<text x="515" y="115" font-family="Arial" font-size="15">vzduchová mezera</text>
+
+<!-- legend -->
+<rect x="700" y="175" width="150" height="110" fill="white" stroke="#555" stroke-width="2"/>
+<text x="715" y="200" font-family="Arial" font-size="15" font-weight="bold">Co testujeme</text>
+<text x="715" y="225" font-family="Arial" font-size="13">• sepnutí Hallu</text>
+<text x="715" y="247" font-family="Arial" font-size="13">• vzdálenost</text>
+<text x="715" y="269" font-family="Arial" font-size="13">• A/B fázi</text>
+
+<text x="500" y="615" text-anchor="middle" font-family="Arial" font-size="16">Dva magnety 180° • Hall A/B • úhel A/B se určí měřením</text>
+</svg>
