@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+<rect width="1200" height="760" fill="white"/>
+<text x="40" y="45" font-family="Arial" font-size="28" font-weight="bold">SmartRoll SR-HALL-TEST-003</text>
+<text x="40" y="78" font-family="Arial" font-size="18">Arduino Nano + 2× A3144 on 400-pin breadboard — USB powered</text>
+
+<!-- Arduino -->
+<rect x="55" y="155" width="250" height="360" rx="12" fill="#eeeeee" stroke="#222" stroke-width="3"/>
+<text x="100" y="190" font-family="Arial" font-size="22" font-weight="bold">Arduino Nano</text>
+<text x="85" y="230" font-family="Arial" font-size="17">USB → 5 V + serial</text>
+<line x1="305" y1="270" x2="390" y2="270" stroke="#d22" stroke-width="5"/>
+<text x="315" y="260" font-family="Arial" font-size="16">5V</text>
+<line x1="305" y1="310" x2="390" y2="310" stroke="#222" stroke-width="5"/>
+<text x="315" y="300" font-family="Arial" font-size="16">GND</text>
+<line x1="305" y1="365" x2="390" y2="365" stroke="#1683d8" stroke-width="4"/>
+<text x="315" y="355" font-family="Arial" font-size="16">D2 = Hall A</text>
+<line x1="305" y1="410" x2="390" y2="410" stroke="#1683d8" stroke-width="4"/>
+<text x="315" y="400" font-family="Arial" font-size="16">D3 = Hall B</text>
+
+<!-- Breadboard -->
+<rect x="390" y="125" width="735" height="470" rx="10" fill="#f5f5f5" stroke="#333" stroke-width="3"/>
+<text x="425" y="155" font-family="Arial" font-size="19" font-weight="bold">400-pin breadboard</text>
+
+<!-- rails -->
+<line x1="430" y1="205" x2="1080" y2="205" stroke="#d22" stroke-width="7"/>
+<line x1="430" y1="235" x2="1080" y2="235" stroke="#222" stroke-width="7"/>
+<text x="1090" y="211" font-family="Arial" font-size="16">+5V</text>
+<text x="1090" y="241" font-family="Arial" font-size="16">GND</text>
+
+<!-- center divider -->
+<line x1="760" y1="280" x2="760" y2="555" stroke="#aaa" stroke-width="4" stroke-dasharray="8 8"/>
+
+<!-- Hall A -->
+<rect x="470" y="330" width="95" height="60" fill="#ddd" stroke="#111" stroke-width="2"/>
+<text x="490" y="355" font-family="Arial" font-size="18" font-weight="bold">A3144</text>
+<text x="487" y="378" font-family="Arial" font-size="15">HALL A</text>
+<circle cx="480" cy="320" r="5" fill="#d22"/><circle cx="480" cy="400" r="5" fill="#222"/><circle cx="575" cy="360" r="5" fill="#1683d8"/>
+<text x="455" y="315" font-family="Arial" font-size="14">VCC</text><text x="450" y="418" font-family="Arial" font-size="14">GND</text><text x="580" y="355" font-family="Arial" font-size="14">OUT</text>
+
+<!-- Hall B -->
+<rect x="850" y="330" width="95" height="60" fill="#ddd" stroke="#111" stroke-width="2"/>
+<text x="870" y="355" font-family="Arial" font-size="18" font-weight="bold">A3144</text>
+<text x="867" y="378" font-family="Arial" font-size="15">HALL B</text>
+<circle cx="860" cy="320" r="5" fill="#d22"/><circle cx="860" cy="400" r="5" fill="#222"/><circle cx="955" cy="360" r="5" fill="#1683d8"/>
+<text x="835" y="315" font-family="Arial" font-size="14">VCC</text><text x="830" y="418" font-family="Arial" font-size="14">GND</text><text x="960" y="355" font-family="Arial" font-size="14">OUT</text>
+
+<!-- pullups -->
+<rect x="590" y="300" width="70" height="25" fill="white" stroke="#333" stroke-width="2"/>
+<text x="600" y="319" font-family="Arial" font-size="14">10k A</text>
+<rect x="970" y="300" width="70" height="25" fill="white" stroke="#333" stroke-width="2"/>
+<text x="980" y="319" font-family="Arial" font-size="14">10k B</text>
+
+<!-- capacitors -->
+<rect x="590" y="430" width="70" height="25" fill="white" stroke="#333" stroke-width="2"/>
+<text x="598" y="449" font-family="Arial" font-size="14">100nF A</text>
+<rect x="970" y="430" width="70" height="25" fill="white" stroke="#333" stroke-width="2"/>
+<text x="978" y="449" font-family="Arial" font-size="14">100nF B</text>
+
+<!-- power connections -->
+<line x1="390" y1="270" x2="430" y2="205" stroke="#d22" stroke-width="5"/>
+<line x1="390" y1="310" x2="430" y2="235" stroke="#222" stroke-width="5"/>
+<line x1="480" y1="205" x2="480" y2="320" stroke="#d22" stroke-width="4"/>
+<line x1="480" y1="235" x2="480" y2="400" stroke="#222" stroke-width="4"/>
+<line x1="860" y1="205" x2="860" y2="320" stroke="#d22" stroke-width="4"/>
+<line x1="860" y1="235" x2="860" y2="400" stroke="#222" stroke-width="4"/>
+
+<!-- pullup lines -->
+<line x1="625" y1="205" x2="625" y2="300" stroke="#d22" stroke-width="3"/>
+<line x1="660" y1="312" x2="575" y2="360" stroke="#1683d8" stroke-width="3"/>
+<line x1="1005" y1="205" x2="1005" y2="300" stroke="#d22" stroke-width="3"/>
+<line x1="970" y1="312" x2="955" y2="360" stroke="#1683d8" stroke-width="3"/>
+
+<!-- caps -->
+<line x1="625" y1="430" x2="625" y2="390" stroke="#d22" stroke-width="3"/><line x1="625" y1="455" x2="625" y2="480" stroke="#222" stroke-width="3"/>
+<line x1="1005" y1="430" x2="1005" y2="390" stroke="#d22" stroke-width="3"/><line x1="1005" y1="455" x2="1005" y2="480" stroke="#222" stroke-width="3"/>
+
+<!-- outputs -->
+<line x1="575" y1="360" x2="390" y2="365" stroke="#1683d8" stroke-width="4"/>
+<line x1="955" y1="360" x2="390" y2="410" stroke="#1683d8" stroke-width="4"/>
+
+<!-- wire legend -->
+<rect x="55" y="555" width="1070" height="145" rx="10" fill="#fafafa" stroke="#999"/>
+<text x="80" y="585" font-family="Arial" font-size="18" font-weight="bold">Zapojení</text>
+<text x="80" y="615" font-family="Arial" font-size="16">5V → červená větev → VCC obou Hallů</text>
+<text x="80" y="642" font-family="Arial" font-size="16">GND → modrá/černá větev → GND obou Hallů</text>
+<text x="80" y="669" font-family="Arial" font-size="16">Hall A OUT → D2   |   Hall B OUT → D3</text>
+<text x="650" y="615" font-family="Arial" font-size="16">10 kΩ: OUT → +5 V (každý Hall vlastní)</text>
+<text x="650" y="642" font-family="Arial" font-size="16">100 nF: VCC → GND (co nejblíže Hallu)</text>
+<text x="650" y="669" font-family="Arial" font-size="16">M-M: Arduino → breadboard | F-M: Arduino pin/header → breadboard</text>
+</svg>
