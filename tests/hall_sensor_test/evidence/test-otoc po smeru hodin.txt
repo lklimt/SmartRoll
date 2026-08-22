@@ -1,0 +1,76 @@
+??pP??O[]eZB?y?TBA?C?TyFUF??
+SmartRoll SR-HALL-TEST-002
+Arduino Nano / 2x A3144 Hall test
+--------------------------------
+A = D2, B = D3
+Baud = 115200
+Initial state A B:
+10
+Commands: s=status, r=reset counters
+
+110 ms  A=1 B=0  transitions=0  invalid=0  dt_us=0
+STATE=10  transitions=0  invalid=0  last_dt_us=0
+STATE=10  transitions=0  invalid=0  last_dt_us=0
+5298 ms  A=1 B=1  transitions=1  invalid=0  dt_us=5198932
+6670 ms  A=0 B=1  transitions=2  invalid=0  dt_us=1371496
+7248 ms  A=1 B=1  transitions=3  invalid=0  dt_us=578476
+8678 ms  A=1 B=0  transitions=4  invalid=0  dt_us=1430100
+8844 ms  A=1 B=1  transitions=5  invalid=0  dt_us=165380
+9889 ms  A=0 B=1  transitions=6  invalid=0  dt_us=1046196
+10396 ms  A=1 B=1  transitions=7  invalid=0  dt_us=506884
+11441 ms  A=1 B=0  transitions=8  invalid=0  dt_us=1044484
+12052 ms  A=1 B=1  transitions=9  invalid=0  dt_us=611116
+12247 ms  A=1 B=0  transitions=10  invalid=0  dt_us=193976
+12377 ms  A=1 B=1  transitions=11  invalid=0  dt_us=130356
+13184 ms  A=0 B=1  transitions=12  invalid=0  dt_us=806732
+13449 ms  A=1 B=1  transitions=13  invalid=0  dt_us=265632
+14346 ms  A=1 B=0  transitions=14  invalid=0  dt_us=897032
+14464 ms  A=1 B=1  transitions=15  invalid=0  dt_us=117440
+15745 ms  A=0 B=1  transitions=16  invalid=0  dt_us=1281188
+16056 ms  A=1 B=1  transitions=17  invalid=0  dt_us=311336
+STATE=11  transitions=17  invalid=0  last_dt_us=311336
+STATE=11  transitions=17  invalid=0  last_dt_us=311336
+STATE=11  transitions=17  invalid=0  last_dt_us=311336
+STATE=11  transitions=17  invalid=0  last_dt_us=311336
+STATE=11  transitions=17  invalid=0  last_dt_us=311336
+STATE=11  transitions=17  invalid=0  last_dt_us=311336
+STATE=11  transitions=17  invalid=0  last_dt_us=311336
+
+
+dalsi serie 
+
+STATE=11  transitions=67  invalid=0  last_dt_us=107780
+STATE=11  transitions=67  invalid=0  last_dt_us=107780
+246349 ms  A=0 B=1  transitions=68  invalid=0  dt_us=47494492
+246496 ms  A=1 B=1  transitions=69  invalid=0  dt_us=146276
+247142 ms  A=1 B=0  transitions=70  invalid=0  dt_us=645960
+247221 ms  A=1 B=1  transitions=71  invalid=0  dt_us=79180
+247668 ms  A=0 B=1  transitions=72  invalid=0  dt_us=446896
+247944 ms  A=1 B=1  transitions=73  invalid=0  dt_us=275612
+248477 ms  A=1 B=0  transitions=74  invalid=0  dt_us=533088
+248615 ms  A=1 B=1  transitions=75  invalid=0  dt_us=138432
+249122 ms  A=0 B=1  transitions=76  invalid=0  dt_us=506800
+249311 ms  A=1 B=1  transitions=77  invalid=0  dt_us=188292
+249724 ms  A=1 B=0  transitions=78  invalid=0  dt_us=414504
+249885 ms  A=1 B=1  transitions=79  invalid=0  dt_us=160768
+250316 ms  A=0 B=1  transitions=80  invalid=0  dt_us=431216
+250466 ms  A=1 B=1  transitions=81  invalid=0  dt_us=149344
+250902 ms  A=1 B=0  transitions=82  invalid=0  dt_us=435896
+251058 ms  A=1 B=1  transitions=83  invalid=0  dt_us=155924
+251544 ms  A=0 B=1  transitions=84  invalid=0  dt_us=485824
+251650 ms  A=1 B=1  transitions=85  invalid=0  dt_us=106108
+252086 ms  A=1 B=0  transitions=86  invalid=0  dt_us=435908
+252153 ms  A=1 B=1  transitions=87  invalid=0  dt_us=68052
+252608 ms  A=0 B=1  transitions=88  invalid=0  dt_us=454092
+252707 ms  A=1 B=1  transitions=89  invalid=0  dt_us=98916
+253194 ms  A=1 B=0  transitions=90  invalid=0  dt_us=486552
+253302 ms  A=1 B=1  transitions=91  invalid=0  dt_us=108880
+253640 ms  A=0 B=1  transitions=92  invalid=0  dt_us=338244
+253818 ms  A=1 B=1  transitions=93  invalid=0  dt_us=178344
+254242 ms  A=1 B=0  transitions=94  invalid=0  dt_us=423260
+254310 ms  A=1 B=1  transitions=95  invalid=0  dt_us=67512
+254548 ms  A=0 B=1  transitions=96  invalid=0  dt_us=239236
+254631 ms  A=1 B=1  transitions=97  invalid=0  dt_us=82340
+255210 ms  A=1 B=0  transitions=98  invalid=0  dt_us=578596
+255376 ms  A=1 B=1  transitions=99  invalid=0  dt_us=166472
+STATE=11  transitions=99  invalid=0  last_dt_us=166472
