@@ -33,122 +33,165 @@ The two sensors must be positioned so that their electrical signals are phase-sh
 
 **Status: DECIDED**
 
-The exact physical sensor spacing remains **OPEN** until the actual Hall sensor and magnet geometry is finalized.
+## 4. Experimental Test Fixture
 
-## 4. Quadrature Principle
+The Hall concept was tested on a dedicated Merkur-based mechanical test fixture.
 
-The system shall use the equivalent of a two-channel quadrature encoder.
+The test fixture uses:
+
+- 2 magnets mounted 180° apart,
+- equal magnet polarization,
+- 2 stationary Hall sensors,
+- Hall A/B angular separation tested at 90°, 45° and 30°,
+- nominal air gap of **5 mm** for the successful direction tests.
+
+The test fixture is a development/verification tool and is not the final mechanical carrier.
+
+### 4.1 Results
+
+**90°:** direction-related transitions were observed, but the sequence did not provide the desired behavior; `00` did not occur. This geometry was rejected as the final candidate.
+
+**45°:** repeatable opposite state ordering was obtained for 5 clockwise and 5 counter-clockwise rotations, with no recorded invalid transitions.
+
+**30°:** repeatable opposite state ordering was obtained for 5 clockwise and 5 counter-clockwise rotations. The same 30° / 5 mm configuration was subsequently tested with rapid manual rotation faster than the expected roller-blind motor speed and remained reliable.
+
+Increasing the air gap to **10 mm** made magnetic detection unreliable. The current practical test-fixture optimum is therefore **5 mm**, which is also the minimum adjustable gap available on the current fixture.
+
+The reliability test phase is considered complete for the present concept.
+
+Evidence is stored in `tests/hall_sensor_test/evidence/` and the detailed test history is recorded in `tests/hall_sensor_test/measurement_log.md`.
+
+**Current experimental candidate:** 30° Hall separation, 5 mm air gap.
+
+## 5. Direction Detection Principle
 
 The important information is not simply whether a magnet is currently detected. The controller evaluates the **order in which Hall A and Hall B change state**.
 
-For one direction of rotation, the sequence is:
+The tested 30° geometry does **not** produce the textbook four-state sequence continuously. The verified sequences contain the common `11` state:
 
-`00 → 01 → 11 → 10 → 00`
+Clockwise:
 
-For the opposite direction, the sequence is:
+`10 → 11 → 01 → 11 → 10 → ...`
 
-`00 → 10 → 11 → 01 → 00`
+Counter-clockwise:
 
-The actual assignment of these two directions to **WIND / UNWIND** shall be established during installation/calibration and recorded as a fixed configuration parameter.
+`01 → 11 → 10 → 11 → 01 → ...`
 
-**Status: DECIDED**
+Therefore the production algorithm shall use a transition state machine based on the experimentally verified sequence rather than blindly applying a standard quadrature decoder.
 
-## 5. Direction Detection Rule
+## 6. Verified Direction State Machine
 
-Direction shall never be determined from:
+For the tested 30° geometry the following transitions are valid:
 
-- one Hall sensor alone,
-- one magnet pulse alone,
-- pulse frequency alone,
-- motor command alone.
+| Previous | New | Direction |
+|---|---|---|
+| `10` | `11` | CW |
+| `11` | `01` | CW |
+| `01` | `11` | CCW |
+| `11` | `10` | CCW |
 
-Direction shall be determined from the **transition sequence of Hall A and Hall B**.
+Other transitions shall be treated as invalid and shall not be counted as normal movement.
 
-This prevents the controller from confusing movement direction when the motor is commanded differently from the actual mechanical movement.
+Typical invalid transitions include:
 
-## 6. State Machine
+- `00 → *`,
+- `* → 00`,
+- `10 → 01`,
+- `01 → 10`.
 
-The firmware shall maintain the previous two-bit Hall state and evaluate each valid transition.
+The physical CW/CCW result shall be mapped to the logical SmartRoll functions **WIND / UNWIND** during installation/calibration.
 
-Example forward sequence:
+## 7. Controller Startup and Restart
 
-| Previous | New | Direction contribution |
-|---|---|---:|
-| 00 | 01 | +1 |
-| 01 | 11 | +1 |
-| 11 | 10 | +1 |
-| 10 | 00 | +1 |
+The controller must correctly reacquire direction after any restart, including a power failure.
 
-Reverse sequence:
+The firmware shall **not depend on the previous direction being retained in RAM**.
 
-| Previous | New | Direction contribution |
-|---|---|---:|
-| 00 | 10 | -1 |
-| 10 | 11 | -1 |
-| 11 | 01 | -1 |
-| 01 | 00 | -1 |
+Startup procedure:
 
-Any transition that does not belong to one of the valid adjacent states shall be treated as an **invalid transition** rather than silently interpreted as movement.
+1. Read current Hall A/B state.
+2. Store it as `previousState`.
+3. Set direction to `UNKNOWN`.
+4. Wait for the next Hall state change.
+5. Evaluate the new transition against the verified state machine.
+6. On the first valid directional transition, set the current direction to CW or CCW.
+7. Continue relative movement counting from that point.
 
-Typical invalid transitions include direct changes such as `00 → 11` or `01 → 10`.
+Example:
 
-## 7. Position Counting
+```text
+Restart
+  ↓
+Read A/B = 11
+  ↓
+Direction = UNKNOWN
+  ↓
+11 → 01
+  ↓
+Direction = CW
+```
 
-Each valid quadrature state transition may be counted as one encoder increment.
+Or:
 
-The final relationship between encoder counts and roller-blind position must be determined experimentally because it depends on:
+```text
+Restart
+  ↓
+Read A/B = 11
+  ↓
+Direction = UNKNOWN
+  ↓
+11 → 10
+  ↓
+Direction = CCW
+```
 
-- shaft rotation,
-- carrier geometry,
-- magnet/sensor arrangement,
-- desired position resolution.
+The firmware must not infer direction from the commanded motor direction alone and must not assume that the blind is stationary at startup.
+
+## 8. Position Tracking After Power Failure
+
+SmartRoll does **not** require exact absolute position recovery after a power failure.
+
+The ERTE ET 45E motor has its own programmed upper and lower travel limits. Hall counting therefore provides relative movement information between known end positions.
+
+A power failure during movement may leave the software position temporarily offset from the actual physical position. This is acceptable.
+
+When a complete travel to a known upper or lower motor limit is subsequently completed, the controller shall resynchronize its software position to the corresponding endpoint.
+
+This avoids unnecessary absolute-position recovery hardware or procedures.
+
+## 9. Position Counting
+
+Each validated directional Hall transition may contribute to the relative position counter. The exact conversion from transitions to blind position remains subject to calibration.
 
 The project shall distinguish between:
 
-- **raw Hall transitions**, and
-- **calibrated blind position**.
+- raw Hall transitions,
+- relative rotation count,
+- calibrated roller-blind position.
 
-The conversion factor must not be guessed.
+The conversion factor must be measured and must not be guessed.
 
 **Status: OPEN – calibration value**
 
-## 8. Magnet Arrangement and Hall Geometry
+## 10. Controller Platform
 
-The two magnets are 180° apart on the rotating carrier. The Hall sensors must be located in a fixed position relative to the stationary motor assembly.
+The current Hall tests use an **Arduino Nano / ATmega328P** only as a development and measurement platform.
 
-The design must ensure that the magnetic field from the rotating magnets produces clean and sufficiently separated Hall A/Hall B transitions.
-
-The sensor arrangement must not require the stationary Hall sensors to rotate with the carrier.
-
-**Status: DECIDED**
-
-Exact sensor spacing, radial distance and mounting geometry remain **OPEN**.
-
-## 9. Mechanical Relationship
-
-The magnetic carrier rotates with the octagonal shaft.
-
-The Hall sensors remain stationary.
+The final SmartRoll control unit will use an **ESP microcontroller**.
 
 Therefore:
 
-**shaft → carrier → magnets = rotating**
+- Arduino firmware is test firmware only,
+- Arduino pin numbers are not production pin assignments,
+- Arduino-specific interrupt code shall not be copied blindly to the ESP,
+- the verified state-machine behavior is the portable functional requirement,
+- the final ESP firmware shall implement equivalent GPIO/interrupt handling appropriate to the selected ESP platform.
 
-**Hall sensors → motor mounting structure = stationary**
-
-The circular internal clearance of the magnetic carrier is required specifically to allow this relative rotation without mechanical interference.
-
-## 10. Startup / Initialization
-
-At controller startup, the firmware shall read the current Hall A/B state and store it as the initial state.
-
-Startup shall not automatically assume that the blind is moving or that a particular direction is active.
-
-If the controller starts while the carrier is moving, the firmware must acquire subsequent valid Hall transitions before accumulating directional movement.
+The final ESP model, GPIO assignment and electrical interface remain OPEN.
 
 ## 11. Invalid Transition Handling
 
-Invalid Hall transitions shall increment an error/diagnostic counter.
+Invalid Hall transitions shall increment a diagnostic counter.
 
 The firmware shall not add a normal position increment for an invalid transition.
 
@@ -157,71 +200,66 @@ Possible causes include:
 - electrical noise,
 - sensor bounce/noise,
 - magnetic field distortion,
-- excessively fast movement for the sampling method,
+- unexpectedly high rotational speed,
 - mechanical vibration,
 - sensor failure.
 
-The final filtering/debounce method remains **OPEN**.
+The final filtering/debounce method remains OPEN and shall be selected for the ESP implementation.
 
 ## 12. Calibration of WIND / UNWIND
 
 The physical Hall sequence is independent of the words WIND and UNWIND.
 
-During installation, the controller shall determine which quadrature direction corresponds to:
+During installation, the controller shall determine which detected direction corresponds to:
 
 - **WIND** – blind moving toward the rolled-up position,
 - **UNWIND** – blind moving toward the extended position.
 
 The selected mapping shall be stored as a configuration parameter.
 
-This avoids relying on an assumed motor or sensor orientation.
+## 13. Electrical Requirements
 
-## 13. Hall Sensor Electrical Requirements
+The exact Hall sensor type and final electrical interface remain OPEN for the production ESP unit.
 
-The exact Hall sensor type and electrical interface remain **OPEN**.
-
-Before the electronics specification is finalized, the following shall be documented:
+The production design shall document:
 
 - Hall sensor part number,
 - supply voltage,
 - output type,
 - pull-up requirements,
 - logic polarity,
-- switching thresholds if relevant,
-- maximum rotational speed supported,
-- required input filtering.
+- input protection,
+- input filtering,
+- maximum expected rotational frequency,
+- ESP GPIO compatibility.
 
 ## 14. Verification Requirements
 
-The Hall system shall be tested in both directions.
+The following development tests have been completed for the current concept:
 
-At minimum:
+1. slow rotation in both directions,
+2. repeatability over five rotations in each direction at 45°,
+3. repeatability over five rotations in each direction at 30°,
+4. rapid manual rotation at 30° / 5 mm, faster than expected roller-blind motor speed,
+5. air-gap test demonstrating unreliable operation at 10 mm.
 
-1. Rotate the shaft slowly in direction A.
-2. Record Hall A/B state transitions.
-3. Verify that only valid adjacent transitions occur.
-4. Repeat in direction B.
-5. Verify that the transition sequence reverses.
-6. Confirm that the firmware reports opposite direction.
-7. Verify that one complete shaft revolution produces the expected repeatable count.
-8. Verify that stopping the shaft produces no additional counts.
-9. Verify behavior after controller restart.
-10. Test for false transitions with the motor stationary.
+Further reliability testing of the present Hall concept is considered complete.
+
+The next development step is **firmware validation of the direction state machine**, including restart behavior.
 
 ## 15. Parameters That Must NOT Be Guessed
 
-The following remain **OPEN** until measured or explicitly selected:
+The following remain OPEN until measured or explicitly selected:
 
-- exact Hall sensor model,
-- exact Hall sensor position,
-- sensor angular spacing,
-- sensor radial distance,
-- exact magnetic field threshold,
-- electrical polarity,
-- filtering/debounce time,
-- maximum expected shaft speed,
+- final Hall sensor model for production,
+- final ESP model,
+- final ESP GPIO assignment,
+- final sensor mounting dimensions in the production carrier,
+- exact production air gap,
+- input filtering/debounce parameters,
 - counts per shaft revolution,
-- calibrated position conversion factor.
+- calibrated position conversion factor,
+- WIND/UNWIND configuration storage.
 
 ## 16. Current Status
 
@@ -230,18 +268,26 @@ The following remain **OPEN** until measured or explicitly selected:
 - two Hall channels,
 - two magnets,
 - magnets 180° apart,
-- magnets radial,
-- magnets inserted radially from outside,
-- direction determined from Hall A/B sequence,
-- quadrature-style state machine,
+- equal magnet polarization in the tested arrangement,
+- radial magnet orientation,
+- direction determined from Hall A/B transition sequence,
+- experimentally validated 30° Hall separation on the test fixture,
+- 5 mm test air gap,
+- reliable slow and rapid manual rotation in both directions,
 - invalid transitions are not counted as normal movement,
-- Hall sensors are stationary while magnets rotate.
+- restart begins with direction `UNKNOWN` and reacquires direction from subsequent valid transitions,
+- exact absolute position after power failure is not required,
+- full travel to motor end limits can resynchronize software position,
+- Arduino Nano is test hardware only,
+- final controller is ESP-based.
 
 ### Open
 
-- Hall sensor model,
-- exact sensor geometry,
-- electrical interface,
-- filtering,
+- production Hall sensor/electrical interface,
+- final ESP model and GPIO assignment,
+- final production sensor geometry,
+- final production air gap,
+- filtering/debounce implementation,
 - counts/revolution calibration,
-- WIND/UNWIND polarity configuration.
+- position conversion,
+- WIND/UNWIND configuration storage.
