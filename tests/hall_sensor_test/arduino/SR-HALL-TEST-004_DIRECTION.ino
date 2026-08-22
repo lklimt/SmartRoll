@@ -13,21 +13,31 @@
     - Hall A/B separation: 30 degrees
     - nominal air gap: 5 mm
 
-  Experimentally verified transitions:
-
-    10 -> 11 = CW
-    11 -> 01 = CW
-    01 -> 11 = CCW
-    11 -> 10 = CCW
-
   IMPORTANT:
-  This is NOT a generic quadrature decoder. The state machine is
-  deliberately based on the measured SmartRoll geometry.
+  The measured Hall sequence contains the transitions:
+
+    10 -> 11 -> 01 -> 11 -> 10 -> ...
+
+  and the same four-state cycle is traversed continuously. Therefore
+  an individual transition such as 10 -> 11 does NOT by itself contain
+  enough information to establish direction after startup.
+
+  Direction is established only by an unambiguous transition from state 11:
+
+    11 -> 01  = CW
+    11 -> 10  = CCW
+
+  Once direction is known, 10 -> 11 and 01 -> 11 are accepted only when
+  they are consistent with the already established direction.
+
+  This is deliberately a SmartRoll-specific state machine, not a generic
+  quadrature decoder.
 
   After startup/restart:
     - current A/B state is read
     - direction starts as UNKNOWN
-    - the first valid transition establishes direction
+    - ambiguous transitions do not invent a direction
+    - the first unambiguous transition establishes direction
 
   Invalid transitions are reported and are NOT counted as movement.
 */
@@ -35,13 +45,13 @@
 const byte HALL_A_PIN = 2;
 const byte HALL_B_PIN = 3;
 
-// Direction values
 const int DIR_UNKNOWN = 0;
 const int DIR_CW      = 1;
 const int DIR_CCW     = -1;
 
 byte previousState = 0;
 int direction = DIR_UNKNOWN;
+
 long cwSteps = 0;
 long ccwSteps = 0;
 long invalidTransitions = 0;
@@ -71,61 +81,97 @@ const char* directionName(int dir) {
   return "UNKNOWN";
 }
 
-void printStatus() {
-  Serial.print("state=");
-  Serial.print(stateName(previousState));
-  Serial.print(" direction=");
-  Serial.print(directionName(direction));
-  Serial.print(" CW=");
-  Serial.print(cwSteps);
-  Serial.print(" CCW=");
-  Serial.print(ccwSteps);
-  Serial.print(" invalid=");
-  Serial.println(invalidTransitions);
-}
-
 void processTransition(byte oldState, byte newState) {
+  bool valid = false;
   int transitionDirection = DIR_UNKNOWN;
+  bool directionEstablished = false;
 
-  // Verified SmartRoll transitions for the 30-degree test geometry.
-  if (oldState == 2 && newState == 3) {          // 10 -> 11
+  /*
+    The two transitions leaving state 11 are unambiguous:
+
+      11 -> 01 = CW
+      11 -> 10 = CCW
+  */
+  if (oldState == 3 && newState == 1) {
     transitionDirection = DIR_CW;
+    valid = true;
+    directionEstablished = true;
   }
-  else if (oldState == 3 && newState == 1) {     // 11 -> 01
-    transitionDirection = DIR_CW;
-  }
-  else if (oldState == 1 && newState == 3) {     // 01 -> 11
+  else if (oldState == 3 && newState == 2) {
     transitionDirection = DIR_CCW;
+    valid = true;
+    directionEstablished = true;
   }
-  else if (oldState == 3 && newState == 2) {     // 11 -> 10
-    transitionDirection = DIR_CCW;
+  /*
+    These transitions return to state 11. They are valid only if they
+    agree with the direction already established.
+
+      CW:  10 -> 11
+      CCW: 01 -> 11
+
+    If direction is UNKNOWN, they are valid Hall movement but cannot yet
+    establish direction. We therefore report them as AMBIGUOUS rather
+    than falsely choosing a direction.
+  */
+  else if (oldState == 2 && newState == 3) {
+    if (direction == DIR_CW) {
+      transitionDirection = DIR_CW;
+      valid = true;
+    }
+    else if (direction == DIR_UNKNOWN) {
+      Serial.print(stateName(oldState));
+      Serial.print(" -> ");
+      Serial.print(stateName(newState));
+      Serial.println("  AMBIGUOUS (direction still UNKNOWN)");
+      return;
+    }
+  }
+  else if (oldState == 1 && newState == 3) {
+    if (direction == DIR_CCW) {
+      transitionDirection = DIR_CCW;
+      valid = true;
+    }
+    else if (direction == DIR_UNKNOWN) {
+      Serial.print(stateName(oldState));
+      Serial.print(" -> ");
+      Serial.print(stateName(newState));
+      Serial.println("  AMBIGUOUS (direction still UNKNOWN)");
+      return;
+    }
   }
 
   Serial.print(stateName(oldState));
   Serial.print(" -> ");
   Serial.print(stateName(newState));
 
-  if (transitionDirection == DIR_UNKNOWN) {
+  if (!valid) {
     invalidTransitions++;
-    Serial.print("  INVALID");
-    Serial.print("  invalid=");
+    Serial.print("  INVALID  invalid=");
     Serial.println(invalidTransitions);
     return;
   }
 
   totalValidTransitions++;
 
-  if (transitionDirection == DIR_CW) {
+  // An unambiguous transition establishes or changes direction.
+  if (directionEstablished) {
+    if (direction != transitionDirection && direction != DIR_UNKNOWN) {
+      Serial.print("  DIRECTION CHANGE: ");
+      Serial.print(directionName(direction));
+      Serial.print(" -> ");
+      Serial.println(directionName(transitionDirection));
+    }
+    direction = transitionDirection;
+  }
+
+  // Count only transitions consistent with the established direction.
+  if (direction == DIR_CW) {
     cwSteps++;
-  } else {
+  }
+  else if (direction == DIR_CCW) {
     ccwSteps++;
   }
 
-  // A valid transition tells us the physical direction after restart.
-  direction = transitionDirection;
-
-  Serial.print("  ");
-  Serial.print(directionName(transitionDirection));
   Serial.print("  direction=");
   Serial.print(directionName(direction));
   Serial.print("  steps(CW/CCW)=");
@@ -152,6 +198,7 @@ void setup() {
   Serial.println("Startup direction = UNKNOWN");
   Serial.print("Initial Hall state = ");
   Serial.println(stateName(previousState));
+  Serial.println("11->01 = CW, 11->10 = CCW");
   Serial.println("========================================");
 }
 
@@ -163,8 +210,6 @@ void loop() {
     previousState = currentState;
   }
 
-  // Periodic status message makes it easy to see that the controller
-  // remains alive even when the rotor is stationary.
   if (millis() - lastPrint >= 1000) {
     lastPrint = millis();
 
