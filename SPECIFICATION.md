@@ -277,7 +277,7 @@ The material must tolerate repeated clamping and normal mechanical loads without
 
 **Status: OPEN – exact material and printing process must be finalized.**
 
-# 16. Hall Direction Detection
+# 16. Hall Direction Detection and Position Tracking
 
 The project uses Hall sensing with two magnets mounted 180° apart on the rotating carrier.
 
@@ -287,11 +287,96 @@ The two Hall signals are intended to provide:
 - rotation counting,
 - direction detection.
 
-Direction must be determined from the **sequence of the two Hall signals**, not from a single Hall transition.
+### 16.1 Tested Hall geometry
 
-The exact Hall sensor arrangement, signal processing and firmware state machine are to be documented separately.
+The physical test fixture has established a working configuration with:
 
-**Status: DECIDED – detailed implementation OPEN**
+- 2 magnets at 180°,
+- equal magnet polarization,
+- Hall A/B angular separation: **30°**,
+- nominal air gap: **5 mm**.
+
+Testing at 45° and 30° both produced repeatable direction-dependent state sequences. The 30° configuration was also tested at a manually induced speed higher than the expected roller-blind motor speed and remained reliable. An air gap of 10 mm was found to be unreliable; 5 mm is the current practical optimum on the test fixture.
+
+The reliability test phase is considered complete for the current mechanical/electrical concept.
+
+**Status: CONFIRMED for the test fixture; final mechanical implementation remains subject to production design verification.**
+
+### 16.2 Direction algorithm
+
+Direction shall be determined from the **sequence of Hall A/B states**.
+
+For the tested 30° geometry the experimentally observed state ordering is:
+
+Clockwise:
+
+`10 → 11 → 01 → 11 → 10 → ...`
+
+Counter-clockwise:
+
+`01 → 11 → 10 → 11 → 01 → ...`
+
+The implementation shall therefore use a transition state machine based on the experimentally verified transitions rather than assuming a textbook four-state quadrature sequence.
+
+Valid directional transitions for the tested geometry are:
+
+| Previous | New | Direction contribution |
+|---|---|---:|
+| 10 | 11 | CW |
+| 11 | 01 | CW |
+| 01 | 11 | CCW |
+| 11 | 10 | CCW |
+
+Transitions outside the verified state machine shall be treated as invalid and shall not be counted as normal movement.
+
+The physical direction shall later be mapped to the logical SmartRoll functions **WIND / UNWIND** during installation/calibration. The mapping must be configurable rather than hard-coded from an assumed sensor orientation.
+
+**Status: DECIDED – algorithm concept; firmware implementation OPEN**
+
+### 16.3 Controller platform distinction
+
+The current Hall experiments are performed using an **Arduino Nano / ATmega328P** solely as a development and measurement platform.
+
+The final SmartRoll control unit shall use an **ESP microcontroller**. Therefore:
+
+- Arduino test firmware is experimental firmware only,
+- Arduino pin assignments must not be treated as final production pin assignments,
+- Arduino timing/interrupt implementation must not be copied blindly to the ESP,
+- the verified Hall state-machine logic is the portable functional requirement,
+- final ESP firmware shall implement the same validated transition logic using ESP-appropriate GPIO/interrupt handling.
+
+**Status: DECIDED**
+
+### 16.4 Restart behavior
+
+A controller restart, including a restart caused by power failure, must **not require the previous direction to be retained in RAM**.
+
+After startup the controller shall:
+
+1. read the current Hall A/B state,
+2. store it as the initial state,
+3. set direction to `UNKNOWN`,
+4. wait for a subsequent valid Hall transition,
+5. determine direction from that transition sequence,
+6. continue relative movement counting from that point.
+
+The controller shall not infer direction from the motor command alone.
+
+The controller shall not assume that the blind is stationary at startup.
+
+**Status: DECIDED**
+
+### 16.5 Absolute position after power failure
+
+The project does **not** require exact absolute blind position recovery after a controller power failure.
+
+The ERTE ET 45E motor has its own programmed upper and lower travel limits. SmartRoll therefore treats Hall counting primarily as a **relative position and direction measurement** between known end positions.
+
+When a complete movement to the upper or lower motor limit is commanded and completed, SmartRoll shall be able to resynchronize its software position to the corresponding known endpoint.
+
+A temporary position error caused by power loss during movement is therefore acceptable and shall be corrected at the next full travel to an established motor endpoint.
+
+**Status: DECIDED**
 
 # 17. Mechanical Verification Requirements
 
@@ -379,7 +464,9 @@ A new revision must not overwrite the historical definition of a previous revisi
 - approximately 35 mm available space with blind unrolled,
 - approximately 30 mm effective space with blind wound,
 - rotating section begins approximately 24 mm from the right,
-- programming button must remain accessible.
+- programming button must remain accessible,
+- test fixture: 2 magnets 180°, equal polarization, Hall separation 30°, 5 mm air gap,
+- test fixture direction detection is reliable at tested slow and high manual rotation speeds.
 
 ### Decided
 
@@ -393,7 +480,12 @@ A new revision must not overwrite the historical definition of a previous revisi
 - nominal magnets 4 × 2 mm,
 - magnets inserted radially from the outside,
 - carrier installed as two separate halves rather than opening a complete ring,
-- approximately 30 mm wound-blind condition is the critical clearance state.
+- approximately 30 mm wound-blind condition is the critical clearance state,
+- Hall direction determined by experimentally verified A/B transition state machine,
+- restart sets direction to UNKNOWN and reacquires it from subsequent Hall transitions,
+- exact absolute position after power failure is not required,
+- full travel to motor end limits can resynchronize software position,
+- Arduino Nano is test hardware only; final controller is ESP-based.
 
 ### Open
 
@@ -406,7 +498,10 @@ A new revision must not overwrite the historical definition of a previous revisi
 - final printing tolerances,
 - final material and printing parameters,
 - final CAD coordinate convention,
-- detailed Hall sensor geometry.
+- final ESP platform/model and production GPIO assignment,
+- final Hall electrical interface on ESP,
+- final position/count calibration,
+- final filtering implementation.
 
 # 22. Change Log Reference
 
