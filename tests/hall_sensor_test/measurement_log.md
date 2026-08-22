@@ -2,9 +2,8 @@
 
 **Test ID:** SR-HALL-TEST-002  
 **Status:** OPEN  
-**Operator:**  
 **Arduino:** Nano / ATmega328P  
-**Firmware:** `arduino/SR-HALL-TEST-003_SINGLE_HALL.ino` for single-Hall tests; two-Hall firmware for direction tests.
+**Firmware:** two-Hall test firmware for direction tests.
 
 ---
 
@@ -64,8 +63,6 @@ Observed pattern, simplified:
 
 **Assessment:** 90° separation is **not accepted as the final geometry** based on this test.
 
-**Evidence:** see `evidence/` – clockwise 90° test recording and photographs of the 90° arrangement.
-
 ---
 
 ## T3.2 – 45° Hall separation
@@ -80,15 +77,11 @@ Observed pattern, simplified:
 
 **Clockwise result:**
 
-Repeated sequence:
-
 ```text
 10 → 11 → 01 → 11 → 10 → 11 → 01 → ...
 ```
 
 **Counter-clockwise result:**
-
-Repeated sequence:
 
 ```text
 01 → 11 → 10 → 11 → 01 → 11 → 10 → ...
@@ -96,13 +89,47 @@ Repeated sequence:
 
 The two directions produce opposite state ordering. The test was repeatable over five rotations in each direction and the recorded firmware reported **0 invalid transitions**.
 
-**Assessment:** 45° is a **strong candidate for the Hall A/B geometry**, but is not yet declared final. Further tests at other angles and speeds are required.
+**Assessment:** 45° is a **strong candidate**, but not final.
 
-**Evidence:**
+---
 
-- `evidence/45 stupnu 5krat po smeru hodin.txt`
-- `evidence/45 stupnu 5krat proti smeru hodin.txt`
-- corresponding 45° setup photographs in `evidence/`
+## T3.3 – 30° Hall separation
+
+**Configuration:**
+
+- 2 magnets, 180° apart
+- same magnet polarization
+- Hall A/B separation: **30°**
+- 5 complete rotations clockwise
+- 5 complete rotations counter-clockwise
+
+### Clockwise result
+
+The recorded state sequence is:
+
+```text
+11 → 10 → 11 → 01 → 11 → 10 → 11 → 01 → ...
+```
+
+This pattern repeats consistently through the five clockwise rotations. The recording shows **0 invalid transitions**. fileciteturn29file0L2-L2
+
+### Counter-clockwise result
+
+The recorded state sequence is:
+
+```text
+11 → 01 → 11 → 10 → 11 → 01 → 11 → 10 → ...
+```
+
+This is the reverse ordering of the clockwise test. The recording again shows **0 invalid transitions**. fileciteturn30file0L2-L2
+
+### Assessment
+
+**30° successfully distinguishes rotation direction.** Both directions produced repeatable opposite state ordering with zero invalid transitions in the recorded tests.
+
+The 30° test therefore passes the basic direction-detection requirement and remains a candidate alongside 45°.
+
+**Important:** The present tests do not yet establish that 30° is mechanically or electrically better than 45°. Air gap, pulse widths, maximum operating speed and tolerance margin still need to be evaluated.
 
 ---
 
@@ -114,6 +141,7 @@ The two directions produce opposite state ordering. The test was repeatable over
 | Magnet polarization | Same |
 | Hall A/B angle – test 1 | 90° |
 | Hall A/B angle – test 2 | 45° |
+| Hall A/B angle – test 3 | 30° |
 | Air gap | Not yet recorded |
 | Transitions / revolution | Not yet formally recorded |
 | Expected magnet events / revolution | 2 |
@@ -124,22 +152,25 @@ The two directions produce opposite state ordering. The test was repeatable over
 |---:|---|---|---|
 | 90° | Clockwise, 2 runs | No `00`; three-state pattern | Reject as final geometry |
 | 45° | CW 5× + CCW 5× | Opposite repeatable ordering | Candidate |
+| 30° | CW 5× + CCW 5× | Opposite repeatable ordering | Candidate |
 
 ---
 
 # T5 – Repetition / reliability
 
-The 45° configuration has already been tested for **5 complete rotations in each direction**.
+| Configuration | Direction | Revolutions | Invalid transitions | Result |
+|---|---|---:|---:|---|
+| 90° | Clockwise | 2 runs | 0 recorded | Three-state pattern |
+| 45° | Clockwise | 5 | 0 recorded | PASS / candidate |
+| 45° | Counter-clockwise | 5 | 0 recorded | PASS / candidate |
+| 30° | Clockwise | 5 | 0 recorded | PASS / candidate |
+| 30° | Counter-clockwise | 5 | 0 recorded | PASS / candidate |
 
-| Configuration | Direction | Revolutions | Missed transitions | Invalid transitions | Result |
-|---|---|---:|---:|---:|---|
-| 90° | Clockwise | 2 runs | 0 recorded | 0 recorded | Three-state pattern |
-| 45° | Clockwise | 5 | 0 recorded | 0 recorded | PASS / candidate |
-| 45° | Counter-clockwise | 5 | 0 recorded | 0 recorded | PASS / candidate |
+The 30° and 45° arrangements both currently satisfy the basic direction-detection test.
 
 **Stationary false switching:** not yet formally tested in the final two-Hall arrangement.
 
-**Important:** The 45° result proves repeatability at the tested manual rotation speed. It does not yet prove reliable operation at the maximum speed of the real roller blind.
+**Important:** These tests prove repeatability at the tested manual rotation speed. They do not yet prove reliable operation at the maximum speed of the real roller blind.
 
 ---
 
@@ -147,7 +178,7 @@ The 45° configuration has already been tested for **5 complete rotations in eac
 
 Not yet performed.
 
-The speed test must be performed after the best Hall A/B geometry has been selected.
+The next phase should compare the best remaining geometries at increasing rotation speed and determine whether any transitions are missed.
 
 ---
 
@@ -166,7 +197,9 @@ The speed test must be performed after the best Hall A/B geometry has been selec
 - [x] Hall B switches reliably in the current test
 - [ ] No significant stationary false switching formally verified
 - [x] A/B transitions are direction-dependent at 45°
+- [x] A/B transitions are direction-dependent at 30°
 - [x] Both rotation directions are distinguishable at 45°
+- [x] Both rotation directions are distinguishable at 30°
 - [ ] No missed transitions at required real-world speed
 
 ## Current decision
@@ -175,11 +208,11 @@ The speed test must be performed after the best Hall A/B geometry has been selec
 
 **Current Hall candidate:** A3144  
 **Current magnet arrangement:** 2 magnets, 180° apart, same polarization  
-**Current Hall A/B angle candidate:** 45°  
+**Current Hall A/B angle candidates:** **30° and 45°**  
 **Air gap:** to be measured/documented  
 **Transitions per revolution:** to be formally determined from the final firmware/test method
 
-**Reason:** 45° has demonstrated repeatable and opposite state ordering for clockwise and counter-clockwise rotation, but additional angle and speed tests are required before freezing the mechanical design.
+**Reason:** Both 30° and 45° have demonstrated repeatable and opposite state ordering for clockwise and counter-clockwise rotation. The 90° arrangement is rejected. The next decision should be based on speed, air gap and tolerance testing rather than another arbitrary angle change.
 
 ---
 
@@ -194,7 +227,10 @@ Original evidence is stored in `tests/hall_sensor_test/evidence/` and must not b
 | 45° photographs | T3.2 | Hall A/B arrangement at 45° |
 | `45 stupnu 5krat po smeru hodin.txt` | T3.2 | 5 clockwise rotations at 45° |
 | `45 stupnu 5krat proti smeru hodin.txt` | T3.2 | 5 counter-clockwise rotations at 45° |
+| 30° photographs | T3.3 | Hall A/B arrangement at 30° |
+| `30 stupnu 5krat po smeru hodin.txt` | T3.3 | 5 clockwise rotations at 30° |
+| `30 stupnu 5krat proti smeru hodin.txt` | T3.3 | 5 counter-clockwise rotations at 30° |
 
-## Next planned test
+## Next planned phase
 
-**30° Hall A/B separation**, keeping all other conditions unchanged. Perform 5 complete rotations clockwise and 5 counter-clockwise and record the complete serial output in `evidence/`.
+Compare **30° vs. 45°** under controlled air-gap and speed conditions. Do not freeze the final geometry yet.
