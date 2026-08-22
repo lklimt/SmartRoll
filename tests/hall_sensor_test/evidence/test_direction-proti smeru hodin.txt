@@ -1,0 +1,50 @@
+STATUS state=11 direction=CCW valid=13 invalid=0
+STATUS state=11 direction=CCW valid=13 invalid=0
+STATUS state=11 direction=CCW valid=13 invalid=0
+STATUS state=11 direction=CCW valid=13 invalid=0
+STATUS state=11 direction=CCW valid=13 invalid=0
+STATUS state=11 direction=CCW valid=13 invalid=0
+STATUS state=11 direction=CCW valid=13 invalid=0
+STATUS state=11 direction=CCW valid=13 invalid=0
+11 -> 10  CCW  direction=CCW  steps(CW/CCW)=7/7
+10 -> 11  CW  direction=CW  steps(CW/CCW)=8/7
+STATUS state=11 direction=CW valid=15 invalid=0
+11 -> 01  CW  direction=CW  steps(CW/CCW)=9/7
+01 -> 11  CCW  direction=CCW  steps(CW/CCW)=9/8
+11 -> 10  CCW  direction=CCW  steps(CW/CCW)=9/9
+10 -> 11  CW  direction=CW  steps(CW/CCW)=10/9
+STATUS state=11 direction=CW valid=19 invalid=0
+11 -> 01  CW  direction=CW  steps(CW/CCW)=11/9
+01 -> 11  CCW  direction=CCW  steps(CW/CCW)=11/10
+11 -> 10  CCW  direction=CCW  steps(CW/CCW)=11/11
+STATUS state=10 direction=CCW valid=22 invalid=0
+10 -> 11  CW  direction=CW  steps(CW/CCW)=12/11
+11 -> 01  CW  direction=CW  steps(CW/CCW)=13/11
+01 -> 11  CCW  direction=CCW  steps(CW/CCW)=13/12
+11 -> 10  CCW  direction=CCW  steps(CW/CCW)=13/13
+STATUS state=10 direction=CCW valid=26 invalid=0
+10 -> 11  CW  direction=CW  steps(CW/CCW)=14/13
+STATUS state=11 direction=CW valid=27 invalid=0
+11 -> 01  CW  direction=CW  steps(CW/CCW)=15/13
+01 -> 11  CCW  direction=CCW  steps(CW/CCW)=15/14
+11 -> 10  CCW  direction=CCW  steps(CW/CCW)=15/15
+10 -> 11  CW  direction=CW  steps(CW/CCW)=16/15
+STATUS state=11 direction=CW valid=31 invalid=0
+11 -> 01  CW  direction=CW  steps(CW/CCW)=17/15
+01 -> 11  CCW  direction=CCW  steps(CW/CCW)=17/16
+11 -> 10  CCW  direction=CCW  steps(CW/CCW)=17/17
+10 -> 11  CW  direction=CW  steps(CW/CCW)=18/17
+STATUS state=11 direction=CW valid=35 invalid=0
+11 -> 01  CW  direction=CW  steps(CW/CCW)=19/17
+STATUS state=01 direction=CW valid=36 invalid=0
+01 -> 11  CCW  direction=CCW  steps(CW/CCW)=19/18
+11 -> 10  CCW  direction=CCW  steps(CW/CCW)=19/19
+10 -> 11  CW  direction=CW  steps(CW/CCW)=20/19
+STATUS state=11 direction=CW valid=39 invalid=0
+11 -> 01  CW  direction=CW  steps(CW/CCW)=21/19
+STATUS state=01 direction=CW valid=40 invalid=0
+01 -> 11  CCW  direction=CCW  steps(CW/CCW)=21/20
+11 -> 10  CCW  direction=CCW  steps(CW/CCW)=21/21
+STATUS state=10 direction=CCW valid=42 invalid=0
+STATUS state=10 direction=CCW valid=42 invalid=0
+STATUS state=10 direction=CCW valid=42 invalid=0
