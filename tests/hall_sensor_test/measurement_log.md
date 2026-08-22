@@ -111,7 +111,7 @@ The recorded state sequence is:
 11 → 10 → 11 → 01 → 11 → 10 → 11 → 01 → ...
 ```
 
-This pattern repeats consistently through the five clockwise rotations. The recording shows **0 invalid transitions**. fileciteturn29file0L2-L2
+This pattern repeats consistently through the five clockwise rotations. The recording shows **0 invalid transitions**.
 
 ### Counter-clockwise result
 
@@ -121,7 +121,7 @@ The recorded state sequence is:
 11 → 01 → 11 → 10 → 11 → 01 → 11 → 10 → ...
 ```
 
-This is the reverse ordering of the clockwise test. The recording again shows **0 invalid transitions**. fileciteturn30file0L2-L2
+This is the reverse ordering of the clockwise test. The recording again shows **0 invalid transitions**.
 
 ### Assessment
 
@@ -174,11 +174,118 @@ The 30° and 45° arrangements both currently satisfy the basic direction-detect
 
 ---
 
-# T6 – Speed test
+# T6 – Next test phase: speed and air-gap comparison
 
-Not yet performed.
+The next phase is **not another arbitrary Hall-angle test**. The two surviving geometries, **30° and 45°**, will now be compared under controlled conditions.
 
-The next phase should compare the best remaining geometries at increasing rotation speed and determine whether any transitions are missed.
+## T6.1 – Record fixed mechanical parameters first
+
+Before every measurement series record:
+
+- Hall A/B angle: 30° or 45°
+- magnet spacing: 180°
+- magnet polarization: same
+- Hall-to-magnet air gap in mm
+- magnet dimensions/type
+- Hall sensor type: A3144
+- supply voltage
+- Arduino firmware version
+- direction of rotation
+
+The air gap must be measured, not estimated.
+
+## T6.2 – Air-gap test
+
+For each of the two candidate angles, test several practical gaps while changing **only the gap**.
+
+Recommended initial series:
+
+```text
+1.0 mm
+2.0 mm
+3.0 mm
+4.0 mm
+5.0 mm
+```
+
+If the mechanical construction cannot reach one of these values, record the actual available values instead.
+
+For every gap:
+
+- 5 rotations clockwise
+- 5 rotations counter-clockwise
+- slow and controlled manual rotation
+- record complete serial output
+- record invalid transitions
+- record any missed or ambiguous transition
+
+The purpose is to find the largest usable air gap with a comfortable switching margin.
+
+## T6.3 – Determine switching window
+
+At the selected candidate geometry, slowly move a magnet toward and away from each Hall sensor.
+
+Record separately:
+
+- switch-on distance
+- switch-off distance
+- difference between switch-on and switch-off distance
+- whether both Halls behave similarly
+
+This gives the actual magnetic switching window and hysteresis of the mechanical arrangement.
+
+## T6.4 – Speed test
+
+After selecting a practical air gap, increase rotation speed gradually.
+
+Use at least three speed levels:
+
+1. slow manual rotation
+2. fast manual rotation
+3. highest repeatable speed achievable with the test fixture
+
+If a controlled motor drive becomes available, record the actual RPM.
+
+For each speed and each direction record:
+
+- number of complete revolutions
+- expected transitions
+- counted transitions
+- invalid transitions
+- missing transitions
+- state sequence
+- minimum `dt_us`
+
+**Pass condition:** no missing or invalid transitions at the required operating speed.
+
+## T6.5 – Compare 30° and 45°
+
+The final candidate should be selected from measured results, not preference.
+
+| Criterion | 30° | 45° |
+|---|---:|---:|
+| Direction detection | PASS | PASS |
+| 5× CW repeatability | PASS | PASS |
+| 5× CCW repeatability | PASS | PASS |
+| Maximum usable air gap | TBD | TBD |
+| Switching margin | TBD | TBD |
+| Maximum tested speed | TBD | TBD |
+| Invalid transitions | TBD | TBD |
+| Missed transitions | TBD | TBD |
+| Mechanical tolerance margin | TBD | TBD |
+| Final decision | TBD | TBD |
+
+## T6.6 – Acceptance rule
+
+Do **not** select the angle merely because both work at slow manual rotation.
+
+The preferred geometry is the one that provides the best combination of:
+
+1. reliable direction detection,
+2. largest practical air-gap tolerance,
+3. shortest/cleanest transition ambiguity,
+4. no missed transitions at required speed,
+5. sufficient mechanical tolerance for the final roller-blind ring.
 
 ---
 
@@ -212,7 +319,7 @@ The next phase should compare the best remaining geometries at increasing rotati
 **Air gap:** to be measured/documented  
 **Transitions per revolution:** to be formally determined from the final firmware/test method
 
-**Reason:** Both 30° and 45° have demonstrated repeatable and opposite state ordering for clockwise and counter-clockwise rotation. The 90° arrangement is rejected. The next decision should be based on speed, air gap and tolerance testing rather than another arbitrary angle change.
+**Reason:** Both 30° and 45° have demonstrated repeatable and opposite state ordering for clockwise and counter-clockwise rotation. The 90° arrangement is rejected. The next decision is based on air gap, switching margin, speed and tolerance testing.
 
 ---
 
@@ -233,4 +340,6 @@ Original evidence is stored in `tests/hall_sensor_test/evidence/` and must not b
 
 ## Next planned phase
 
-Compare **30° vs. 45°** under controlled air-gap and speed conditions. Do not freeze the final geometry yet.
+**T6 – Compare 30° vs. 45° using measured air gaps, switching window and increasing rotation speed.**
+
+Do not freeze the final mechanical geometry before T6 is completed.
