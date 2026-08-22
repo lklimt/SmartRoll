@@ -1,0 +1,42 @@
+
+========================================
+SmartRoll Hall Direction Test 004
+Arduino Nano / ATmega328P
+A=D2  B=D3
+Startup direction = UNKNOWN
+Initial Hall state = 10
+11->01 = CW, 11->10 = CCW
+========================================
+STATUS state=10 direction=UNKNOWN valid=0 invalid=0
+STATUS state=10 direction=UNKNOWN valid=0 invalid=0
+STATUS state=10 direction=UNKNOWN valid=0 invalid=0
+STATUS state=10 direction=UNKNOWN valid=0 invalid=0
+STATUS state=10 direction=UNKNOWN valid=0 invalid=0
+10 -> 11  AMBIGUOUS (direction still UNKNOWN)
+11 -> 01  direction=CW  steps(CW/CCW)=1/0
+STATUS state=01 direction=CW valid=1 invalid=0
+01 -> 11  INVALID  invalid=1
+STATUS state=11 direction=CW valid=1 invalid=1
+11 -> 10  DIRECTION CHANGE: CW -> CCW
+  direction=CCW  steps(CW/CCW)=1/1
+10 -> 11  INVALID  invalid=2
+11 -> 01  DIRECTION CHANGE: CCW -> CW
+  direction=CW  steps(CW/CCW)=2/1
+01 -> 11  INVALID  invalid=3
+STATUS state=11 direction=CW valid=3 invalid=3
+11 -> 10  DIRECTION CHANGE: CW -> CCW
+  direction=CCW  steps(CW/CCW)=2/2
+10 -> 11  INVALID  invalid=4
+11 -> 01  DIRECTION CHANGE: CCW -> CW
+  direction=CW  steps(CW/CCW)=3/2
+01 -> 11  INVALID  invalid=5
+STATUS state=11 direction=CW valid=5 invalid=5
+11 -> 10  DIRECTION CHANGE: CW -> CCW
+  direction=CCW  steps(CW/CCW)=3/3
+10 -> 11  INVALID  invalid=6
+STATUS state=11 direction=CCW valid=6 invalid=6
+11 -> 01  DIRECTION CHANGE: CCW -> CW
+  direction=CW  steps(CW/CCW)=4/3
+STATUS state=01 direction=CW valid=7 invalid=6
+STATUS state=01 direction=CW valid=7 invalid=6
+STATUS state=01 direction=CW valid=7 invalid=6
