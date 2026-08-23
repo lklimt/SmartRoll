@@ -1,0 +1,414 @@
+Test Reset CW
+
+?))?)"TFBpP?	E*?)))IB!?S???RQ
+========================================
+SmartRoll Hall Quadrature Test 005
+Arduino Nano / ATmega328P
+Hall A = D2   Hall B = D3
+========================================
+CW : 11 -> 10 -> 00 -> 01 -> 11
+CCW: 11 -> 01 -> 00 -> 10 -> 11
+
+Initial state: 11
+Initial direction: UNKNOWN
+
+STATUS state=11 direction=UNKNOWN valid=0 invalid=0
+STATUS state=11 direction=UNKNOWN valid=0 invalid=0
+STATUS state=11 direction=UNKNOWN valid=0 invalid=0
+STATUS state=11 direction=UNKNOWN valid=0 invalid=0
+STATUS state=11 direction=UNKNOWN valid=0 invalid=0
+STATUS state=11 direction=UNKNOWN valid=0 invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=1/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=2/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=3/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=4/0  invalid=0
+STATUS state=11 direction=CW valid=4 invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=5/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=6/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=7/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=8/0  invalid=0
+STATUS state=11 direction=CW valid=8 invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=9/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=10/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=11/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=12/0  invalid=0
+STATUS state=11 direction=CW valid=12 invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=13/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=14/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=15/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=16/0  invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=17/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=18/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=19/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=20/0  invalid=0
+STATUS state=11 direction=CW valid=20 invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=21/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=22/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=23/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=24/0  invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=25/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=26/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=27/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=28/0  invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=29/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=30/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=31/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=32/0  invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=33/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=34/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=35/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=36/0  invalid=0
+STATUS state=11 direction=CW valid=36 invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=37/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=38/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=39/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=40/0  invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=41/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=42/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=43/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=44/0  invalid=0
+
+========================================
+SmartRoll Hall Quadrature Test 005
+Arduino Nano / ATmega328P
+Hall A = D2   Hall B = D3
+========================================
+CW : 11 -> 10 -> 00 -> 01 -> 11
+CCW: 11 -> 01 -> 00 -> 10 -> 11
+
+Initial state: 11
+Initial direction: UNKNOWN
+
+11 -> 10  direction=CW  steps(CW/CCW)=1/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=2/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=3/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=4/0  invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=5/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=6/0  invalid=0
+STATUS state=00 direction=CW valid=6 invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=7/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=8/0  invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=9/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=10/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=11/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=12/0  invalid=0
+STATUS state=11 direction=CW valid=12 invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=13/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=14/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=15/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=16/0  invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=17/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=18/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=19/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=20/0  invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=21/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=22/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=23/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=24/0  invalid=0
+STATUS state=11 direction=CW valid=24 invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=25/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=26/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=27/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=28/0  invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+
+
+Test Reset CCW
+
+?))?)"TFBpP?	E*?)))IB!?S???RQ
+========================================
+SmartRoll Hall Quadrature Test 005
+Arduino Nano / ATmega328P
+Hall A = D2   Hall B = D3
+========================================
+CW : 11 -> 10 -> 00 -> 01 -> 11
+CCW: 11 -> 01 -> 00 -> 10 -> 11
+
+Initial state: 11
+Initial direction: UNKNOWN
+
+STATUS state=11 direction=UNKNOWN valid=0 invalid=0
+STATUS state=11 direction=UNKNOWN valid=0 invalid=0
+STATUS state=11 direction=UNKNOWN valid=0 invalid=0
+STATUS state=11 direction=UNKNOWN valid=0 invalid=0
+STATUS state=11 direction=UNKNOWN valid=0 invalid=0
+STATUS state=11 direction=UNKNOWN valid=0 invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=1/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=2/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=3/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=4/0  invalid=0
+STATUS state=11 direction=CW valid=4 invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=5/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=6/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=7/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=8/0  invalid=0
+STATUS state=11 direction=CW valid=8 invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=9/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=10/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=11/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=12/0  invalid=0
+STATUS state=11 direction=CW valid=12 invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=13/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=14/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=15/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=16/0  invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=17/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=18/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=19/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=20/0  invalid=0
+STATUS state=11 direction=CW valid=20 invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=21/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=22/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=23/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=24/0  invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=25/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=26/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=27/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=28/0  invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=29/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=30/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=31/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=32/0  invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=33/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=34/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=35/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=36/0  invalid=0
+STATUS state=11 direction=CW valid=36 invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=37/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=38/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=39/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=40/0  invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=41/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=42/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=43/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=44/0  invalid=0
+
+========================================
+SmartRoll Hall Quadrature Test 005
+Arduino Nano / ATmega328P
+Hall A = D2   Hall B = D3
+========================================
+CW : 11 -> 10 -> 00 -> 01 -> 11
+CCW: 11 -> 01 -> 00 -> 10 -> 11
+
+Initial state: 11
+Initial direction: UNKNOWN
+
+11 -> 10  direction=CW  steps(CW/CCW)=1/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=2/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=3/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=4/0  invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=5/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=6/0  invalid=0
+STATUS state=00 direction=CW valid=6 invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=7/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=8/0  invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=9/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=10/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=11/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=12/0  invalid=0
+STATUS state=11 direction=CW valid=12 invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=13/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=14/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=15/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=16/0  invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=17/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=18/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=19/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=20/0  invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=21/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=22/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=23/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=24/0  invalid=0
+STATUS state=11 direction=CW valid=24 invalid=0
+11 -> 10  direction=CW  steps(CW/CCW)=25/0  invalid=0
+10 -> 00  direction=CW  steps(CW/CCW)=26/0  invalid=0
+00 -> 01  direction=CW  steps(CW/CCW)=27/0  invalid=0
+01 -> 11  direction=CW  steps(CW/CCW)=28/0  invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+STATUS state=11 direction=CW valid=28 invalid=0
+
+========================================
+SmartRoll Hall Quadrature Test 005
+Arduino Nano / ATmega328P
+Hall A = D2   Hall B = D3
+========================================
+CW : 11 -> 10 -> 00 -> 01 -> 11
+CCW: 11 -> 01 -> 00 -> 10 -> 11
+
+Initial state: 11
+Initial direction: UNKNOWN
+
+STATUS state=11 direction=UNKNOWN valid=0 invalid=0
+STATUS state=11 direction=UNKNOWN valid=0 invalid=0
+STATUS state=11 direction=UNKNOWN valid=0 invalid=0
+STATUS state=11 direction=UNKNOWN valid=0 invalid=0
+11 -> 01  direction=CCW  steps(CW/CCW)=0/1  invalid=0
+01 -> 00  direction=CCW  steps(CW/CCW)=0/2  invalid=0
+00 -> 10  direction=CCW  steps(CW/CCW)=0/3  invalid=0
+10 -> 11  direction=CCW  steps(CW/CCW)=0/4  invalid=0
+STATUS state=11 direction=CCW valid=4 invalid=0
+11 -> 01  direction=CCW  steps(CW/CCW)=0/5  invalid=0
+01 -> 00  direction=CCW  steps(CW/CCW)=0/6  invalid=0
+00 -> 10  direction=CCW  steps(CW/CCW)=0/7  invalid=0
+10 -> 11  direction=CCW  steps(CW/CCW)=0/8  invalid=0
+11 -> 01  direction=CCW  steps(CW/CCW)=0/9  invalid=0
+01 -> 00  direction=CCW  steps(CW/CCW)=0/10  invalid=0
+STATUS state=00 direction=CCW valid=10 invalid=0
+00 -> 10  direction=CCW  steps(CW/CCW)=0/11  invalid=0
+10 -> 11  direction=CCW  steps(CW/CCW)=0/12  invalid=0
+11 -> 01  direction=CCW  steps(CW/CCW)=0/13  invalid=0
+01 -> 00  direction=CCW  steps(CW/CCW)=0/14  invalid=0
+00 -> 10  direction=CCW  steps(CW/CCW)=0/15  invalid=0
+10 -> 11  direction=CCW  steps(CW/CCW)=0/16  invalid=0
+STATUS state=11 direction=CCW valid=16 invalid=0
+11 -> 01  direction=CCW  steps(CW/CCW)=0/17  invalid=0
+01 -> 00  direction=CCW  steps(CW/CCW)=0/18  invalid=0
+00 -> 10  direction=CCW  steps(CW/CCW)=0/19  invalid=0
+10 -> 11  direction=CCW  steps(CW/CCW)=0/20  invalid=0
+11 -> 01  direction=CCW  steps(CW/CCW)=0/21  invalid=0
+01 -> 00  direction=CCW  steps(CW/CCW)=0/22  invalid=0
+00 -> 10  direction=CCW  steps(CW/CCW)=0/23  invalid=0
+10 -> 11  direction=CCW  steps(CW/CCW)=0/24  invalid=0
+STATUS state=11 direction=CCW valid=24 invalid=0
+11 -> 01  direction=CCW  steps(CW/CCW)=0/25  invalid=0
+01 -> 00  direction=CCW  steps(CW/CCW)=0/26  invalid=0
+00 -> 10  direction=CCW  steps(CW/CCW)=0/27  invalid=0
+10 -> 11  direction=CCW  steps(CW/CCW)=0/28  invalid=0
+11 -> 01  direction=CCW  steps(CW/CCW)=0/29  invali
+========================================
+SmartRoll Hall Quadrature Test 005
+Arduino Nano / ATmega328P
+Hall A = D2   Hall B = D3
+========================================
+CW : 11 -> 10 -> 00 -> 01 -> 11
+CCW: 11 -> 01 -> 00 -> 10 -> 11
+
+Initial state: 01
+Initial direction: UNKNOWN
+
+01 -> 00  direction=CCW  steps(CW/CCW)=0/1  invalid=0
+00 -> 10  direction=CCW  steps(CW/CCW)=0/2  invalid=0
+10 -> 11  direction=CCW  steps(CW/CCW)=0/3  invalid=0
+11 -> 01  direction=CCW  steps(CW/CCW)=0/4  invalid=0
+01 -> 00  direction=CCW  steps(CW/CCW)=0/5  invalid=0
+00 -> 10  direction=CCW  steps(CW/CCW)=0/6  invalid=0
+10 -> 11  direction=CCW  steps(CW/CCW)=0/7  invalid=0
+STATUS state=11 direction=CCW valid=7 invalid=0
+11 -> 01  direction=CCW  steps(CW/CCW)=0/8  invalid=0
+01 -> 00  direction=CCW  steps(CW/CCW)=0/9  invalid=0
+00 -> 10  direction=CCW  steps(CW/CCW)=0/10  invalid=0
+10 -> 11  direction=CCW  steps(CW/CCW)=0/11  invalid=0
+STATUS state=11 direction=CCW valid=11 invalid=0
+11 -> 01  direction=CCW  steps(CW/CCW)=0/12  invalid=0
+01 -> 00  direction=CCW  steps(CW/CCW)=0/13  invalid=0
+00 -> 10  direction=CCW  steps(CW/CCW)=0/14  invalid=0
+10 -> 11  direction=CCW  steps(CW/CCW)=0/15  invalid=0
+11 -> 01  direction=CCW  steps(CW/CCW)=0/16  invalid=0
+01 -> 00  direction=CCW  steps(CW/CCW)=0/17  invalid=0
+00 -> 10  direction=CCW  steps(CW/CCW)=0/18  invalid=0
+10 -> 11  direction=CCW  steps(CW/CCW)=0/19  invalid=0
+STATUS state=11 direction=CCW valid=19 invalid=0
+11 -> 01  direction=CCW  steps(CW/CCW)=0/20  invalid=0
+01 -> 00  direction=CCW  steps(CW/CCW)=0/21  invalid=0
+00 -> 10  direction=CCW  steps(CW/CCW)=0/22  invalid=0
+10 -> 11  direction=CCW  steps(CW/CCW)=0/23  invalid=0
+STATUS state=11 direction=CCW valid=23 invalid=0
+STATUS state=11 direction=CCW valid=23 invalid=0
+11 -> 01  direction=CCW  steps(CW/CCW)=0/24  invalid=0
+01 -> 00  direction=CCW  steps(CW/CCW)=0/25  invalid=0
+00 -> 10  direction=CCW  steps(CW/CCW)=0/26  invalid=0
+10 -> 11  direction=CCW  steps(CW/CCW)=0/27  invalid=0
+11 -> 01  direction=CCW  steps(CW/CCW)=0/28  invalid=0
+01 -> 00  direction=CCW  steps(CW/CCW)=0/29  invalid=0
+00 -> 10  direction=CCW  steps(CW/CCW)=0/30  invalid=0
+10 -> 11  direction=CCW  steps(CW/CCW)=0/31  invalid=0
+STATUS state=11 direction=CCW valid=31 invalid=0
+11 -> 01  direction=CCW  steps(CW/CCW)=0/32  invalid=0
+01 -> 00  direction=CCW  steps(CW/CCW)=0/33  invalid=0
+00 -> 10  direction=CCW  steps(CW/CCW)=0/34  invalid=0
+10 -> 11  direction=CCW  steps(CW/CCW)=0/35  invalid=0
+STATUS state=11 direction=CCW valid=35 invalid=0
+STATUS state=11 direction=CCW valid=35 invalid=0
+STATUS state=11 direction=CCW valid=35 invalid=0
+STATUS state=11 direction=CCW valid=35 invalid=0
