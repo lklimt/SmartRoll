@@ -2,57 +2,37 @@
 
 **Project:** SmartRoll  
 **Repository:** `lklimt/SmartRoll`  
-**Document:** `SPECIFICATION.md`  
 **Status:** Work in Progress  
 **Current mechanical revision:** SR-MEC-001 Rev.F
 
 ## 1. Purpose
 
-SmartRoll is a project for developing an automated control system for **external roller blinds** equipped with **ERTE ET 45E tubular motors**.
+SmartRoll is an automated control system project for **external roller blinds equipped with ERTE ET 45E tubular motors**.
 
-The project consists of mechanical drive and coupling components, rotational position and direction sensing, Hall sensors and magnets, electronics, firmware, Home Assistant integration, testing and manufacturing documentation.
+The project includes the mechanical carrier, magnetic sensing, electronics, firmware, Home Assistant integration, testing and manufacturing documentation.
 
 This document is the technical source of truth for the project.
 
 ## 2. Specification Rules
 
-### 2.1 Source of truth
-
-The latest approved information in this document has priority over previous conversation messages, old FreeCAD macros, obsolete drawings, experimental models and assumptions.
-
-### 2.2 Parameter status
-
-- **CONFIRMED** – directly measured or explicitly confirmed by the user.
+- **CONFIRMED** – directly measured or explicitly confirmed.
 - **DECIDED** – explicitly approved design decision.
 - **ASSUMED** – temporary assumption; not a final manufacturing dimension.
-- **OPEN** – information still required.
-- **SUPERSEDED** – previous value replaced by a newer value.
+- **OPEN** – information still requiring measurement or decision.
+- **SUPERSEDED** – previous value/design replaced by a newer result.
 
-### 2.3 No silent changes
+Unknown dimensions shall be marked `OPEN`, never invented.
 
-A confirmed or decided parameter must not be changed without recording the change. Changing one parameter does not authorize changing other parameters.
+FreeCAD macros are implementation tools, not the source of design requirements. A macro must derive fixed dimensions and geometry from this specification and must not silently introduce final values for `OPEN` parameters.
 
-### 2.4 No unverified assumptions
-
-Unknown dimensions shall be marked `OPEN`, not invented.
-
-### 2.5 FreeCAD design rule
-
-FreeCAD macros are implementation tools, not the source of design requirements. A macro must derive its fixed dimensions and geometry from the current specification.
-
-If a required dimension is `OPEN`, the macro shall not silently choose a final value. It must either expose the value as a clearly named parameter or stop and identify the missing specification.
-
-### 2.6 Revision rule
-
-Every substantial mechanical change receives a new revision. Old revisions are historical references and shall not be silently rewritten to represent a newer design.
+Every substantial mechanical change receives a new revision. Historical revisions remain historical.
 
 # 3. Mechanical System
 
 ## 3.1 Roller-blind application
 
-The SmartRoll mechanical system is intended for **external roller blinds** using **ERTE ET 45E tubular motors**.
-
-The motor type and the associated mechanical installation are project-level constraints when designing the carrier, sensor arrangement and available mounting space.
+- Application: **external roller blinds**.
+- Motor: **ERTE ET 45E tubular motor**.
 
 **Status: CONFIRMED**
 
@@ -62,44 +42,27 @@ The roller blind uses an octagonal shaft.
 
 | Parameter | Value | Status |
 |---|---:|---|
-| Shaft type | Octagonal | **CONFIRMED** |
-| Across flats | 16.70 mm | **CONFIRMED** |
-| Surface containing the slat feature | 5 + 6.7 + 5 mm | **CONFIRMED** |
+| Shaft type | Octagonal | CONFIRMED |
+| Across flats | 16.70 mm | CONFIRMED |
+| Surface containing slat feature | 5 + 6.7 + 5 mm | CONFIRMED |
+| Carrier clamping zone width | 6 mm | DECIDED |
 
-The 16.70 mm value is the distance across the relevant opposing flats. The side containing the slat feature consists of `5.0 + 6.7 + 5.0 = 16.7 mm`.
+The 16.70 mm value is the relevant distance across opposing flats. The face containing the slat feature is the primary mechanical reference.
 
-This replaces the previously considered 7 mm side dimension.
+The exact global CAD coordinate convention remains **OPEN** and shall be fixed before the production macro is finalized.
 
-## 3.3 Shaft orientation reference
-
-The shaft geometry shall have a fixed reference orientation in all mechanical documentation and FreeCAD models.
-
-The face containing the slat feature is the primary mechanical reference face. The carrier split and M3 joining geometry shall be defined relative to this face rather than by an arbitrary FreeCAD rotation.
-
-**Status: DECIDED**
-
-The exact global coordinate convention for the CAD model remains **OPEN** and shall be fixed before the production macro is finalized.
-
-# 4. Available Space
+## 3.3 Available space
 
 | Condition | Available space | Status |
 |---|---:|---|
-| Blind unrolled | approx. 35 mm from wall | **CONFIRMED** |
-| Blind wound | approx. 30 mm effective space | **CONFIRMED** |
+| Blind unrolled | approx. 35 mm from wall | CONFIRMED |
+| Blind wound | approx. 30 mm effective space | CONFIRMED |
 
-The reduced clearance when the blind is wound must be respected.
+The approximately 30 mm wound condition is the limiting clearance condition unless a later measurement establishes a smaller value.
 
-The **approximately 30 mm wound-blind condition is the limiting design condition** for the magnetic carrier unless a later measurement establishes a smaller clearance.
+## 3.4 Stationary and rotating areas
 
-**Status: DECIDED**
-
-# 5. Stationary and Rotating Areas
-
-The right-hand side contains a stationary black mounting part including the programming button.
-
-The rotating part begins approximately **24 mm from the right-hand side**. Status: **CONFIRMED / APPROXIMATE**.
-
-The programming button must remain accessible.
+The right-hand side contains a stationary black mounting part including the motor programming button. The rotating part begins approximately **24 mm from the right-hand side**.
 
 The magnetic carrier must not:
 
@@ -108,405 +71,398 @@ The magnetic carrier must not:
 - prevent operation or programming of the ERTE ET 45E motor,
 - enter the stationary portion of the mechanism.
 
-The carrier may extend toward the right only within the available space and without compromising access to the programming button.
+**Status: CONFIRMED / APPROXIMATE where noted; DECIDED as design constraint.**
 
-**Status: DECIDED**
+# 4. Magnetic Carrier – SR-MEC-001
 
-# 6. Magnetic Carrier – SR-MEC-001
+The carrier is a **two-piece component** clamped around the octagonal shaft. The two halves are installed independently and mechanically joined.
 
-The magnetic carrier is mounted on the octagonal shaft. The current design uses a **two-piece carrier**.
+The carrier consists of two functional zones:
 
-This was chosen because opening a single ABS ring sufficiently to install it over the shaft is considered impractical or unreliable.
-
-The two halves shall be installed independently and then mechanically clamped around the shaft.
-
-**Status: DECIDED**
-
-## 6.1 Functional separation
-
-The carrier consists conceptually of two functional zones:
-
-1. **Shaft clamping zone** – mechanically locked to the octagonal shaft.
+1. **Shaft clamping zone** – positively locked to the octagonal shaft.
 2. **Magnetic rotating zone** – carries the magnets and provides circular clearance around the stationary mechanism.
 
-The internal geometry of these two zones must not be confused.
+The two zones must not be confused: the shaft-clamping geometry follows the octagonal shaft, while the magnetic section uses circular rotating clearance.
 
 **Status: DECIDED**
 
-# 7. Shaft Clamping Section
+## 4.1 Shaft clamping
 
-The carrier contains an octagonal clamping section matching the shaft.
+- Octagonal internal geometry matching the shaft.
+- Shaft AF: **16.70 mm**.
+- Clamping section width: **6 mm**.
+- Rotation shall be transmitted positively and shall not rely on friction alone.
+- Slat clearance shall be provided on the correct shaft face.
 
-| Parameter | Value | Status |
-|---|---:|---|
-| Shaft AF | 16.70 mm | **CONFIRMED** |
-| Carrier clamping section width | 6 mm | **DECIDED** |
-| Geometry | Octagonal | **DECIDED** |
+## 4.2 Slat clearance
 
-The octagonal internal geometry must preserve the actual shaft geometry.
+The slat clearance is rotated **90° relative to the carrier split / M3 joining arrangement**.
 
-The clamping zone must positively transmit rotation from the shaft to the carrier without relying on friction alone.
+The clearance shall be large enough for the actual shaft feature while removing as little carrier material as practical.
 
-The shaft profile must remain continuous except where the slat clearance is intentionally provided.
+Exact depth and detailed shape remain **OPEN** until measured geometry is entered.
 
-# 8. Slat / Svlak Clearance
+## 4.3 M3 clamping
 
-One flat of the shaft contains the slat feature. The carrier therefore requires a corresponding clearance on the correct octagonal face.
+The two carrier halves use **two M3 connections**.
 
-Current design decision: the slat clearance is rotated **90° relative to the carrier split / M3 joining arrangement**.
+Requirements:
 
-The slat clearance must be large enough for the actual shaft feature but must remove as little carrier material as practical.
-
-**Status: DECIDED**
-
-Exact depth and detailed shape remain **OPEN** until the measured geometry is entered into the project documentation.
-
-# 9. Magnetic Section
-
-The magnetic section is separate from the shaft-clamping geometry. It carries the magnets while allowing the carrier to rotate around the stationary part of the mechanism.
-
-The magnetic section must therefore use a **circular internal clearance** rather than retaining the octagonal clamping profile.
-
-The circular clearance is intentional: the magnetic section must be able to rotate freely around the stationary mechanism even though the clamping section follows the octagonal shaft.
-
-**Status: DECIDED**
-
-The magnetic section must not accidentally reproduce the octagonal shaft profile through its full height.
-
-# 10. Magnet Arrangement
-
-| Parameter | Value | Status |
-|---|---:|---|
-| Number of magnets | 2 | **DECIDED** |
-| Magnet orientation | radial | **DECIDED** |
-| Angular separation | 180° | **DECIDED** |
-| Nominal magnet size | 4 × 2 mm | **DECIDED** |
-
-The two magnets are positioned opposite each other.
-
-The magnets shall be inserted **radially from the outside of the carrier** into their pockets.
-
-The magnet pockets must:
-
-- retain the magnets securely,
-- provide adequate surrounding material,
-- keep the magnets from entering the rotating clearance,
-- maintain the defined 180° relationship,
-- preserve sufficient carrier strength.
-
-**Status: DECIDED**
-
-The final pocket depth and exact retention method remain **OPEN**.
-
-# 11. M3 Clamping
-
-The two carrier halves are mechanically joined using **two M3 connections**.
-
-Current design requirements:
-
-- two M3 joining locations,
 - closed screw bosses,
-- provision for an M3 screw head,
-- provision for an M3 nut,
-- anti-rotation retention for the nut,
-- screw/nut geometry outside the rotating clearance.
+- accessible M3 screw heads,
+- M3 nut pockets with anti-rotation retention,
+- hardware outside the rotating clearance,
+- sufficient material around the bosses.
 
-**Status: DECIDED**
+The two halves shall clamp the shaft securely without obstructing the magnetic rotation.
 
-The M3 boss must be completely closed around the screw. A boss providing only half of the screw-head radius is not acceptable.
+# 5. Approved Magnet Arrangement
 
-The nut pocket shall retain the nut against rotation while allowing assembly.
+| Parameter | Value | Status |
+|---|---:|---|
+| Number of magnets | 2 | DECIDED |
+| Angular separation | 180° | DECIDED |
+| Magnet orientation | Radial | DECIDED |
+| Magnet polarization | Same in tested arrangement | CONFIRMED |
+| Nominal magnet size | 4 × 2 mm | DECIDED |
 
-# 12. M3 Accessibility
+The magnets are positioned opposite each other and inserted radially from the outside of the carrier into secure pockets.
 
-The M3 screw head must be accessible from the outside.
+The final pocket depth and exact retention method remain **OPEN** until production verification.
 
-The boss must not be recessed so deeply that:
+# 6. Approved Hall Sensor Arrangement
 
-- the screw head cannot be inserted,
-- a normal M3 screw cannot be installed,
-- the screw cannot be tightened,
-- the screw head interferes with the stationary mechanism.
+The approved Hall arrangement is:
 
-The screw hardware must remain outside the required circular rotating clearance.
+- **2 Hall sensors**, Hall A and Hall B,
+- Hall A and Hall B mounted **directly beside each other**,
+- no intentional large angular separation between Hall A and Hall B,
+- nominal tested air gap: **5 mm**.
 
-**Status: DECIDED**
+This close A/B arrangement is essential to the verified quadrature signal and avoids an unwanted magnetic dead zone between the sensors.
 
-# 13. Carrier Installation
+A **10 mm** air gap was experimentally found unreliable. **5 mm** was reliable, including rapid manual rotation faster than the expected roller-blind motor speed.
 
-Installation sequence:
+**Status: APPROVED TEST CONFIGURATION.**
 
-1. Place one carrier half onto the shaft.
-2. Place the second carrier half onto the opposite side.
-3. Ensure the octagonal profiles are correctly engaged.
-4. Ensure the slat clearance is correctly positioned.
-5. Insert the M3 screws from the accessible outside direction.
-6. Insert/retain the M3 nuts in their anti-rotation pockets.
-7. Tighten both M3 connections.
-8. Verify that the carrier is firmly coupled to the shaft.
-9. Verify free rotation of the magnetic carrier relative to the stationary mechanism.
-10. Verify that the programming button remains accessible.
+The exact production Hall mounting dimensions and final air gap remain subject to mechanical verification.
 
-**Status: DECIDED**
+# 7. Approved Hall Quadrature Signal
 
-# 14. Mechanical Clearance Rules
+With Hall A and Hall B directly beside each other, the experimentally verified state sequences are:
 
-The carrier shall be checked in at least two mechanical states:
+### Clockwise rotation – CW
 
-### State A – blind unrolled
+```text
+11 → 10 → 00 → 01 → 11
+```
 
-Available space: approximately **35 mm**.
+### Counter-clockwise rotation – CCW
 
-### State B – blind wound
+```text
+11 → 01 → 00 → 10 → 11
+```
 
-Available effective space: approximately **30 mm**.
+All four states occur:
 
-State B is the critical clearance condition.
+```text
+00
+01
+10
+11
+```
 
-The carrier must not collide with the wall, stationary motor mounting components or other fixed components in either state.
+The two physical directions therefore produce opposite state ordering and can be distinguished unambiguously.
 
-**Status: DECIDED**
+# 8. Approved Direction Decoder
 
-# 15. Manufacturing Material
+SmartRoll shall use a **2-bit quadrature state-transition decoder** based on the complete previous-state → new-state transition.
 
-The carrier is intended for 3D printing.
+## 8.1 CW transitions
 
-Previously discussed material: **tough ABS / ABS-type material**.
+```text
+11 → 10
+10 → 00
+00 → 01
+01 → 11
+```
 
-The material must tolerate repeated clamping and normal mechanical loads without cracking during installation.
+Each is one valid CW movement increment.
 
-**Status: OPEN – exact material and printing process must be finalized.**
+## 8.2 CCW transitions
 
-# 16. Hall Direction Detection and Position Tracking
+```text
+11 → 01
+01 → 00
+00 → 10
+10 → 11
+```
 
-The project uses Hall sensing with two magnets mounted 180° apart on the rotating carrier.
+Each is one valid CCW movement increment.
 
-The two Hall signals are intended to provide:
+## 8.3 Invalid transitions
 
-- rotational event detection,
-- rotation counting,
-- direction detection.
+Any transition not listed above is **INVALID**.
 
-### 16.1 Tested Hall geometry
+An invalid transition shall:
 
-The physical test fixture has established a working configuration with:
+- increment a diagnostic invalid-transition counter,
+- not count as normal movement,
+- not by itself reverse the detected direction.
 
-- 2 magnets at 180°,
-- equal magnet polarization,
-- Hall A/B angular separation: **30°**,
-- nominal air gap: **5 mm**.
+The decoder must not determine direction from either Hall signal individually.
 
-Testing at 45° and 30° both produced repeatable direction-dependent state sequences. The 30° configuration was also tested at a manually induced speed higher than the expected roller-blind motor speed and remained reliable. An air gap of 10 mm was found to be unreliable; 5 mm is the current practical optimum on the test fixture.
+## 8.4 Physical direction vs blind movement
 
-The reliability test phase is considered complete for the current mechanical/electrical concept.
+`CW` and `CCW` describe physical rotation only.
 
-**Status: CONFIRMED for the test fixture; final mechanical implementation remains subject to production design verification.**
+The final system shall map physical direction to:
 
-### 16.2 Direction algorithm
+- **WIND** – movement toward the rolled-up position.
+- **UNWIND** – movement toward the extended position.
 
-Direction shall be determined from the **sequence of Hall A/B states**.
+This mapping shall be configurable during installation/calibration and shall not be hard-coded from assumed sensor orientation.
 
-For the tested 30° geometry the experimentally observed state ordering is:
+# 9. Restart and Power-Failure Behavior
 
-Clockwise:
+The controller must reacquire direction after restart or power failure without requiring the previous direction to survive in RAM.
 
-`10 → 11 → 01 → 11 → 10 → ...`
+Startup procedure:
 
-Counter-clockwise:
+1. Read the current Hall A/B state.
+2. Store it as `previousState`.
+3. Set direction to `UNKNOWN`.
+4. Wait for the next Hall state change.
+5. Decode the valid transition.
+6. Set direction to CW or CCW.
+7. Continue relative movement counting.
 
-`01 → 11 → 10 → 11 → 01 → ...`
+Example:
 
-The implementation shall therefore use a transition state machine based on the experimentally verified transitions rather than assuming a textbook four-state quadrature sequence.
+```text
+Restart
+  ↓
+Read A/B = 11
+  ↓
+Direction = UNKNOWN
+  ↓
+11 → 10
+  ↓
+Direction = CW
+```
 
-Valid directional transitions for the tested geometry are:
+The opposite valid transition similarly establishes CCW.
 
-| Previous | New | Direction contribution |
-|---|---|---:|
-| 10 | 11 | CW |
-| 11 | 01 | CW |
-| 01 | 11 | CCW |
-| 11 | 10 | CCW |
+The controller shall not infer direction from the motor command alone and shall not assume that the blind is stationary at startup.
 
-Transitions outside the verified state machine shall be treated as invalid and shall not be counted as normal movement.
+**Status: DECIDED and experimentally verified on Arduino Nano.**
 
-The physical direction shall later be mapped to the logical SmartRoll functions **WIND / UNWIND** during installation/calibration. The mapping must be configurable rather than hard-coded from an assumed sensor orientation.
+# 10. Absolute Position After Power Failure
 
-**Status: DECIDED – algorithm concept; firmware implementation OPEN**
+Exact absolute blind position recovery immediately after a power failure is **not required**.
 
-### 16.3 Controller platform distinction
+The ERTE ET 45E motor has programmed upper and lower travel limits. Hall sensing is therefore used for relative rotation and movement counting.
 
-The current Hall experiments are performed using an **Arduino Nano / ATmega328P** solely as a development and measurement platform.
+A power failure during movement may temporarily leave the software position offset from the physical position. This is acceptable.
 
-The final SmartRoll control unit shall use an **ESP microcontroller**. Therefore:
+After complete travel to a known upper or lower motor endpoint, SmartRoll shall resynchronize its software position to that known endpoint.
 
-- Arduino test firmware is experimental firmware only,
-- Arduino pin assignments must not be treated as final production pin assignments,
-- Arduino timing/interrupt implementation must not be copied blindly to the ESP,
-- the verified Hall state-machine logic is the portable functional requirement,
-- final ESP firmware shall implement the same validated transition logic using ESP-appropriate GPIO/interrupt handling.
+No additional absolute-position sensor is required for this recovery concept.
 
-**Status: DECIDED**
+**Status: DECIDED.**
 
-### 16.4 Restart behavior
+# 11. Relative Position Counting – OPEN
 
-A controller restart, including a restart caused by power failure, must **not require the previous direction to be retained in RAM**.
+Valid quadrature transitions provide signed relative movement counts.
 
-After startup the controller shall:
+The system shall distinguish between:
 
-1. read the current Hall A/B state,
-2. store it as the initial state,
-3. set direction to `UNKNOWN`,
-4. wait for a subsequent valid Hall transition,
-5. determine direction from that transition sequence,
-6. continue relative movement counting from that point.
+- raw Hall state changes,
+- valid quadrature transitions,
+- signed shaft rotation count,
+- calibrated blind position.
 
-The controller shall not infer direction from the motor command alone.
+The following values still require measurement and shall not be guessed:
 
-The controller shall not assume that the blind is stationary at startup.
+- valid transitions per shaft revolution,
+- shaft revolutions per full blind travel,
+- conversion between Hall count and blind position.
 
-**Status: DECIDED**
+# 12. Verification Completed
 
-### 16.5 Absolute position after power failure
+The approved Hall concept has been experimentally verified on the Merkur-based development fixture using an Arduino Nano.
 
-The project does **not** require exact absolute blind position recovery after a controller power failure.
+Completed tests:
 
-The ERTE ET 45E motor has its own programmed upper and lower travel limits. SmartRoll therefore treats Hall counting primarily as a **relative position and direction measurement** between known end positions.
+1. Two magnets 180° apart.
+2. Hall A/B sensors directly beside each other.
+3. CW and CCW state-sequence verification.
+4. Five rotations CW and five rotations CCW.
+5. Direction changes during operation.
+6. Rapid manual rotation faster than expected roller-blind motor speed.
+7. 5 mm air-gap reliability test – reliable.
+8. 10 mm air-gap test – unreliable.
+9. Reset while operating CW.
+10. Reset while operating CCW.
+11. Correct direction reacquisition after reset.
+12. No invalid transitions in the recorded normal-operation tests.
 
-When a complete movement to the upper or lower motor limit is commanded and completed, SmartRoll shall be able to resynchronize its software position to the corresponding known endpoint.
+The quadrature direction algorithm is therefore **experimentally validated on the Arduino Nano test platform**.
 
-A temporary position error caused by power loss during movement is therefore acceptable and shall be corrected at the next full travel to an established motor endpoint.
+Evidence is stored in:
 
-**Status: DECIDED**
+```text
+/tests/hall_sensor_test/evidence/
+```
 
-# 17. Mechanical Verification Requirements
+Detailed measurement history is stored in:
 
-Before a carrier revision is considered production-ready, it must be checked for:
+```text
+/tests/hall_sensor_test/measurement_log.md
+```
+
+# 13. Test Platform vs Production Platform
+
+The Arduino Nano / ATmega328P is **test hardware only**.
+
+The final SmartRoll control unit will use an **ESP microcontroller**.
+
+Therefore:
+
+- Arduino pin assignments are not production assignments.
+- Arduino-specific timing/interrupt implementation is not a production requirement.
+- The validated quadrature transition behavior is the functional requirement.
+- Final ESP firmware shall implement equivalent behavior using ESP-compatible GPIO handling.
+
+# 14. Production Electrical Parameters – OPEN
+
+The following require final component selection and verification:
+
+- Hall sensor part number,
+- final ESP model,
+- ESP GPIO assignments,
+- Hall supply voltage,
+- Hall output type/polarity,
+- pull-up arrangement,
+- input protection,
+- filtering/debounce if required,
+- maximum expected transition frequency.
+
+# 15. Mechanical Verification Requirements
+
+Before a carrier revision is considered production-ready, verify:
 
 1. correct 16.70 mm shaft engagement,
 2. correct slat clearance,
 3. correct orientation of the carrier halves,
-4. correct M3 screw-head access,
-5. correct nut retention,
-6. sufficient material around magnet pockets,
-7. correct radial magnet insertion,
-8. 180° magnet spacing,
-9. no intrusion into the circular rotating clearance,
-10. no interference with the stationary mounting part,
-11. access to the programming button,
-12. clearance in the approximately 30 mm wound-blind condition,
-13. secure torque transmission from shaft to carrier.
+4. secure M3 clamping,
+5. accessible M3 screw heads,
+6. correct nut retention,
+7. secure magnet retention,
+8. magnets remain 180° apart,
+9. Hall A/B remain directly beside each other,
+10. production air gap is within the validated magnetic operating range,
+11. no intrusion into circular rotating clearance,
+12. no interference with the stationary mounting part,
+13. programming button remains accessible,
+14. sufficient clearance in the approximately 30 mm wound condition,
+15. secure torque transmission from shaft to carrier.
 
 A CAD model alone does not constitute mechanical verification.
 
-# 18. Parameters That Must NOT Be Guessed
+# 16. Parameters That Must NOT Be Guessed
 
-The following shall not be invented or silently estimated:
+The following shall remain `OPEN` unless explicitly measured or decided:
 
 - exact stationary-holder diameter,
 - exact distance between stationary holder and wall,
-- exact position and dimensions of programming button,
-- exact dimensions of the slat feature,
+- exact programming-button geometry,
+- exact slat-feature geometry,
 - exact depth and width of slat clearance,
-- final outer diameter of carrier,
+- final carrier outer diameter,
 - final magnetic-section dimensions,
-- final magnetic-ring thickness,
-- exact magnet pocket geometry,
+- final magnet-pocket geometry,
 - final M3 boss dimensions,
 - final printing tolerances,
-- final material and print orientation.
+- final material and print orientation,
+- final Hall mounting dimensions,
+- final production air gap,
+- position calibration constants.
 
-If required for the next design iteration, the value shall be marked `OPEN` until confirmed.
+# 17. FreeCAD Macro Requirements
 
-# 19. FreeCAD Macro Requirements
-
-Every production FreeCAD macro for SR-MEC-001 shall:
+Production macros shall:
 
 - contain clearly named parameters,
-- separate confirmed dimensions from adjustable/open dimensions,
+- separate confirmed/decided dimensions from `OPEN` dimensions,
 - generate both carrier halves,
 - preserve the 16.70 mm octagonal shaft geometry,
 - preserve the 6 mm clamping-zone width,
 - include the slat clearance in the correct orientation,
-- provide the circular rotating clearance in the magnetic section,
+- provide circular rotating clearance in the magnetic section,
 - place two radial magnet pockets 180° apart,
+- preserve the approved Hall A/B installation geometry,
 - provide two functional M3 joining bosses,
-- provide a complete M3 screw-head seat,
+- provide complete M3 screw-head seats,
 - provide anti-rotation nut pockets,
-- keep the M3 hardware outside the rotating clearance,
+- keep M3 hardware outside the rotating clearance,
 - keep the programming button accessible,
-- expose open dimensions at the top of the macro rather than hiding them inside geometry operations.
+- expose `OPEN` dimensions at the top of the macro,
+- never silently replace confirmed dimensions with approximations.
 
-The macro must not silently replace a confirmed dimension with a rounded or approximate value.
+# 18. Superseded Hall Experiments
 
-# 20. Revision Control
+Previous experiments using Hall sensors separated by approximately **30°, 45° or 90°** are now **SUPERSEDED**.
 
-Mechanical carrier revisions use `SR-MEC-001 Rev.X`.
+They are retained only as historical evidence. They shall **not** be used as:
 
-Every revision must document:
+- production mechanical references,
+- firmware references,
+- direction-algorithm references,
+- geometry references for the final Hall installation.
 
-- changed geometry,
-- changed dimensions,
-- reason for change,
-- parameters that remain unchanged,
-- parameters requiring verification.
+In particular, the former 30° arrangement and its associated state machine are obsolete.
 
-A new revision must not overwrite the historical definition of a previous revision.
+The approved reference is exclusively:
 
-# 21. Current Status – SR-MEC-001 Rev.F
+```text
+2 magnets, 180° apart
+Hall A + Hall B directly beside each other
+5 mm successful test air gap
 
-### Confirmed
+CW : 11 → 10 → 00 → 01 → 11
+CCW: 11 → 01 → 00 → 10 → 11
+```
 
-- external roller-blind application,
-- ERTE ET 45E tubular motor,
-- octagonal shaft,
-- 16.70 mm across flats,
-- 5 + 6.7 + 5 mm geometry on the slat side,
-- approximately 35 mm available space with blind unrolled,
-- approximately 30 mm effective space with blind wound,
-- rotating section begins approximately 24 mm from the right,
-- programming button must remain accessible,
-- test fixture: 2 magnets 180°, equal polarization, Hall separation 30°, 5 mm air gap,
-- test fixture direction detection is reliable at tested slow and high manual rotation speeds.
+# 19. Current Approved Hall Status
 
-### Decided
+### APPROVED
 
-- two-piece carrier,
-- two M3 connections,
-- 6 mm octagonal clamping section,
-- slat clearance 90° from the joining arrangement,
-- circular clearance in the magnetic section,
-- two radial magnets,
+- external roller blinds with ERTE ET 45E motors,
+- 2 magnets,
 - magnets 180° apart,
-- nominal magnets 4 × 2 mm,
-- magnets inserted radially from the outside,
-- carrier installed as two separate halves rather than opening a complete ring,
-- approximately 30 mm wound-blind condition is the critical clearance state,
-- Hall direction determined by experimentally verified A/B transition state machine,
-- restart sets direction to UNKNOWN and reacquires it from subsequent Hall transitions,
-- exact absolute position after power failure is not required,
-- full travel to motor end limits can resynchronize software position,
-- Arduino Nano is test hardware only; final controller is ESP-based.
+- same magnet polarization in tested arrangement,
+- radial magnet orientation,
+- 2 Hall sensors,
+- Hall A/B directly beside each other,
+- successful 5 mm test air gap,
+- 2-bit quadrature decoding,
+- complete-state transition direction detection,
+- invalid-transition handling,
+- restart direction reacquisition,
+- relative movement counting concept,
+- no requirement for exact absolute position immediately after power failure,
+- endpoint resynchronization using motor limits,
+- Arduino Nano as test platform,
+- ESP as final controller platform.
 
-### Open
+### OPEN
 
-- exact slat geometry,
-- exact stationary-holder geometry,
-- final magnetic-section dimensions,
-- final outer diameter,
-- final M3 boss geometry,
-- final magnet-pocket dimensions,
-- final printing tolerances,
-- final material and printing parameters,
-- final CAD coordinate convention,
-- final ESP platform/model and production GPIO assignment,
-- final Hall electrical interface on ESP,
-- final position/count calibration,
-- final filtering implementation.
-
-# 22. Change Log Reference
-
-All changes to this specification shall also be recorded in `CHANGELOG.md`.
-
-No significant mechanical change shall be made only inside a FreeCAD macro. The specification must be updated first or simultaneously.
-
-xx
+- final Hall sensor selection,
+- final ESP model and GPIO assignment,
+- production Hall mounting dimensions,
+- production air gap,
+- electrical interface details,
+- transitions per revolution calibration,
+- blind-position calibration,
+- final mechanical carrier verification.
