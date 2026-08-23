@@ -508,3 +508,5 @@ A new revision must not overwrite the historical definition of a previous revisi
 All changes to this specification shall also be recorded in `CHANGELOG.md`.
 
 No significant mechanical change shall be made only inside a FreeCAD macro. The specification must be updated first or simultaneously.
+
+xx
