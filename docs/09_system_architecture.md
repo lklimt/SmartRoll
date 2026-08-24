@@ -4,9 +4,9 @@
 
 ## 1. Objective
 
-SmartRoll shall combine the functions previously developed in the separate `ControlRoll` project with the new SmartRoll sensing and position functions.
+SmartRoll combines the functions previously developed in the separate `ControlRoll` project with the new SmartRoll sensing and position functions.
 
-The target is **one Wemos D1 mini / ESP8266 per roller-blind controller**.
+The preferred target is **one ESP32 development/controller board per roller blind**.
 
 The controller shall provide:
 
@@ -19,40 +19,51 @@ The controller shall provide:
 - Wi-Fi communication,
 - Home Assistant integration.
 
-The previous ControlRoll architecture used a Wemos D1 communicating with a separate Arduino Nano which generated the RF signal. The new architecture removes that Arduino from the production system. The ESP8266 shall generate the RF output directly.
+The previous ControlRoll architecture used a Wemos D1 communicating with a separate Arduino Nano which generated the RF signal. SmartRoll removes that Arduino from the production system. The ESP shall generate the RF output directly.
 
-## 2. Feasibility Result
+The existing Wemos D1 / ESP8266 remains a useful development and fallback platform.
 
-**Result: FEASIBLE on one Wemos D1 mini / ESP8266.**
+## 2. Controller Decision
 
-The planned functions require only a small subset of the available GPIO resources.
+**ESP32 is now the preferred final controller platform.**
 
-The Wemos D1 mini exposes the ESP8266 GPIOs through the D0–D8 labels, plus A0. The approved design deliberately avoids using the boot-strap pins GPIO0, GPIO2 and GPIO15 for sensors whose startup state could interfere with boot.
+Reason:
 
-ESP8266 boot mode depends on GPIO0, GPIO2 and GPIO15, so these pins shall be treated as reserved/boot-sensitive in the SmartRoll design.
+- substantially more GPIO resources,
+- greater processing and memory headroom,
+- hardware peripherals suitable for timing-sensitive work,
+- sufficient resources for Hall decoding, RF, Wi-Fi and all planned sensors simultaneously.
 
-## 3. Proposed GPIO Allocation
+The project shall nevertheless verify RF + Hall + Wi-Fi concurrency before the controller platform is considered production-frozen.
 
-| Function | Wemos label | ESP8266 GPIO | Direction | Status |
-|---|---|---:|---|---|
-| Hall A | D1 | GPIO5 | input | DECIDED FOR ARCHITECTURE |
-| Hall B | D2 | GPIO4 | input | DECIDED FOR ARCHITECTURE |
-| Motion sensor | D5 | GPIO14 | input | DECIDED FOR ARCHITECTURE |
-| Temperature sensor | D6 | GPIO12 | input / 1-Wire | DECIDED FOR ARCHITECTURE |
-| RF transmitter | D7 | GPIO13 | output | DECIDED FOR ARCHITECTURE |
-| Light sensor | A0 | ADC | analog input | DECIDED FOR ARCHITECTURE |
-| D0 | D0 | GPIO16 | reserved | AVAILABLE / RESERVED |
-| D3 | D3 | GPIO0 | boot-sensitive | RESERVED |
-| D4 | D4 | GPIO2 | boot-sensitive / serial TX | RESERVED |
-| D8 | D8 | GPIO15 | boot-sensitive | RESERVED |
-| RX | RX | GPIO3 | serial RX | RESERVED / DEBUG |
-| TX | TX | GPIO1 | serial TX | RESERVED / DEBUG |
+## 3. Feasibility Result
 
-This allocation leaves D0 unused and keeps D3/D4/D8 out of normal sensor assignments.
+**Result: FEASIBLE on one ESP32.**
 
-## 4. Hall Sensors
+The planned functions require only a small subset of normal ESP32 GPIO resources.
 
-Hall A and Hall B use the already experimentally validated quadrature arrangement.
+The ESP32 has sufficient GPIO and peripheral resources to avoid the GPIO compromises that were present on the ESP8266 design.
+
+## 4. Proposed ESP32 GPIO Allocation
+
+Initial development allocation:
+
+| Function | ESP32 GPIO | Direction | Status |
+|---|---:|---|---|
+| Hall A | GPIO32 | input | PROPOSED |
+| Hall B | GPIO33 | input | PROPOSED |
+| BH1750 SDA | GPIO21 | I2C | PROPOSED |
+| BH1750 SCL | GPIO22 | I2C | PROPOSED |
+| RF transmitter | GPIO25 | output | PROPOSED |
+| Motion PIR | GPIO27 | input | PROPOSED |
+| DS18B20 | GPIO26 | 1-Wire | PROPOSED |
+| Light / ADC spare | GPIO34 | input-only ADC | PROPOSED |
+
+These pins are ordinary ESP32 GPIOs appropriate for the intended functions. The final pinout shall be frozen after module-level and concurrency testing.
+
+## 5. Hall Sensors
+
+Hall A and Hall B use the experimentally validated quadrature arrangement.
 
 Approved mechanical arrangement:
 
@@ -69,57 +80,84 @@ CCW: 11 → 01 → 00 → 10 → 11
 
 The ESP firmware shall implement the same complete 2-bit state-transition decoder validated on the Arduino Nano.
 
-Hall inputs must be electrically compatible with the ESP8266 3.3 V GPIOs. Pull-up strategy shall be finalized with the selected Hall sensor.
+Hall inputs must be electrically compatible with the ESP32 3.3 V GPIOs. Pull-up strategy shall be finalized with the selected Hall sensor.
 
-## 5. RF Control
+## 6. RF Control – FROZEN PROTOCOL
 
-The existing ControlRoll project uses a 433 MHz transmitter and receiver with the Arduino Nano. The Arduino transmitter output was D4 and the RF timing implementation used the `RF433send` library.
+The existing ControlRoll project contains the reverse-engineered and validated ERTE 433 MHz RF control protocol.
 
-In SmartRoll the production ESP shall generate the RF transmitter signal directly on **D7 / GPIO13**, subject to validation of the RF transmitter module and the ESP-compatible timing implementation.
+This protocol is now **FROZEN** as a SmartRoll reference.
 
-The old Arduino Nano is therefore **not required in the production architecture**.
+The following shall not be changed during migration:
 
-The existing ControlRoll command set remains the functional starting point:
+- ERTE command data,
+- roller addressing,
+- UP / STOP / DOWN semantics,
+- TRIBIT encoding,
+- validated RF timing parameters.
+
+The implementation reference is documented in:
+
+`docs/11_controlroll_rf_protocol.md`
+
+The `RF433send` library explicitly supports AVR, ESP8266 and ESP32. SmartRoll shall first reproduce the existing protocol directly on ESP32 using the same library and parameters.
+
+Only after successful physical verification may a hardware-timed alternative be considered.
+
+## 7. RF + Hall Timing Requirement
+
+The most important SmartRoll RF test is simultaneous operation:
 
 ```text
-UP / STOP / DOWN
+Hall A/B rotation
+        +
+433 MHz RF transmission
+        +
+Wi-Fi active
 ```
 
-The existing project also contains per-roller RF command codes for rollers 1–6. Those codes shall be migrated into SmartRoll only after their source data is verified and documented.
+Acceptance requires:
 
-### RF receiver
+- no missed Hall transitions,
+- no false direction changes,
+- no unexpected invalid transitions,
+- no RF command corruption,
+- no watchdog reset.
 
-The previous ControlRoll hardware included a 433 MHz receiver, but the documented working control path is transmission from the Arduino to the roller motor. The SmartRoll first production architecture therefore does **not require a dedicated RF receiver GPIO**.
+The existing RF library uses microsecond timing and therefore the concurrency test is mandatory.
 
-If later testing proves that RF reception is required, the spare GPIO resources shall be reassessed rather than assigning a boot-sensitive pin without verification.
+## 8. Motion Sensor
 
-## 6. Motion Sensor
+A digital PIR motion sensor is allocated to GPIO27.
 
-A digital motion sensor may be connected to **D5 / GPIO14**.
+The exact sensor and active level remain OPEN until the purchased sensor is tested.
 
-The exact sensor part number and active level remain OPEN.
+Motion processing shall never block Hall decoding or RF control.
 
-The firmware shall treat motion sensing as an independent input service and shall not block Hall decoding or RF timing.
+## 9. Temperature Sensor
 
-## 7. Temperature Sensor
+A DS18B20 1-Wire sensor is initially allocated to GPIO26.
 
-A 1-Wire temperature sensor is allocated to **D6 / GPIO12** as the initial architecture.
+The sensor pull-up and exact wiring shall be verified on the ESP32 prototype.
 
-The exact sensor type and pull-up value remain OPEN until the component is finalized.
+Temperature measurement shall be scheduled without blocking time-critical Hall processing.
 
-The temperature service shall be non-blocking from the perspective of Hall direction detection and RF control.
+## 10. Light Sensor
 
-## 8. Light Sensor
+BH1750 is initially allocated to I2C:
 
-The light sensor is allocated to **A0**.
+```text
+SDA = GPIO21
+SCL = GPIO22
+```
 
-The exact sensor implementation remains OPEN. If an LDR/resistor divider is used, its voltage range must remain within the actual Wemos D1 mini A0 input specification.
+The final sensor implementation remains subject to physical testing and calibration.
 
-The firmware shall convert the raw ADC value to a calibrated light level only after the sensor is experimentally calibrated.
+If an analog light sensor is considered later, an appropriate ADC pin shall be selected instead.
 
-## 9. Wi-Fi and Home Assistant
+## 11. Wi-Fi and Home Assistant
 
-The ESP8266 provides Wi-Fi directly, so no additional communication processor is required.
+The ESP32 provides Wi-Fi directly.
 
 The production controller shall expose at least:
 
@@ -130,14 +168,12 @@ The production controller shall expose at least:
 - motion state,
 - temperature,
 - light level,
-- diagnostics/invalid Hall transitions,
+- Hall invalid-transition diagnostics,
 - communication/availability state.
 
-The exact MQTT / ESPHome / native API architecture remains OPEN and shall be decided after the sensor and firmware architecture is frozen.
+The exact MQTT / ESPHome / native API architecture remains OPEN and will be selected after the firmware architecture is frozen.
 
-## 10. Firmware Architecture
-
-The firmware shall be modular even though it runs on one ESP:
+## 12. Firmware Architecture
 
 ```text
 SmartRoll firmware
@@ -169,44 +205,35 @@ SmartRoll firmware
     └── Home Assistant
 ```
 
-No module shall contain long blocking delays that can prevent Hall transitions from being processed.
+No module shall contain long blocking delays that can prevent Hall events from being processed.
 
-## 11. Critical Timing Requirement
+## 13. Power and Logic Levels
 
-The Hall decoder and RF transmitter are the two timing-sensitive functions.
+The ESP32 uses 3.3 V logic.
 
-The Hall inputs shall be handled using GPIO interrupts or an equally reliable event-driven method on the ESP8266.
-
-RF transmission shall be implemented so that its timing does not cause missed Hall transitions. This must be verified experimentally before the production firmware is accepted.
-
-The fact that the D1 has enough GPIOs does **not by itself prove timing compatibility**. RF/Hall concurrency is therefore an explicit firmware test requirement.
-
-## 12. Power and Logic Levels
-
-The ESP8266 operates at 3.3 V logic.
-
-Every external sensor and RF module must therefore be checked for:
+Every external sensor and RF module shall be checked for:
 
 - supply voltage,
 - GPIO high/low levels,
-- maximum ESP GPIO voltage,
-- required pull-ups/pull-downs,
+- maximum ESP32 GPIO voltage,
+- pull-ups/pull-downs,
 - startup state.
 
-The existing ControlRoll RF modules were powered from 5 V in the Arduino system. Their direct electrical compatibility with ESP8266 GPIO must be verified before connecting the RF data input/output directly.
+No 5 V signal shall be connected directly to an ESP32 GPIO without verification of compatibility.
 
-## 13. Production vs Development Hardware
+## 14. Development vs Production Hardware
 
 ### Development
 
-- Arduino Nano: Hall algorithm and quadrature validation platform.
-- Wemos D1: target ESP platform.
-- Merkur fixture: mechanical Hall test platform.
+- Arduino Nano: validated Hall algorithm test platform.
+- Wemos D1 / ESP8266: existing ControlRoll and fallback development platform.
+- ESP32: preferred SmartRoll integration/test platform.
+- Merkur fixture: Hall mechanical test platform.
 - Existing ControlRoll hardware: RF protocol reference.
 
-### Production
+### Production target
 
-- one Wemos D1 mini / ESP8266,
+- one ESP32 controller,
 - two Hall sensors,
 - two magnets,
 - RF transmitter,
@@ -216,32 +243,32 @@ The existing ControlRoll RF modules were powered from 5 V in the Arduino system.
 
 The Arduino Nano is not part of the production controller.
 
-## 14. Feasibility Conclusion
+## 15. Feasibility Conclusion
 
-The single-Wemos architecture is accepted as the project direction.
+The one-controller architecture is accepted as the project direction.
 
-There are sufficient GPIO resources for all currently planned functions, and the proposed allocation avoids the ESP8266 boot-sensitive GPIO0/GPIO2/GPIO15 pins.
+ESP32 is the preferred controller because it gives sufficient GPIO and processing headroom without forcing sensors onto boot-sensitive pins.
 
-The remaining feasibility risks are **not GPIO count**. They are:
+The remaining feasibility risks are:
 
-1. direct ESP8266 RF timing compatibility,
+1. direct ESP32 RF timing compatibility,
 2. RF module electrical level compatibility,
 3. Hall interrupt reliability while RF is transmitting,
 4. exact sensor component selection and electrical interface,
 5. final power-supply design.
 
-These items shall be verified before the first production firmware release.
+These shall be verified before the first production firmware release.
 
-## 15. Open Items
+## 16. Open Items
 
-- final Wemos D1 variant,
-- exact Hall sensor part number,
+- final ESP32 board variant,
+- exact Hall sensor production part number,
 - exact motion sensor,
-- exact temperature sensor,
-- exact light sensor,
+- exact temperature sensor wiring,
+- exact light sensor implementation,
 - RF transmitter module and electrical interface,
 - whether an RF receiver is ultimately required,
-- RF timing implementation on ESP8266,
+- RF + Hall concurrency result,
 - final Home Assistant communication method,
-- final PCB/GPIO electrical protection,
-- power supply and decoupling.
+- final PCB/electrical protection,
+- final power supply and decoupling.
