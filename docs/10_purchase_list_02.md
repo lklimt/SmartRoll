@@ -83,19 +83,56 @@ No PIR is therefore included in Purchase List No. 2.
 
 If presence-based automation is later approved, PIR will be treated as an independent optional expansion and purchased separately.
 
-## 8. Power supply
+## 8. Power supply – COMPACT 230 VAC SOLUTION
 
-For the integrated prototype, use a safe low-voltage 5 V DC supply during development.
+The previously considered 5 V / 3 A DIN-rail supply is **removed from the SmartRoll purchase baseline**.
+
+The preferred solution is now a compact, isolated AC/DC module mounted inside the SmartRoll electronics enclosure:
 
 | Qty | Component | Preferred source | Reason |
 |---:|---|---|---|
-| 1 | OMCH DR-15-5, 5 V / 3 A / 15 W DIN supply | LaskaKit | complete prototype power source |
+| 1 | **Hi-Link HLK-PM01, 230 VAC → 5 V DC / 0.6 A / 3 W, isolated** | LaskaKit or Drátek | compact embedded supply for the complete prototype |
 
-urlLaskaKit – OMCH DR-15-5 5 V / 3 Ahttps://www.laskakit.cz/omch-dr-15-5-modulovy-napajeci-230v-ac-dc-zdroj-na-din-5v-3a-15w/
+LaskaKit currently lists the HLK-PM01 as a 100–240 VAC input, isolated 5 V / 0.6 A module, approximately 34 × 20 × 15 mm. It is intended for embedded installation and includes overload/short-circuit protection. citeturn0search0turn0search24
 
-An alternative 5 V / 4 A supply may be used if the mechanical arrangement makes it more suitable.
+Drátek also lists the HLK-PM01, 100–240 VAC input, 5 V / 600 mA, approximately 35 × 21 × 16 mm, for PCB mounting. citeturn0search2
 
-Mains wiring is outside the low-voltage test phase and must be separately protected and documented.
+**Status: PREFERRED CANDIDATE – NOT YET PRODUCTION-FROZEN.**
+
+The 600 mA continuous rating must be verified experimentally with:
+
+```text
+ESP32 Wi-Fi active
++ RF transmitter
++ Hall A/B active
++ BH1750
++ DS18B20
+```
+
+If voltage stability or current reserve proves insufficient, a larger compact isolated AC/DC module will be selected. The first alternative should remain a 5 V module with greater current capacity rather than returning automatically to a large DIN supply.
+
+### Required mains-side protection
+
+Because this module is connected directly to 230 VAC, the final design shall include an appropriate mains input protection scheme. The HLK-PM01 documentation/recommendation calls for input protection such as a fuse and varistor. citeturn0search0turn0search24
+
+The final mains section shall therefore be designed as:
+
+```text
+230 VAC
+   │
+   ├── fuse / overcurrent protection
+   │
+   ├── surge protection as required
+   │
+   ▼
+HLK-PM01
+   │
+   │ isolated 5 V DC
+   ▼
+ESP32 + sensors + RF
+```
+
+The exact fuse, varistor, PCB creepage/clearance and enclosure arrangement remain open until the final PCB/mechanical design. Mains wiring is not part of the current low-voltage breadboard tests.
 
 ## 9. Prototyping accessories
 
@@ -190,12 +227,34 @@ Add:
 
 Verify simultaneous operation and Home Assistant/MQTT reporting.
 
-### Test 6 – Complete SmartRoll prototype
+### Test 6 – Power supply
+
+After the low-voltage functions are proven, test the HLK-PM01 under representative worst-case load:
+
+- ESP32 Wi-Fi active,
+- RF transmission,
+- Hall processing,
+- BH1750 active,
+- DS18B20 conversion,
+- repeated RF commands.
+
+Acceptance:
+
+- stable 5 V rail,
+- no ESP32 brownout/reset,
+- no RF malfunction,
+- no Hall event loss.
+
+Only then may the HLK-PM01 be accepted for the integrated prototype.
+
+### Test 7 – Complete SmartRoll prototype
 
 Combine:
 
 ```text
-ESP32
+230 VAC
++ HLK-PM01 5 V isolated supply
++ ESP32
 + Hall A/B
 + RF TX
 + BH1750
@@ -203,7 +262,7 @@ ESP32
 + Wi-Fi/MQTT
 ```
 
-Only after Tests 2–5 pass should the integrated controller be considered ready for mechanical installation.
+Only after Tests 2–6 pass should the integrated controller be considered ready for mechanical installation.
 
 ## 13. Items intentionally NOT purchased yet
 
@@ -228,13 +287,13 @@ Do not buy these in quantity until the integrated tests are complete:
 3. **433 MHz antennas – 2 pcs**
 4. **BH1750 – 1 pc**
 5. **DS18B20 waterproof – 2 pcs**
-6. jumper wires / headers / terminals
-7. support capacitors/resistors
+6. **HLK-PM01 230 VAC → 5 V / 0.6 A isolated – 1 pc**
+7. jumper wires / headers / terminals
+8. support capacitors/resistors
 
 ### RECOMMENDED
 
-8. SRX882S receiver – 1 pc
-9. 5 V / 3 A power supply – 1 pc
+9. SRX882S receiver – 1 pc
 10. spare prototype PCB
 11. heat-shrink and hookup wire
 
