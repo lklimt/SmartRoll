@@ -149,7 +149,62 @@ The final sensor implementation remains subject to physical testing and calibrat
 
 If an analog light sensor is considered later, an appropriate ADC pin shall be selected instead.
 
-## 10. Wi-Fi and Home Assistant
+## 10. Power Architecture – 230 VAC to Isolated 5 V DC
+
+The production concept shall use a **compact isolated AC/DC module**, not a large DIN-rail supply.
+
+Preferred candidate:
+
+**Hi-Link HLK-PM01 – 100–240 VAC input → 5 V DC / 0.6 A / 3 W, isolated.**
+
+The module is approximately 34 × 20 × 15 mm and is intended for embedded installation. The selected supplier documentation specifies an isolated output and recommends appropriate input protection such as fuse and varistor. citeturn0search0turn0search24
+
+The proposed architecture is:
+
+```text
+230 VAC
+   │
+   ├── mains input protection
+   │
+   ▼
+┌─────────────────┐
+│    HLK-PM01     │
+│ 230 VAC → 5 VDC │
+│     0.6 A       │
+│    isolated     │
+└────────┬────────┘
+         │ 5 V DC
+         ▼
+       ESP32
+         │
+    ┌────┼───────────────┐
+    │    │       │       │
+   Hall  RF    BH1750  DS18B20
+```
+
+### Power-supply status
+
+HLK-PM01 is **PREFERRED CANDIDATE, NOT YET PRODUCTION-FROZEN**.
+
+The 0.6 A continuous rating must be verified under representative worst-case operation:
+
+- ESP32 Wi-Fi active,
+- RF transmission,
+- Hall processing,
+- BH1750 active,
+- DS18B20 conversion.
+
+If the 5 V rail becomes unstable or the ESP32 reports brownouts, a higher-current compact isolated AC/DC module shall be selected.
+
+The former 5 V / 3 A DIN-rail supply is therefore no longer the baseline purchase item, but remains a possible laboratory fallback.
+
+### Mains safety
+
+The AC/DC module is directly connected to hazardous mains voltage. The final SmartRoll PCB/enclosure must maintain the required separation between mains and SELV circuitry and provide suitable protection, insulation, terminals and strain relief.
+
+The exact fuse, surge protection, creepage/clearance and enclosure arrangement remain OPEN until the final PCB and mechanical design. Mains wiring shall not be performed on the current low-voltage prototype board.
+
+## 11. Wi-Fi and Home Assistant
 
 The ESP32 provides Wi-Fi directly.
 
@@ -166,7 +221,7 @@ The production controller shall expose at least:
 
 The exact MQTT / ESPHome / native API architecture remains OPEN and will be selected after the firmware architecture is frozen.
 
-## 11. Firmware Architecture
+## 12. Firmware Architecture
 
 ```text
 SmartRoll firmware
@@ -199,7 +254,7 @@ SmartRoll firmware
 
 No module shall contain long blocking delays that can prevent Hall events from being processed.
 
-## 12. PIR / Presence – FUTURE ONLY
+## 13. PIR / Presence – FUTURE ONLY
 
 PIR is intentionally excluded from SmartRoll v1.
 
@@ -209,9 +264,11 @@ It would not replace or supplement the Hall-based roller movement measurement.
 
 Any future PIR implementation shall be documented as an independent automation input.
 
-## 13. Power and Logic Levels
+## 14. Power and Logic Levels
 
 The ESP32 uses 3.3 V logic.
+
+The HLK-PM01 supplies 5 V to the ESP32 development board/prototype. The ESP32's onboard regulator then provides the required 3.3 V rail for the ESP32 and compatible sensors.
 
 Every external sensor and RF module shall be checked for:
 
@@ -223,7 +280,7 @@ Every external sensor and RF module shall be checked for:
 
 No 5 V signal shall be connected directly to an ESP32 GPIO without verification of compatibility.
 
-## 14. Development vs Production Hardware
+## 15. Development vs Production Hardware
 
 ### Development
 
@@ -240,15 +297,18 @@ No 5 V signal shall be connected directly to an ESP32 GPIO without verification 
 - two magnets,
 - RF transmitter,
 - temperature sensor,
-- light sensor.
+- light sensor,
+- compact isolated 230 VAC → 5 V DC power module.
 
 The Arduino Nano is not part of the production controller.
 
-## 15. Feasibility Conclusion
+## 16. Feasibility Conclusion
 
 The one-controller architecture is accepted as the project direction.
 
 ESP32 is the preferred controller because it gives sufficient GPIO and processing headroom without forcing sensors onto boot-sensitive pins.
+
+The compact isolated HLK-PM01 power architecture is now the preferred power concept because it fits the expected low power demand and the physical constraints of an embedded SmartRoll controller better than a 15 W DIN-rail supply.
 
 The remaining feasibility risks are:
 
@@ -256,11 +316,12 @@ The remaining feasibility risks are:
 2. RF module electrical level compatibility,
 3. Hall interrupt reliability while RF is transmitting,
 4. exact sensor component selection and electrical interface,
-5. final power-supply design.
+5. HLK-PM01 0.6 A power margin under worst-case load,
+6. final mains protection and PCB/enclosure safety.
 
 These shall be verified before the first production firmware release.
 
-## 16. Open Items
+## 17. Open Items
 
 - final ESP32 board variant,
 - exact Hall sensor production part number,
@@ -271,5 +332,6 @@ These shall be verified before the first production firmware release.
 - RF + Hall concurrency result,
 - final Home Assistant communication method,
 - final PCB/electrical protection,
-- final power supply and decoupling,
+- HLK-PM01 load test result,
+- final mains protection and enclosure arrangement,
 - whether a future PIR/presence feature is desired.
