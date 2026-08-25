@@ -10,9 +10,9 @@ The project has frozen the existing ControlRoll ERTE RF protocol as the referenc
 
 The RF433send library explicitly supports **ESP32, ESP8266 and AVR**, so the RF protocol can be migrated without redesigning the protocol itself. The remaining question is timing reliability when RF, Hall quadrature and Wi-Fi operate simultaneously.
 
-For that reason the purchase baseline is now changed to **ESP32 as the preferred final controller**.
+The purchase baseline is therefore **ESP32 as the preferred final controller**.
 
-The existing Wemos D1 mini / ESP8266 remains useful as a development and fallback platform and does not need to be discarded.
+The existing Wemos D1 mini / ESP8266 remains useful as development/fallback hardware and does not need to be discarded.
 
 ## 2. What is already available
 
@@ -29,17 +29,15 @@ Purchase No. 1 has already covered the initial Hall experiment material:
 
 These items are therefore not required for the new purchase, except where a spare is useful.
 
-## 3. Main controller – NEW PREFERRED PLATFORM
+## 3. Main controller – PREFERRED PLATFORM
 
 | Qty | Component | Preferred source | Reason |
 |---:|---|---|---|
 | 2 | ESP32-DevKitC 38pin, Micro USB | Drátek | 1× main development/test unit, 1× final/reserve unit |
 
-Current candidate: **ESP32-DevKitC 38pin**. Drátek lists the board with ESP32 dual-core, 4 MB Flash, Wi-Fi/Bluetooth, 3.3 V logic and 5 V USB power. urlDrátek – ESP32-DevKitC 38pinturn0search0
+Current candidate: **ESP32-DevKitC 38pin**. Drátek lists the board with ESP32 dual-core, 4 MB Flash, Wi-Fi/Bluetooth, 3.3 V logic and 5 V USB power. urlDrátek – ESP32-DevKitC 38pinhttps://dratek.cz/arduino-platforma/51547-esp32-devkitc-development-board-38pin.html
 
 Two boards are recommended so that one can remain permanently available as the development/debug unit while the second becomes the basis of the complete SmartRoll prototype.
-
-An ESP32-DevKitV1 30pin is an acceptable lower-cost alternative if the 38pin board is unavailable. urlDrátek – ESP32-DevKitV1 30pinturn0search9
 
 ## 4. RF control
 
@@ -57,7 +55,7 @@ The existing ControlRoll RF protocol is frozen in:
 
 The protocol shall not be changed during migration. The first task is to reproduce the existing waveform on ESP32 and verify the ERTE motor responds identically.
 
-The STX882 is the preferred transmitter candidate from the existing procurement list. The RF module's electrical interface must still be verified before final PCB design.
+The STX882 is the preferred transmitter candidate. The RF module electrical interface must still be verified before final PCB design.
 
 ## 5. Light sensor
 
@@ -75,13 +73,15 @@ BH1750 provides I2C light measurement. urlDrátek – BH1750 light sensor�
 
 The DS18B20 is suitable for the planned 1-Wire temperature measurement. urlDrátek – waterproof DS18B20 1 mhttps://dratek.cz/arduino-platforma/848-vodeodolny-teplomer-pro-jednodeskove-pocitace-ds18b20-1m.html
 
-## 7. Motion sensor
+## 7. PIR motion sensor – NOT PURCHASED
 
-| Qty | Component | Preferred source | Reason |
----:|---|---|---|
-| 2 | PIR HC-SR501 | Drátek | 1× test, 1× final/reserve |
+PIR is **removed from SmartRoll v1**.
 
-The HC-SR501 provides a digital motion output. The exact power/output behavior must be verified on the ESP32 before final wiring.
+Hall A/B already provide the required information about actual roller-shaft movement and direction. A PIR detects movement/presence of people in the room, which is a separate future automation function and is not required for roller control.
+
+No PIR is therefore included in Purchase List No. 2.
+
+If presence-based automation is later approved, PIR will be treated as an independent optional expansion and purchased separately.
 
 ## 8. Power supply
 
@@ -123,7 +123,7 @@ These values are support/spare values and are not yet frozen production values.
 
 ## 11. ESP32 prototype GPIO baseline
 
-The exact final GPIO allocation will be chosen after the ESP32 RF and Hall concurrency test. The ESP32 has substantially more GPIO resources than the D1 mini, so there is no need to force the old ESP8266 allocation onto the new controller.
+The exact final GPIO allocation will be chosen after the ESP32 RF and Hall concurrency test.
 
 Recommended initial allocation:
 
@@ -134,9 +134,8 @@ Recommended initial allocation:
 | BH1750 SDA | GPIO21 | PROPOSED |
 | BH1750 SCL | GPIO22 | PROPOSED |
 | RF transmitter | GPIO25 | PROPOSED |
-| PIR | GPIO27 | PROPOSED |
 | DS18B20 | GPIO26 | PROPOSED |
-| Light sensor / spare ADC | GPIO34 | PROPOSED INPUT ONLY |
+| Light / ADC spare | GPIO34 | PROPOSED INPUT ONLY |
 
 These GPIOs are deliberately selected from ordinary ESP32 pins suitable for the intended functions. The final pinout shall be frozen only after the actual modules are tested.
 
@@ -187,8 +186,7 @@ Acceptance:
 Add:
 
 - BH1750,
-- DS18B20,
-- PIR.
+- DS18B20.
 
 Verify simultaneous operation and Home Assistant/MQTT reporting.
 
@@ -202,7 +200,6 @@ ESP32
 + RF TX
 + BH1750
 + DS18B20
-+ PIR
 + Wi-Fi/MQTT
 ```
 
@@ -219,7 +216,8 @@ Do not buy these in quantity until the integrated tests are complete:
 - final RF antenna type/length,
 - production connectors,
 - final PCB protection components,
-- additional level shifters unless testing proves one is required.
+- additional level shifters unless testing proves one is required,
+- PIR/presence sensor hardware.
 
 ## 14. Purchase priority
 
@@ -230,16 +228,15 @@ Do not buy these in quantity until the integrated tests are complete:
 3. **433 MHz antennas – 2 pcs**
 4. **BH1750 – 1 pc**
 5. **DS18B20 waterproof – 2 pcs**
-6. **HC-SR501 – 2 pcs**
-7. jumper wires / headers / terminals
-8. support capacitors/resistors
+6. jumper wires / headers / terminals
+7. support capacitors/resistors
 
 ### RECOMMENDED
 
-9. SRX882S receiver – 1 pc
-10. 5 V / 3 A power supply – 1 pc
-11. spare prototype PCB
-12. heat-shrink and hookup wire
+8. SRX882S receiver – 1 pc
+9. 5 V / 3 A power supply – 1 pc
+10. spare prototype PCB
+11. heat-shrink and hookup wire
 
 ## 15. Procurement rule
 
