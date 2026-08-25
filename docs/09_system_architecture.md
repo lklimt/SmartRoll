@@ -13,11 +13,12 @@ The controller shall provide:
 - RF control of the ERTE ET 45E roller-blind motor,
 - Hall A/B rotation and direction sensing,
 - relative position counting,
-- motion sensing,
 - temperature sensing,
 - light sensing,
 - Wi-Fi communication,
 - Home Assistant integration.
+
+**PIR motion detection is not part of SmartRoll v1.** Hall A/B is the authoritative sensor for physical roller movement. A PIR, if required in the future, would detect people/presence in the room and would be an independent automation input, not a roller-motion sensor.
 
 The previous ControlRoll architecture used a Wemos D1 communicating with a separate Arduino Nano which generated the RF signal. SmartRoll removes that Arduino from the production system. The ESP shall generate the RF output directly.
 
@@ -32,7 +33,7 @@ Reason:
 - substantially more GPIO resources,
 - greater processing and memory headroom,
 - hardware peripherals suitable for timing-sensitive work,
-- sufficient resources for Hall decoding, RF, Wi-Fi and all planned sensors simultaneously.
+- sufficient resources for Hall decoding, RF, Wi-Fi and all planned v1 sensors simultaneously.
 
 The project shall nevertheless verify RF + Hall + Wi-Fi concurrency before the controller platform is considered production-frozen.
 
@@ -40,7 +41,7 @@ The project shall nevertheless verify RF + Hall + Wi-Fi concurrency before the c
 
 **Result: FEASIBLE on one ESP32.**
 
-The planned functions require only a small subset of normal ESP32 GPIO resources.
+The planned v1 functions require only a small subset of normal ESP32 GPIO resources.
 
 The ESP32 has sufficient GPIO and peripheral resources to avoid the GPIO compromises that were present on the ESP8266 design.
 
@@ -55,11 +56,10 @@ Initial development allocation:
 | BH1750 SDA | GPIO21 | I2C | PROPOSED |
 | BH1750 SCL | GPIO22 | I2C | PROPOSED |
 | RF transmitter | GPIO25 | output | PROPOSED |
-| Motion PIR | GPIO27 | input | PROPOSED |
 | DS18B20 | GPIO26 | 1-Wire | PROPOSED |
 | Light / ADC spare | GPIO34 | input-only ADC | PROPOSED |
 
-These pins are ordinary ESP32 GPIOs appropriate for the intended functions. The final pinout shall be frozen after module-level and concurrency testing.
+PIR is deliberately not assigned a GPIO in v1.
 
 ## 5. Hall Sensors
 
@@ -79,6 +79,8 @@ CCW: 11 → 01 → 00 → 10 → 11
 ```
 
 The ESP firmware shall implement the same complete 2-bit state-transition decoder validated on the Arduino Nano.
+
+**Hall A/B is the authoritative source of roller shaft movement and direction.** PIR must never be used to determine whether the roller is moving.
 
 Hall inputs must be electrically compatible with the ESP32 3.3 V GPIOs. Pull-up strategy shall be finalized with the selected Hall sensor.
 
@@ -126,15 +128,7 @@ Acceptance requires:
 
 The existing RF library uses microsecond timing and therefore the concurrency test is mandatory.
 
-## 8. Motion Sensor
-
-A digital PIR motion sensor is allocated to GPIO27.
-
-The exact sensor and active level remain OPEN until the purchased sensor is tested.
-
-Motion processing shall never block Hall decoding or RF control.
-
-## 9. Temperature Sensor
+## 8. Temperature Sensor
 
 A DS18B20 1-Wire sensor is initially allocated to GPIO26.
 
@@ -142,7 +136,7 @@ The sensor pull-up and exact wiring shall be verified on the ESP32 prototype.
 
 Temperature measurement shall be scheduled without blocking time-critical Hall processing.
 
-## 10. Light Sensor
+## 9. Light Sensor
 
 BH1750 is initially allocated to I2C:
 
@@ -155,7 +149,7 @@ The final sensor implementation remains subject to physical testing and calibrat
 
 If an analog light sensor is considered later, an appropriate ADC pin shall be selected instead.
 
-## 11. Wi-Fi and Home Assistant
+## 10. Wi-Fi and Home Assistant
 
 The ESP32 provides Wi-Fi directly.
 
@@ -165,7 +159,6 @@ The production controller shall expose at least:
 - requested movement,
 - physical rotation direction,
 - relative position/count,
-- motion state,
 - temperature,
 - light level,
 - Hall invalid-transition diagnostics,
@@ -173,7 +166,7 @@ The production controller shall expose at least:
 
 The exact MQTT / ESPHome / native API architecture remains OPEN and will be selected after the firmware architecture is frozen.
 
-## 12. Firmware Architecture
+## 11. Firmware Architecture
 
 ```text
 SmartRoll firmware
@@ -194,7 +187,6 @@ SmartRoll firmware
 │   └── DOWN
 │
 ├── sensors
-│   ├── motion
 │   ├── temperature
 │   └── light
 │
@@ -206,6 +198,16 @@ SmartRoll firmware
 ```
 
 No module shall contain long blocking delays that can prevent Hall events from being processed.
+
+## 12. PIR / Presence – FUTURE ONLY
+
+PIR is intentionally excluded from SmartRoll v1.
+
+If later added, its purpose would be **human movement/presence detection in the room**, for example to support comfort or energy-saving automation.
+
+It would not replace or supplement the Hall-based roller movement measurement.
+
+Any future PIR implementation shall be documented as an independent automation input.
 
 ## 13. Power and Logic Levels
 
@@ -237,7 +239,6 @@ No 5 V signal shall be connected directly to an ESP32 GPIO without verification 
 - two Hall sensors,
 - two magnets,
 - RF transmitter,
-- motion sensor,
 - temperature sensor,
 - light sensor.
 
@@ -263,7 +264,6 @@ These shall be verified before the first production firmware release.
 
 - final ESP32 board variant,
 - exact Hall sensor production part number,
-- exact motion sensor,
 - exact temperature sensor wiring,
 - exact light sensor implementation,
 - RF transmitter module and electrical interface,
@@ -271,4 +271,5 @@ These shall be verified before the first production firmware release.
 - RF + Hall concurrency result,
 - final Home Assistant communication method,
 - final PCB/electrical protection,
-- final power supply and decoupling.
+- final power supply and decoupling,
+- whether a future PIR/presence feature is desired.
