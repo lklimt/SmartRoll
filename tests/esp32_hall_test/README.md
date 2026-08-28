@@ -15,73 +15,59 @@ This test deliberately contains **only ESP32 + Hall A + Hall B**. RF, Wi-Fi appl
 - jumper wires
 - USB cable for ESP32 power/programming
 
-## Wiring
+## Logical wiring – definitive connection list
 
-### Hall A
-
-| Hall A pin | Connect to |
-|---|---|
-| VCC | ESP32 3.3 V |
-| GND | ESP32 GND |
-| OUT | ESP32 GPIO32 |
-
-A 10 kΩ resistor is connected between **Hall A OUT / GPIO32** and **3.3 V**.
-
-### Hall B
-
-| Hall B pin | Connect to |
-|---|---|
-| VCC | ESP32 3.3 V |
-| GND | ESP32 GND |
-| OUT | ESP32 GPIO33 |
-
-A 10 kΩ resistor is connected between **Hall B OUT / GPIO33** and **3.3 V**.
-
-## Complete wiring diagram
+### Hall sensor A
 
 ```text
-                         ESP32
-                  +------------------+
-                  |                  |
-        3V3 ------+----+-------------+----------------+
-                  |    |                              |
-                  |   10k                             10k
-                  |    |                              |
-                  |    +---- GPIO32                   +---- GPIO33
-                  |         |                              |
-                  |         |                              |
-                  |      OUT Hall A                    OUT Hall B
-                  |         |                              |
-                  |      +--+--+                       +--+--+
-                  |      | Hall |                       | Hall|
-                  |      |  A   |                       |  B  |
-                  |      +--+---+                       +--+--+
-                  |         |                              |
-        GND ------+---------+------------------------------+
-                  |        GND                            GND
-                  |
-                  +------------------+
+Hall A VCC  -> ESP32 3V3
+Hall A GND  -> ESP32 GND
+Hall A OUT  -> ESP32 GPIO32
 ```
 
-Equivalent point-to-point wiring:
+Pull-up:
 
 ```text
-ESP32 3V3  -> Hall A VCC
-ESP32 GND  -> Hall A GND
-ESP32 GPIO32 -> Hall A OUT
-3V3 -> 10 kΩ -> GPIO32 / Hall A OUT
+ESP32 3V3 -> 10 kΩ resistor -> Hall A OUT / GPIO32
+```
 
-ESP32 3V3  -> Hall B VCC
-ESP32 GND  -> Hall B GND
-ESP32 GPIO33 -> Hall B OUT
-3V3 -> 10 kΩ -> GPIO33 / Hall B OUT
+### Hall sensor B
+
+```text
+Hall B VCC  -> ESP32 3V3
+Hall B GND  -> ESP32 GND
+Hall B OUT  -> ESP32 GPIO33
+```
+
+Pull-up:
+
+```text
+ESP32 3V3 -> 10 kΩ resistor -> Hall B OUT / GPIO33
+```
+
+### Complete logical schema
+
+```text
+ESP32 3V3
+   ├──────────────> Hall A VCC
+   ├──────────────> Hall B VCC
+   ├──[10 kΩ]─────> Hall A OUT / GPIO32
+   └──[10 kΩ]─────> Hall B OUT / GPIO33
+
+ESP32 GND
+   ├──────────────> Hall A GND
+   └──────────────> Hall B GND
+
+Hall A OUT ─────────> ESP32 GPIO32
+Hall B OUT ─────────> ESP32 GPIO33
 ```
 
 ### Important
 
 - ESP32 GPIOs are **3.3 V logic**.
+- Hall VCC is connected to **ESP32 3V3**, not 5 V.
 - Do **not** connect a 5 V Hall output directly to GPIO32 or GPIO33.
-- The exact Hall sensor output type must be confirmed. The 10 kΩ pull-ups are required when the selected Hall output is open-collector/open-drain.
+- The 10 kΩ pull-ups are used when the selected Hall output is open-collector/open-drain.
 - No RC capacitor is added in this first ESP32 test. We first verify the raw digital transitions.
 
 ## Mechanical arrangement
