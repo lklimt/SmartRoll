@@ -19,50 +19,72 @@ The first physical test was completed successfully. The ESP32 transmitted the pr
 | `01B` | STOP | PASS – blind stopped |
 | `01A` | DOWN | PASS – blind moved DOWN |
 
-The blind was fully controllable from the ESP32: DOWN, STOP and UP all worked.
+## Test B – repeated commands
 
-## Result
+The three basic functions were each tested 10 times.
 
-**PASS – basic ESP32 RF compatibility confirmed.**
+- UP: **10 / 10** – PASS
+- STOP: **10 / 10** – PASS
+- DOWN: **10 / 10** – PASS
 
-This is a functional compatibility result. The RF payload and timing configuration remain frozen and were not modified during the test.
+No missed or unexpected command response was observed.
 
-## Remaining robustness tests
+## Test C – after ESP32 reset
 
-The following tests are still recommended before final integration:
+The ESP32 was restarted and the RF functions were tested again.
 
-### Test B – repeated commands
+- UP: **PASS**
+- STOP: **PASS**
+- DOWN: **PASS**
 
-- UP: ___ / 10
-- STOP: ___ / 10
-- DOWN: ___ / 10
+No change in RF operation was observed after reset.
 
-### Test C – after ESP32 reset
+## Test D – rapid command sequence
 
-- UP: ___
-- STOP: ___
-- DOWN: ___
-
-### Test D – rapid sequence
+A rapid command sequence was tested after the normal functional tests.
 
 ```text
 01C -> 01B -> 01A -> 01B
 ```
 
-Result: ______________________________
+**PASS** – the commands were transmitted and interpreted correctly without observed corruption or unexpected movement.
 
-## Final status
+## Final result
 
-**PARTIAL PASS – functional RF test passed; robustness testing remains.**
+**PASS – Test 3 completed successfully.**
+
+The ESP32 has been verified as a functional and reliable replacement for the Arduino-based RF controller for the tested ERTE receiver.
+
+The following are now confirmed:
+
+1. ERTE UP command works from ESP32.
+2. ERTE STOP command works from ESP32.
+3. ERTE DOWN command works from ESP32.
+4. Repeated commands work reliably.
+5. RF operation survives an ESP32 restart.
+6. A rapid command sequence works correctly.
+7. The proven ERTE RF payload and timing configuration can remain frozen.
+
+## Evidence
+
+Primary evidence:
+
+`tests/esp32_rf_test/evidence/ESP32-test-RF.txt`
+
+The additional repeated/reset/rapid-sequence tests were performed as part of the same Test 3 validation session.
 
 ## Next stage
 
-Once the basic RF robustness checks are complete, integrate the two verified subsystems:
+Test 2 (ESP32 + Hall A/B) and Test 3 (ESP32 + ERTE RF) are both accepted.
+
+The next development step is the combined subsystem test:
 
 ```text
 ESP32
- ├── Hall A/B quadrature
- └── ERTE RF
+ ├── Hall A/B quadrature decoder
+ └── ERTE RF transmitter
 ```
 
-Then add BH1750, DS18B20 and Wi-Fi/Home Assistant integration.
+The purpose is to verify that Hall measurement and RF transmission can run together on the ESP32 without interference.
+
+After that, BH1750, DS18B20 and Wi-Fi/Home Assistant integration can be added incrementally.
