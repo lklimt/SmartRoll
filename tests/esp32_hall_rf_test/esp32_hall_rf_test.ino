@@ -1,14 +1,21 @@
+/*
+  SmartRoll - TEST 4
+  ESP32 + Hall A/B quadrature + ERTE FT45E RF
+
+  Hall A = GPIO32
+  Hall B = GPIO33
+  RF DATA = GPIO25
+
+  RF section intentionally uses the exact RF433send construction and
+  send() call proven in Test 3. Do not change RF timing during Test 4.
+*/
+
 #include <Arduino.h>
 #include <RF433send.h>
 
-// SmartRoll Test 4
-// ESP32 + Hall A/B quadrature + ERTE RF
-// Hall A = GPIO32, Hall B = GPIO33
-// RF DATA = GPIO25
-
-const uint8_t HALL_A_PIN = 32;
-const uint8_t HALL_B_PIN = 33;
-const uint8_t RF_PIN = 25;
+#define HALL_A_PIN 32
+#define HALL_B_PIN 33
+#define PIN_RFOUT 25
 
 volatile int32_t position = 0;
 volatile uint32_t cwCount = 0;
@@ -16,12 +23,12 @@ volatile uint32_t ccwCount = 0;
 volatile uint32_t invalidCount = 0;
 volatile uint8_t lastState = 0;
 
-// Proven ControlRoll / ERTE timing configuration.
-RF433send rf;
+// IMPORTANT: same RF object/API as the proven Test 3 firmware.
+RfSend *tx_erte;
 
-const uint8_t DATA_UP[]   = {0x33, 0x63, 0x13, 0x79, 0x08};
-const uint8_t DATA_STOP[] = {0x33, 0x63, 0x13, 0x79, 0x2A};
-const uint8_t DATA_DOWN[] = {0x33, 0x63, 0x13, 0x79, 0x19};
+const byte data_1nahoru[] = {0x33, 0x63, 0x13, 0x79, 0x08};
+const byte data_1stop[]   = {0x33, 0x63, 0x13, 0x79, 0x2A};
+const byte data_1dolu[]   = {0x33, 0x63, 0x13, 0x79, 0x19};
 
 uint8_t readHallState() {
   return (digitalRead(HALL_A_PIN) << 1) | digitalRead(HALL_B_PIN);
@@ -32,6 +39,7 @@ void IRAM_ATTR hallISR() {
   uint8_t transition = (lastState << 2) | current;
 
   switch (transition) {
+    // Same quadrature transition table as the approved ESP32 Hall test.
     case 0b0010:
     case 0b1011:
     case 0b1101:
@@ -48,12 +56,14 @@ void IRAM_ATTR hallISR() {
       ccwCount++;
       break;
 
+    // No movement / unchanged state.
     case 0b0000:
     case 0b0101:
     case 0b1010:
     case 0b1111:
       break;
 
+    // Illegal transition: both Hall bits changed at once.
     default:
       invalidCount++;
       break;
@@ -62,13 +72,27 @@ void IRAM_ATTR hallISR() {
   lastState = current;
 }
 
-void sendRF(const uint8_t *data, size_t len, const char *name) {
-  // The exact RF setup/call below must remain identical to the proven
-  // Test 3 firmware used for the selected RF433send library version.
-  rf.send(data, len, RF_PIN);
-  Serial.print("RF: ");
+void sendCommand(const char *name, const char *command,
+                 const byte *data, size_t length)
+{
+  Serial.print("TX ");
+  Serial.print(command);
+  Serial.print(" ");
   Serial.print(name);
-  Serial.println(" sent");
+  Serial.print(" : ");
+
+  for (size_t i = 0; i < length; i++) {
+    if (data[i] < 0x10) Serial.print('0');
+    Serial.print(data[i], HEX);
+    if (i + 1 < length) Serial.print(' ');
+  }
+  Serial.println();
+
+  // EXACT same RF call as Test 3.
+  byte repetitions = tx_erte->send(length, data);
+
+  Serial.print("RF send repetitions: ");
+  Serial.println(repetitions);
 }
 
 void printStatus() {
@@ -84,7 +108,8 @@ void printStatus() {
   state = lastState;
   interrupts();
 
-  Serial.printf("Hall: A=%d B=%d  state=%d\n", (state >> 1) & 1, state & 1, state);
+  Serial.printf("Hall: A=%d B=%d  state=%d\n",
+                (state >> 1) & 1, state & 1, state);
   Serial.printf("Position: %ld  CW=%lu  CCW=%lu  Invalid=%lu\n",
                 (long)pos, (unsigned long)cw, (unsigned long)ccw,
                 (unsigned long)invalid);
@@ -92,8 +117,12 @@ void printStatus() {
 
 void printHelp() {
   Serial.println();
-  Serial.println("SmartRoll TEST 4 - ESP32 + Hall A/B + ERTE RF");
-  Serial.println("115200 Bd");
+  Serial.println("============================================");
+  Serial.println("SmartRoll TEST 4");
+  Serial.println("ESP32 + Hall A/B + ERTE RF");
+  Serial.println("============================================");
+  Serial.println("Serial Monitor: 115200 Bd");
+  Serial.println();
   Serial.println("Commands:");
   Serial.println("  u = UP");
   Serial.println("  s = STOP");
@@ -110,19 +139,38 @@ void setup() {
 
   pinMode(HALL_A_PIN, INPUT);
   pinMode(HALL_B_PIN, INPUT);
-  pinMode(RF_PIN, OUTPUT);
+  pinMode(PIN_RFOUT, OUTPUT);
+  digitalWrite(PIN_RFOUT, LOW);
 
   lastState = readHallState();
+
+  // EXACT RF setup copied from the proven Test 3 firmware.
+  tx_erte = rfsend_builder(
+      RfSendEncoding::TRIBIT,
+      PIN_RFOUT,
+      RFSEND_DEFAULT_CONVENTION,
+      4,
+      nullptr,
+      9712,   // initseq
+      5048,   // lo_prefix
+      1472,   // hi_prefix
+      0,      // first_lo_ign
+      362,    // lo_short
+      722,    // lo_long
+      0,      // hi_short
+      0,      // hi_long
+      704,    // lo_last
+      9360,   // separator
+      39      // protocol parameter
+  );
 
   attachInterrupt(digitalPinToInterrupt(HALL_A_PIN), hallISR, CHANGE);
   attachInterrupt(digitalPinToInterrupt(HALL_B_PIN), hallISR, CHANGE);
 
   Serial.println();
-  Serial.println("============================================");
-  Serial.println("SmartRoll TEST 4");
-  Serial.println("ESP32 + Hall A/B + ERTE RF");
-  Serial.println("============================================");
+  Serial.println("SmartRoll TEST 4 ready.");
   Serial.printf("Initial Hall state: %d\n", lastState);
+  Serial.println("RF433send TRIBIT / Test 3 timing loaded.");
   printHelp();
 }
 
@@ -133,17 +181,17 @@ void loop() {
     switch (c) {
       case 'u':
       case 'U':
-        sendRF(DATA_UP, sizeof(DATA_UP), "UP");
+        sendCommand("UP", "01C", data_1nahoru, sizeof(data_1nahoru));
         break;
 
       case 's':
       case 'S':
-        sendRF(DATA_STOP, sizeof(DATA_STOP), "STOP");
+        sendCommand("STOP", "01B", data_1stop, sizeof(data_1stop));
         break;
 
       case 'd':
       case 'D':
-        sendRF(DATA_DOWN, sizeof(DATA_DOWN), "DOWN");
+        sendCommand("DOWN", "01A", data_1dolu, sizeof(data_1dolu));
         break;
 
       case 'r':
