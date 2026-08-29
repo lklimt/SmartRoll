@@ -1,0 +1,52 @@
+Hall: A=1 B=1  state=3
+Position: -8  CW=0  CCW=8  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -8  CW=0  CCW=8  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -8  CW=0  CCW=8  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -8  CW=0  CCW=8  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -8  CW=0  CCW=8  Invalid=0
+TX 01A DOWN : 33 63 13 79 19
+RF send repetitions: 4
+Hall: A=1 B=1  state=3
+Position: -8  CW=0  CCW=8  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -12  CW=0  CCW=12  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -12  CW=0  CCW=12  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -16  CW=0  CCW=16  Invalid=0
+Hall: A=0 B=1  state=1
+Position: -19  CW=0  CCW=19  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -20  CW=0  CCW=20  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -24  CW=0  CCW=24  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -28  CW=0  CCW=28  Invalid=0
+Hall: A=0 B=1  state=1
+Position: -31  CW=0  CCW=31  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -32  CW=0  CCW=32  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -32  CW=0  CCW=32  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -32  CW=0  CCW=32  Invalid=0
+TX 01B STOP : 33 63 13 79 2A
+RF send repetitions: 4
+Hall: A=1 B=1  state=3
+Position: -32  CW=0  CCW=32  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -36  CW=0  CCW=36  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -40  CW=0  CCW=40  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -40  CW=0  CCW=40  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -40  CW=0  CCW=40  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -40  CW=0  CCW=40  Invalid=0
+Hall: A=1 B=1  state=3
+Position: -40  CW=0  CCW=40  Invalid=0
