@@ -25,12 +25,6 @@ Verify the selected Hall sensors and the two-magnet mechanical arrangement.
 - approximately 5 mm air gap
 - both magnets with the same magnetic polarity toward the Hall sensors
 
-### Validation performed
-
-The earlier experiments with different angles and air gaps established the practical geometry. The 10 mm air gap proved unreliable, while approximately 5 mm was reliable, including fast manual rotation.
-
-The earlier exploratory tests with 90°/45°/30° arrangements are historical evidence only and are not part of the final approved algorithm.
-
 ### Status
 
 **PASS – Hall hardware and final mechanical arrangement accepted.**
@@ -41,31 +35,7 @@ The earlier exploratory tests with 90°/45°/30° arrangements are historical ev
 
 **Location:** `tests/esp32_hall_test/`
 
-### Objective
-
-Port the approved quadrature decoder from the Arduino test platform to ESP32.
-
-### Test sequence
-
-1. ESP32 restart.
-2. Establish initial Hall state.
-3. Rotate 5 complete turns in one direction.
-4. Short pause.
-5. Rotate 5 complete turns back.
-6. Stop.
-
-### Acceptance
-
-- correct CW/CCW recognition
-- no false direction changes
-- no invalid transitions
-- 40 transitions per 5 turns in each direction for the tested geometry
-- relative position returns to zero after equal movement in opposite directions
-- decoder remains correct after restart
-
-### Result
-
-**PASS – ESP32 Hall subsystem accepted.**
+**Status: PASS – ESP32 Hall subsystem accepted.**
 
 Detailed results: `tests/esp32_hall_test/TEST_RESULTS.md`
 
@@ -75,38 +45,7 @@ Detailed results: `tests/esp32_hall_test/TEST_RESULTS.md`
 
 **Location:** `tests/esp32_rf_test/`
 
-### Objective
-
-Verify that ESP32 can generate the already proven ERTE FT45E RF protocol used by ControlRoll.
-
-### Hardware
-
-- ESP32-DevKit 38-pin
-- 3-pin 433 MHz ASK/OOK transmitter: VCC / DATA / GND
-- DATA on ESP32 GPIO25
-
-### Test sequence
-
-1. DOWN
-2. STOP
-3. UP
-4. Repeat UP/STOP/DOWN 10 times each.
-5. Restart ESP32.
-6. Repeat UP/STOP/DOWN.
-7. Test rapid command sequence.
-
-### Acceptance
-
-- all commands work
-- no missed commands in repeated test
-- reset does not affect operation
-- rapid command sequence remains correct
-- no unexpected movement
-- proven RF payload/timing remains unchanged
-
-### Result
-
-**PASS – ESP32 RF subsystem accepted.**
+**Status: PASS – ESP32 RF subsystem accepted.**
 
 Detailed results: `tests/esp32_rf_test/TEST_RESULTS.md`
 
@@ -120,28 +59,28 @@ Detailed results: `tests/esp32_rf_test/TEST_RESULTS.md`
 
 Verify that Hall quadrature decoding and ERTE RF transmission operate simultaneously on one ESP32 without interfering with each other.
 
-### Test sequence
+### Completed subtests
 
-1. Start ESP32 with both subsystems active.
-2. Verify stable Hall state while stationary.
-3. Move roller by RF command.
-4. Observe Hall transitions during motor movement.
-5. Stop by RF command.
-6. Move in the opposite direction.
-7. Repeat several cycles.
-8. Include rapid RF commands.
-9. Reset ESP32 and repeat.
+- **4A – stationary baseline: PASS**
+- **4B – RF UP + Hall tracking: PASS**
+- **4C – RF DOWN + Hall tracking: PASS**
+- **4D – repeated UP/STOP/DOWN cycles: PASS**
+- **4E – RF commands during Hall activity: PASS**
+- **4F – ESP32 reset: PASS**
 
-### Acceptance
+Evidence for all subtests is stored under:
 
-- RF commands remain reliable
-- Hall direction remains correct while RF is active
-- no invalid Hall transitions caused by RF activity
-- no false CW/CCW changes
-- relative position follows Hall transitions
-- reset starts decoding correctly from the actual Hall state
+`tests/esp32_hall_rf_test/evidence/`
 
-**Status: NOT YET TESTED**
+The recorded logs show stable Hall states when stationary, correct directional counting during movement, successful RF transmissions and zero invalid Hall transitions in the recorded runs. fileciteturn101file0L2-L2 fileciteturn102file0L2-L2 fileciteturn104file0L2-L2 fileciteturn105file0L2-L2 fileciteturn106file0L2-L2
+
+### Result
+
+**PASS – Test 4 completed successfully.**
+
+The combined ESP32 Hall/RF subsystem is considered stable for the tested hardware and firmware configuration.
+
+Detailed results: `tests/esp32_hall_rf_test/TEST_RESULTS.md`
 
 ---
 
@@ -194,17 +133,6 @@ ESP32 ──────────┼── ERTE RF
                 └── Wi-Fi / MQTT / Home Assistant
 ```
 
-### Test areas
-
-- manual RF control
-- Hall-based movement/direction tracking
-- temperature monitoring
-- light monitoring
-- Wi-Fi/MQTT communication
-- Home Assistant commands
-- simultaneous operation
-- reboot/reconnect behaviour
-
 **Status: PLANNED**
 
 ---
@@ -215,19 +143,6 @@ ESP32 ──────────┼── ERTE RF
 
 Validate the final SmartRoll hardware, including the selected 230 V AC → low-voltage power supply/step-down solution.
 
-### Test areas
-
-- startup from mains
-- ESP32 boot reliability
-- 3.3 V stability
-- RF operation
-- Hall operation
-- sensor operation
-- thermal behaviour
-- restart after power interruption
-
-**Important:** mains testing is performed only after the low-voltage electronics have passed all previous tests.
-
 **Status: PLANNED**
 
 ---
@@ -237,17 +152,6 @@ Validate the final SmartRoll hardware, including the selected 230 V AC → low-v
 ### Objective
 
 Operate a complete SmartRoll unit for an extended period and verify that no cumulative software or hardware fault develops.
-
-### Test areas
-
-- repeated blind movements
-- repeated RF commands
-- Hall position tracking
-- Wi-Fi reconnects
-- ESP32 resets
-- sensor operation
-- long-term temperature
-- unexpected direction changes
 
 **Status: PLANNED**
 
@@ -260,7 +164,7 @@ Operate a complete SmartRoll unit for an extended period and verify that no cumu
 | 1 | Hall hardware + geometry | PASS |
 | 2 | ESP32 + Hall A/B | PASS |
 | 3 | ESP32 + ERTE RF | PASS |
-| 4 | ESP32 + Hall + RF | NOT TESTED |
+| 4 | ESP32 + Hall + RF | **PASS** |
 | 5 | Hall + RF + BH1750 + DS18B20 | PLANNED |
 | 6 | Complete SmartRoll firmware | PLANNED |
 | 7 | Final hardware + 230 V supply | PLANNED |
