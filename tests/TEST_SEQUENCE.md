@@ -14,20 +14,7 @@ The purpose is to isolate faults and avoid changing several variables at once.
 
 **Location:** `tests/hall_sensor_test/`
 
-### Objective
-
-Verify the selected Hall sensors and the two-magnet mechanical arrangement.
-
-### Confirmed configuration
-
-- 2 magnets, 180° apart on the rotating disc
-- 2 Hall sensors placed directly beside each other to avoid a dead zone
-- approximately 5 mm air gap
-- both magnets with the same magnetic polarity toward the Hall sensors
-
-### Status
-
-**PASS – Hall hardware and final mechanical arrangement accepted.**
+**Status: PASS – Hall hardware and final mechanical arrangement accepted.**
 
 ---
 
@@ -37,8 +24,6 @@ Verify the selected Hall sensors and the two-magnet mechanical arrangement.
 
 **Status: PASS – ESP32 Hall subsystem accepted.**
 
-Detailed results: `tests/esp32_hall_test/TEST_RESULTS.md`
-
 ---
 
 ## Test 3 – ESP32 + ERTE RF
@@ -47,17 +32,11 @@ Detailed results: `tests/esp32_hall_test/TEST_RESULTS.md`
 
 **Status: PASS – ESP32 RF subsystem accepted.**
 
-Detailed results: `tests/esp32_rf_test/TEST_RESULTS.md`
-
 ---
 
 # Test 4 – ESP32 + Hall + RF
 
 **Location:** `tests/esp32_hall_rf_test/`
-
-### Objective
-
-Verify that Hall quadrature decoding and ERTE RF transmission operate simultaneously on one ESP32 without interfering with each other.
 
 ### Completed subtests
 
@@ -68,50 +47,39 @@ Verify that Hall quadrature decoding and ERTE RF transmission operate simultaneo
 - **4E – RF commands during Hall activity: PASS**
 - **4F – ESP32 reset: PASS**
 
-Evidence for all subtests is stored under:
-
-`tests/esp32_hall_rf_test/evidence/`
-
-The recorded logs show stable Hall states when stationary, correct directional counting during movement, successful RF transmissions and zero invalid Hall transitions in the recorded runs. fileciteturn101file0L2-L2 fileciteturn102file0L2-L2 fileciteturn104file0L2-L2 fileciteturn105file0L2-L2 fileciteturn106file0L2-L2
-
 ### Result
 
 **PASS – Test 4 completed successfully.**
-
-The combined ESP32 Hall/RF subsystem is considered stable for the tested hardware and firmware configuration.
-
-Detailed results: `tests/esp32_hall_rf_test/TEST_RESULTS.md`
 
 ---
 
 # Test 5 – ESP32 + Hall + RF + sensors
 
+**Location:** `tests/esp32_sensors_test/`
+
 ### Objective
 
-Add the remaining sensors without disturbing the already verified Hall/RF functions.
+Add BH1750 and DS18B20 without disturbing the already verified Hall/RF functions.
 
-Planned sensors:
+### Completed subtests
 
-- BH1750 – light level
-- DS18B20 – temperature
+- **5A – sensors alone: PASS**
+- **5B – sensors + Hall: PASS**
+- **5C – sensors + RF: PASS**
+- **5D – all functions simultaneously: PASS**
+- **5E – ESP32 reset: PASS**
 
-### Test sequence
+Evidence for all subtests is stored under:
 
-1. Run Hall/RF baseline.
-2. Add BH1750.
-3. Verify Hall/RF again.
-4. Add DS18B20.
-5. Verify Hall/RF again.
-6. Run all sensors continuously while operating the blind.
+`tests/esp32_sensors_test/evidence/`
 
-### Acceptance
+The logs confirm successful BH1750 initialization, valid DS18B20 readings, correct Hall directional counting, successful ERTE RF commands and zero invalid Hall transitions in the recorded tests. Test 5D also confirms concurrent operation of all four subsystems. Test 5E confirms recovery after ESP32 reset.
 
-- no Hall errors
-- no RF command failures
-- sensor readings stable
-- no blocking or timing problem caused by sensor handling
+### Result
 
-**Status: PLANNED**
+**PASS – Test 5 completed successfully.**
+
+Detailed results: `tests/esp32_sensors_test/TEST_RESULTS.md`
 
 ---
 
@@ -132,6 +100,10 @@ ESP32 ──────────┼── ERTE RF
                 │
                 └── Wi-Fi / MQTT / Home Assistant
 ```
+
+### Scope
+
+Test the complete application logic while preserving the already verified Hall, RF and sensor subsystems.
 
 **Status: PLANNED**
 
@@ -165,7 +137,7 @@ Operate a complete SmartRoll unit for an extended period and verify that no cumu
 | 2 | ESP32 + Hall A/B | PASS |
 | 3 | ESP32 + ERTE RF | PASS |
 | 4 | ESP32 + Hall + RF | **PASS** |
-| 5 | Hall + RF + BH1750 + DS18B20 | PLANNED |
+| 5 | Hall + RF + BH1750 + DS18B20 | **PASS** |
 | 6 | Complete SmartRoll firmware | PLANNED |
 | 7 | Final hardware + 230 V supply | PLANNED |
 | 8 | Long-duration reliability | PLANNED |
