@@ -41,70 +41,46 @@ Position: 0  CW=0  CCW=0  Invalid=0
 Hall: A=1 B=1  state=3
 Position: 0  CW=0  CCW=0  Invalid=0
 Hall: A=1 B=1  state=3
-Position: -4  CW=0  CCW=4  Invalid=0
-Hall: A=0 B=1  state=1
-Position: -7  CW=0  CCW=7  Invalid=0
-Hall: A=0 B=1  state=1
-Position: -11  CW=0  CCW=11  Invalid=0
+Position: 0  CW=0  CCW=0  Invalid=0
 Hall: A=1 B=1  state=3
-Position: -16  CW=0  CCW=16  Invalid=0
-Hall: A=0 B=0  state=0
-Position: -18  CW=0  CCW=18  Invalid=0
+Position: 0  CW=0  CCW=0  Invalid=0
+TX 01C UP : 33 63 13 79 08
+RF send repetitions: 4
 Hall: A=1 B=1  state=3
-Position: -20  CW=0  CCW=20  Invalid=0
+Position: 0  CW=0  CCW=0  Invalid=0
 Hall: A=1 B=1  state=3
-Position: -24  CW=0  CCW=24  Invalid=0
+Position: 0  CW=0  CCW=0  Invalid=0
 Hall: A=1 B=1  state=3
-Position: -28  CW=0  CCW=28  Invalid=0
+Position: 0  CW=0  CCW=0  Invalid=0
 Hall: A=1 B=1  state=3
-Position: -32  CW=0  CCW=32  Invalid=0
+Position: 8  CW=8  CCW=0  Invalid=0
 Hall: A=1 B=0  state=2
-Position: -33  CW=0  CCW=33  Invalid=0
+Position: 15  CW=15  CCW=0  Invalid=0
 Hall: A=1 B=1  state=3
-Position: -36  CW=0  CCW=36  Invalid=0
+Position: 20  CW=20  CCW=0  Invalid=0
 Hall: A=1 B=1  state=3
-Position: -40  CW=0  CCW=40  Invalid=0
+Position: 24  CW=24  CCW=0  Invalid=0
 Hall: A=1 B=1  state=3
-Position: -40  CW=0  CCW=40  Invalid=0
+Position: 32  CW=32  CCW=0  Invalid=0
 Hall: A=1 B=1  state=3
-Position: -40  CW=0  CCW=40  Invalid=0
+Position: 36  CW=36  CCW=0  Invalid=0
 Hall: A=1 B=1  state=3
-Position: -40  CW=0  CCW=40  Invalid=0
+Position: 36  CW=36  CCW=0  Invalid=0
 Hall: A=1 B=1  state=3
-Position: -40  CW=0  CCW=40  Invalid=0
-Hall: A=0 B=0  state=0
-Position: -34  CW=6  CCW=40  Invalid=0
+Position: 36  CW=36  CCW=0  Invalid=0
+TX 01B STOP : 33 63 13 79 2A
+RF send repetitions: 4
 Hall: A=1 B=1  state=3
-Position: -32  CW=8  CCW=40  Invalid=0
+Position: 36  CW=36  CCW=0  Invalid=0
 Hall: A=1 B=1  state=3
-Position: -32  CW=8  CCW=40  Invalid=0
-Hall: A=0 B=0  state=0
-Position: -26  CW=14  CCW=40  Invalid=0
+Position: 36  CW=36  CCW=0  Invalid=0
 Hall: A=1 B=1  state=3
-Position: -24  CW=16  CCW=40  Invalid=0
+Position: 36  CW=36  CCW=0  Invalid=0
 Hall: A=1 B=1  state=3
-Position: -20  CW=20  CCW=40  Invalid=0
+Position: 36  CW=36  CCW=0  Invalid=0
 Hall: A=1 B=1  state=3
-Position: -16  CW=24  CCW=40  Invalid=0
+Position: 36  CW=36  CCW=0  Invalid=0
 Hall: A=1 B=1  state=3
-Position: -12  CW=28  CCW=40  Invalid=0
+Position: 36  CW=36  CCW=0  Invalid=0
 Hall: A=1 B=1  state=3
-Position: -8  CW=32  CCW=40  Invalid=0
-Hall: A=1 B=1  state=3
-Position: -8  CW=32  CCW=40  Invalid=0
-Hall: A=1 B=0  state=2
-Position: -1  CW=39  CCW=40  Invalid=0
-Hall: A=1 B=1  state=3
-Position: 0  CW=40  CCW=40  Invalid=0
-Hall: A=1 B=1  state=3
-Position: 0  CW=40  CCW=40  Invalid=0
-Hall: A=1 B=1  state=3
-Position: 0  CW=40  CCW=40  Invalid=0
-Hall: A=1 B=1  state=3
-Position: 0  CW=40  CCW=40  Invalid=0
-Hall: A=1 B=1  state=3
-Position: 0  CW=40  CCW=40  Invalid=0
-Hall: A=1 B=1  state=3
-Position: 0  CW=40  CCW=40  Invalid=0
-Hall: A=1 B=1  state=3
-Position: 0  CW=40  CCW=40  Invalid=0
+Position:
