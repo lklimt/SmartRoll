@@ -1,0 +1,35 @@
+Wi-Fi: connection timeout
+Wi-Fi status: 0 (WL_IDLE_STATUS)
+--------------------------------------------
+Wi-Fi connection attempt
+SSID configured: SolaX
+Wi-Fi status: 6 (WL_DISCONNECTED)
+Wi-Fi status: 0 (WL_IDLE_STATUS)
+Wi-Fi: connection timeout
+Wi-Fi status: 0 (WL_IDLE_STATUS)
+--------------------------------------------
+Wi-Fi connection attempt
+SSID configured: SolaX
+Wi-Fi status: 6 (WL_DISCONNECTED)
+Wi-Fi status: 0 (WL_IDLE_STATUS)
+Wi-Fi: connection timeout
+Wi-Fi status: 0 (WL_IDLE_STATUS)
+--------------------------------------------
+Wi-Fi connection attempt
+SSID configured: SolaX
+Wi-Fi status: 6 (WL_DISCONNECTED)
+Wi-Fi status: 0 (WL_IDLE_STATUS)
+Wi-Fi: connection timeout
+Wi-Fi status: 0 (WL_IDLE_STATUS)
+--------------------------------------------
+Wi-Fi connection attempt
+SSID configured: SolaX
+Wi-Fi status: 6 (WL_DISCONNECTED)
+Wi-Fi status: 0 (WL_IDLE_STATUS)
+Wi-Fi: connection timeout
+Wi-Fi status: 0 (WL_IDLE_STATUS)
+--------------------------------------------
+Wi-Fi connection attempt
+SSID configured: SolaX
+Wi-Fi status: 6 (WL_DISCONNECTED)
+Wi-Fi status: 0 (WL_IDLE_STATUS)
