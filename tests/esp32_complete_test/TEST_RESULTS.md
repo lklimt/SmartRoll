@@ -2,6 +2,10 @@
 
 ## Complete SmartRoll firmware
 
+Test environment: **laboratory fixture only**. No live roller blind is used during Test 6.
+
+PIR is not part of SmartRoll and is not included in the firmware or test plan.
+
 Status: **NOT TESTED**
 
 ### 6A – local complete firmware
