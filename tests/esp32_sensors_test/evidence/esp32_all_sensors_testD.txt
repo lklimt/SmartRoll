@@ -1,0 +1,117 @@
+ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:1
+load:0x3fff0030,len:4876
+ho 0 tail 12 room 4
+load:0x40078000,len:16532
+load:0x40080400,len:3500
+entry 0x400805b4
+BH1750: OK
+
+========================================
+SmartRoll TEST 5
+ESP32 + Hall + ERTE RF + BH1750 + DS18B20
+========================================
+
+SmartRoll TEST 5 - ESP32 + Hall + RF + sensors
+Commands: u=UP  s=STOP  d=DOWN  p=status  r=reset  h=help
+
+----------------------------------------
+Hall: A=1 B=1  position=0  CW=0  CCW=0  transitions=0  invalid=0
+BH1750: 4.17 lx
+DS18B20: 22.50 C
+RF: ready
+----------------------------------------
+Hall: A=1 B=1  position=0  CW=0  CCW=0  transitions=0  invalid=0
+BH1750: 3.33 lx
+DS18B20: 22.50 C
+RF: ready
+TX 01A DOWN : 33 63 13 79 19
+RF send repetitions: 4
+----------------------------------------
+Hall: A=1 B=1  position=0  CW=0  CCW=0  transitions=0  invalid=0
+BH1750: 3.33 lx
+DS18B20: 22.50 C
+RF: ready
+----------------------------------------
+Hall: A=1 B=1  position=4  CW=4  CCW=0  transitions=4  invalid=0
+BH1750: 3.33 lx
+DS18B20: 22.44 C
+RF: ready
+----------------------------------------
+Hall: A=1 B=1  position=16  CW=16  CCW=0  transitions=16  invalid=0
+BH1750: 3.33 lx
+DS18B20: 22.50 C
+RF: ready
+----------------------------------------
+Hall: A=1 B=1  position=24  CW=24  CCW=0  transitions=24  invalid=0
+BH1750: 3.33 lx
+DS18B20: 22.44 C
+RF: ready
+----------------------------------------
+Hall: A=1 B=1  position=28  CW=29  CCW=1  transitions=30  invalid=0
+BH1750: 2.50 lx
+DS18B20: 22.44 C
+RF: ready
+TX 01B STOP : 33 63 13 79 2A
+RF send repetitions: 4
+----------------------------------------
+Hall: A=1 B=1  position=32  CW=33  CCW=1  transitions=34  invalid=0
+BH1750: 2.50 lx
+DS18B20: 22.44 C
+RF: ready
+----------------------------------------
+Hall: A=1 B=1  position=36  CW=37  CCW=1  transitions=38  invalid=0
+BH1750: 2.50 lx
+DS18B20: 22.50 C
+RF: ready
+----------------------------------------
+Hall: A=1 B=1  position=36  CW=37  CCW=1  transitions=38  invalid=0
+BH1750: 2.50 lx
+DS18B20: 22.50 C
+RF: ready
+TX 01C UP : 33 63 13 79 08
+RF send repetitions: 4
+----------------------------------------
+Hall: A=1 B=1  position=36  CW=37  CCW=1  transitions=38  invalid=0
+BH1750: 2.50 lx
+DS18B20: 22.50 C
+RF: ready
+----------------------------------------
+Hall: A=1 B=1  position=28  CW=37  CCW=9  transitions=46  invalid=0
+BH1750: 2.50 lx
+DS18B20: 22.50 C
+RF: ready
+----------------------------------------
+Hall: A=1 B=1  position=20  CW=37  CCW=17  transitions=54  invalid=0
+BH1750: 2.50 lx
+DS18B20: 22.50 C
+RF: ready
+----------------------------------------
+Hall: A=1 B=0  position=11  CW=37  CCW=26  transitions=63  invalid=0
+BH1750: 2.50 lx
+DS18B20: 22.50 C
+RF: ready
+----------------------------------------
+Hall: A=1 B=1  position=0  CW=37  CCW=37  transitions=74  invalid=0
+BH1750: 2.50 lx
+DS18B20: 22.50 C
+RF: ready
+----------------------------------------
+Hall: A=1 B=1  position=-4  CW=37  CCW=41  transitions=78  invalid=0
+BH1750: 2.50 lx
+DS18B20: 22.50 C
+RF: ready
+----------------------------------------
+Hall: A=1 B=1  position=-8  CW=37  CCW=45  transitions=82  invalid=0
+BH1750: 2.50 lx
+DS18B20: 22.50 C
+RF: ready
+----------------------------------------
+Hall: A=1 B=1  position=-8  CW=37  CCW=45  transitions=82  invalid=0
+BH1750: 3.33 lx
+DS18B20: 22.50 C
+RF: ready
