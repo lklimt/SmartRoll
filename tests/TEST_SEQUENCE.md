@@ -57,10 +57,6 @@ The purpose is to isolate faults and avoid changing several variables at once.
 
 **Location:** `tests/esp32_sensors_test/`
 
-### Objective
-
-Add BH1750 and DS18B20 without disturbing the already verified Hall/RF functions.
-
 ### Completed subtests
 
 - **5A – sensors alone: PASS**
@@ -69,43 +65,66 @@ Add BH1750 and DS18B20 without disturbing the already verified Hall/RF functions
 - **5D – all functions simultaneously: PASS**
 - **5E – ESP32 reset: PASS**
 
-Evidence for all subtests is stored under:
-
-`tests/esp32_sensors_test/evidence/`
-
-The logs confirm successful BH1750 initialization, valid DS18B20 readings, correct Hall directional counting, successful ERTE RF commands and zero invalid Hall transitions in the recorded tests. Test 5D also confirms concurrent operation of all four subsystems. Test 5E confirms recovery after ESP32 reset.
-
 ### Result
 
 **PASS – Test 5 completed successfully.**
 
-Detailed results: `tests/esp32_sensors_test/TEST_RESULTS.md`
-
 ---
 
-# Test 6 – ESP32 + complete SmartRoll firmware
+# Test 6 – Complete SmartRoll firmware + Home Assistant
+
+**Location:** `tests/esp32_complete_test/`
 
 ### Objective
 
-Integrate all intended functions in one ESP32 firmware:
+Integrate all validated functions in one ESP32 application and connect it to Home Assistant through the existing Mosquitto MQTT broker.
 
 ```text
-                ┌── Hall A/B
-                │
-ESP32 ──────────┼── ERTE RF
-                │
-                ├── BH1750
-                │
-                ├── DS18B20
-                │
-                └── Wi-Fi / MQTT / Home Assistant
+                    ESP32 SmartRoll
+                          │
+       ┌──────────────────┼──────────────────┐
+       │                  │                  │
+   Hall A/B             ERTE RF          Sensors
+       │                  │             ┌───┴────┐
+       │                  │             │BH1750  │
+       │                  │             │DS18B20 │
+       │                  │             │PIR     │
+       └──────────────────┼─────────────┴────────┘
+                          │
+                       Wi-Fi
+                          │
+                      IoT network
+                          │
+                       MQTT
+                          │
+                  Home Assistant
 ```
 
-### Scope
+### Firmware
 
-Test the complete application logic while preserving the already verified Hall, RF and sensor subsystems.
+`tests/esp32_complete_test/smartroll_test6.ino`
 
-**Status: PLANNED**
+### Home Assistant integration
+
+`tests/esp32_complete_test/HA_MQTT.md`
+
+### Test stages
+
+- **6A – complete local firmware:** NOT TESTED
+- **6B – Home Assistant MQTT discovery:** NOT TESTED
+- **6C – Home Assistant RF control:** NOT TESTED
+- **6D – sensors + movement:** NOT TESTED
+- **6E – Wi-Fi/MQTT reconnect:** NOT TESTED
+- **6F – ESP32 reset:** NOT TESTED
+- **6G – long combined operation:** NOT TESTED
+
+### Important
+
+The Test 6 firmware keeps the proven RF payload/timing and Hall transition decoder. The new elements are the application layer, Wi-Fi, MQTT and Home Assistant discovery.
+
+Absolute blind position is intentionally not implemented yet because Hall-count-to-blind-position calibration remains OPEN.
+
+**Status: IN PROGRESS – firmware prepared, physical/HA testing not yet completed.**
 
 ---
 
@@ -138,7 +157,7 @@ Operate a complete SmartRoll unit for an extended period and verify that no cumu
 | 3 | ESP32 + ERTE RF | PASS |
 | 4 | ESP32 + Hall + RF | **PASS** |
 | 5 | Hall + RF + BH1750 + DS18B20 | **PASS** |
-| 6 | Complete SmartRoll firmware | PLANNED |
+| 6 | Complete SmartRoll + Home Assistant | **IN PROGRESS** |
 | 7 | Final hardware + 230 V supply | PLANNED |
 | 8 | Long-duration reliability | PLANNED |
 
