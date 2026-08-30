@@ -1,23 +1,30 @@
 /*
   SmartRoll - TEST 6
-  Complete application firmware
+  Complete application firmware - first integration build
 
   Validated subsystems:
     Hall A/B quadrature      GPIO32 / GPIO33
     ERTE RF DATA             GPIO25
     BH1750 I2C               GPIO21 / GPIO22
     DS18B20                  GPIO27
-    PIR                      GPIO26 (PROVISIONAL)
+    Wi-Fi                    dedicated IoT network
+    MQTT                     Mosquitto -> Home Assistant
 
-  Network:
-    Wi-Fi -> dedicated IoT network
-    MQTT  -> Mosquitto -> Home Assistant
+  PIR is NOT part of SmartRoll and is deliberately excluded.
+
+  Serial Monitor: 115200 Bd
+
+  Serial commands:
+    u = UP
+    s = STOP
+    d = DOWN
+    p = print status
+    r = reset relative Hall counters
+    h = help
 
   IMPORTANT:
     Do not commit real Wi-Fi or MQTT credentials to GitHub.
     Replace the placeholders below locally before flashing.
-
-  Serial Monitor: 115200 Bd
 */
 
 #include <Arduino.h>
@@ -29,44 +36,32 @@
 #include <DallasTemperature.h>
 #include <RF433send.h>
 
-// ============================================================
-// USER CONFIGURATION - EDIT LOCALLY
-// ============================================================
+// ---------- local configuration ----------
 const char* WIFI_SSID     = "YOUR_IOT_SSID";
 const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-
 const char* MQTT_HOST     = "YOUR_MQTT_BROKER_IP";
 const uint16_t MQTT_PORT  = 1883;
 const char* MQTT_USER     = "YOUR_MQTT_USER";
 const char* MQTT_PASSWORD = "YOUR_MQTT_PASSWORD";
 
-const char* DEVICE_ID = "smartroll_01";
+const char* DEVICE_ID   = "smartroll_01";
 const char* DEVICE_NAME = "SmartRoll";
-const char* FW_VERSION = "0.6.0-test6";
+const char* FW_VERSION  = "0.6.1-test6";
 
-// ============================================================
-// HARDWARE PINS - VALIDATED / PROVISIONAL AS DOCUMENTED
-// ============================================================
+// ---------- validated pins ----------
 const uint8_t HALL_A_PIN = 32;
 const uint8_t HALL_B_PIN = 33;
 const uint8_t RF_PIN = 25;
 const uint8_t I2C_SDA_PIN = 21;
 const uint8_t I2C_SCL_PIN = 22;
 const uint8_t DS18B20_PIN = 27;
-const uint8_t PIR_PIN = 26;  // PROVISIONAL
 
-// ============================================================
-// MQTT TOPICS
-// ============================================================
+// ---------- MQTT ----------
 String baseTopic;
 String stateTopic;
 String commandTopic;
 String availabilityTopic;
-String discoveryPrefix = "homeassistant";
 
-// ============================================================
-// OBJECTS
-// ============================================================
 WiFiClient wifiClient;
 PubSubClient mqtt(wifiClient);
 BH1750 lightMeter;
@@ -74,19 +69,13 @@ OneWire oneWire(DS18B20_PIN);
 DallasTemperature tempSensor(&oneWire);
 RfSend *tx_erte;
 
-// ============================================================
-// ERTE RF - EXACTLY THE PROVEN TEST 3 CONFIGURATION
-// ============================================================
+// ---------- ERTE RF: copied unchanged from proven Test 3 ----------
 const byte data_1nahoru[] = {0x33, 0x63, 0x13, 0x79, 0x08};
 const byte data_1stop[]   = {0x33, 0x63, 0x13, 0x79, 0x2A};
 const byte data_1dolu[]   = {0x33, 0x63, 0x13, 0x79, 0x19};
 
-// ============================================================
-// HALL QUADRATURE DECODER
-// Validated transition table from Tests 2-5.
-// index = previous_state << 2 | current_state
-// 0 = no movement, 1 = CW, -1 = CCW, 2 = invalid
-// ============================================================
+// ---------- Hall quadrature: validated Tests 2-5 ----------
+// index = previous_state * 4 + current_state
 const int8_t transitionTable[16] = {
    0, -1, +1,  2,
   +1,  0,  2, -1,
@@ -100,69 +89,68 @@ volatile uint32_t cwCount = 0;
 volatile uint32_t ccwCount = 0;
 volatile uint32_t invalidCount = 0;
 volatile uint32_t transitionCount = 0;
+volatile int8_t lastDirection = 0; // +1 CW, -1 CCW, 0 unknown
 
-// ============================================================
-// APPLICATION STATE
-// ============================================================
-enum MotionState {
-  MOTION_STOPPED,
-  MOTION_UP,
-  MOTION_DOWN
-};
-
+// ---------- application state ----------
+enum MotionState { MOTION_STOPPED, MOTION_UP, MOTION_DOWN };
 MotionState motionState = MOTION_STOPPED;
 
 float lastLux = NAN;
 float lastTemperature = NAN;
-bool pirState = false;
+bool bh1750Ok = false;
+bool ds18b20Ok = false;
 
-unsigned long lastSensorRead = 0;
-unsigned long lastStatePublish = 0;
-unsigned long lastWifiAttempt = 0;
-unsigned long lastMqttAttempt = 0;
+uint32_t lastSensorRead = 0;
+uint32_t lastPublish = 0;
+uint32_t lastWifiAttempt = 0;
+uint32_t lastMqttAttempt = 0;
 
-const unsigned long SENSOR_INTERVAL_MS = 5000;
-const unsigned long STATE_INTERVAL_MS = 2000;
-const unsigned long WIFI_RETRY_MS = 10000;
-const unsigned long MQTT_RETRY_MS = 5000;
+const uint32_t SENSOR_INTERVAL_MS = 5000;
+const uint32_t PUBLISH_INTERVAL_MS = 2000;
+const uint32_t WIFI_RETRY_MS = 10000;
+const uint32_t MQTT_RETRY_MS = 5000;
 
-// ============================================================
-// HALL ISR
-// ============================================================
+String directionText()
+{
+  int8_t d;
+  noInterrupts();
+  d = lastDirection;
+  interrupts();
+  if (d > 0) return "CW";
+  if (d < 0) return "CCW";
+  return "UNKNOWN";
+}
+
+// ---------- Hall ISR: only fast local work ----------
 void IRAM_ATTR hallISR()
 {
-  uint8_t a = digitalRead(HALL_A_PIN);
-  uint8_t b = digitalRead(HALL_B_PIN);
-  uint8_t currentState = (a << 1) | b;
+  uint8_t currentState = (digitalRead(HALL_A_PIN) << 1) |
+                         digitalRead(HALL_B_PIN);
 
   if (currentState == previousState) return;
 
   uint8_t index = (previousState << 2) | currentState;
   int8_t movement = transitionTable[index];
-
   transitionCount++;
 
   if (movement == 1) {
     position++;
     cwCount++;
-  }
-  else if (movement == -1) {
+    lastDirection = 1;
+  } else if (movement == -1) {
     position--;
     ccwCount++;
-  }
-  else if (movement == 2) {
+    lastDirection = -1;
+  } else if (movement == 2) {
     invalidCount++;
   }
 
   previousState = currentState;
 }
 
-// ============================================================
-// RF
-// ============================================================
+// ---------- ERTE RF ----------
 void sendRF(const char* name, const char* command,
-            const byte* data, size_t length,
-            MotionState newState)
+            const byte* data, size_t length, MotionState newState)
 {
   Serial.print("TX ");
   Serial.print(command);
@@ -178,21 +166,27 @@ void sendRF(const char* name, const char* command,
   Serial.println();
 
   byte repetitions = tx_erte->send(length, data);
-
   motionState = newState;
 
   Serial.print("RF send repetitions: ");
   Serial.println(repetitions);
 }
 
-// ============================================================
-// MQTT HELPERS
-// ============================================================
-void publishRetained(const String& topic, const String& payload)
+// ---------- sensors ----------
+void readSensors()
 {
-  if (mqtt.connected()) mqtt.publish(topic.c_str(), payload.c_str(), true);
+  if (millis() - lastSensorRead < SENSOR_INTERVAL_MS) return;
+  lastSensorRead = millis();
+
+  if (bh1750Ok) lastLux = lightMeter.readLightLevel();
+
+  if (ds18b20Ok) {
+    tempSensor.requestTemperatures();
+    lastTemperature = tempSensor.getTempCByIndex(0);
+  }
 }
 
+// ---------- MQTT state ----------
 void publishState()
 {
   if (!mqtt.connected()) return;
@@ -200,6 +194,7 @@ void publishState()
   int32_t p;
   uint32_t cw, ccw, invalid, transitions;
   uint8_t state;
+  int8_t dir;
 
   noInterrupts();
   p = position;
@@ -208,6 +203,7 @@ void publishState()
   invalid = invalidCount;
   transitions = transitionCount;
   state = previousState;
+  dir = lastDirection;
   interrupts();
 
   String payload = "{";
@@ -218,53 +214,32 @@ void publishState()
   payload += "\"ccw\":" + String(ccw) + ",";
   payload += "\"invalid\":" + String(invalid) + ",";
   payload += "\"transitions\":" + String(transitions) + ",";
+  payload += "\"direction\":\"" + (dir > 0 ? String("CW") : dir < 0 ? String("CCW") : String("UNKNOWN")) + "\",";
   payload += "\"lux\":" + String(lastLux, 2) + ",";
   payload += "\"temperature\":" + String(lastTemperature, 2) + ",";
-  payload += "\"pir\":" + String(pirState ? 1 : 0) + ",";
   payload += "\"rssi\":" + String(WiFi.RSSI());
   payload += "}";
 
   mqtt.publish(stateTopic.c_str(), payload.c_str(), true);
 
-  String motion = "STOPPED";
-  if (motionState == MOTION_UP) motion = "OPENING";
-  if (motionState == MOTION_DOWN) motion = "CLOSING";
-  mqtt.publish((baseTopic + "/cover/state").c_str(), motion.c_str(), true);
-
-  mqtt.publish((baseTopic + "/direction/state").c_str(),
-               directionText().c_str(), true);
+  String coverState = "STOPPED";
+  if (motionState == MOTION_UP) coverState = "OPENING";
+  if (motionState == MOTION_DOWN) coverState = "CLOSING";
+  mqtt.publish((baseTopic + "/cover/state").c_str(), coverState.c_str(), true);
 }
 
-String directionText()
+void discoverySensor(const char* component, const char* objectId,
+                     const char* name, const char* valueTemplate,
+                     const char* unit, const char* deviceClass)
 {
-  uint32_t cw, ccw;
-  noInterrupts();
-  cw = cwCount;
-  ccw = ccwCount;
-  interrupts();
-
-  if (cw > ccw) return "CW";
-  if (ccw > cw) return "CCW";
-  return "UNKNOWN";
-}
-
-void publishDiscoverySensor(const String& component,
-                            const String& objectId,
-                            const String& name,
-                            const String& stateTopicLocal,
-                            const String& valueTemplate,
-                            const String& unit,
-                            const String& deviceClass)
-{
-  String topic = discoveryPrefix + "/" + component + "/" + DEVICE_ID + "/" + objectId + "/config";
-
+  String topic = String("homeassistant/") + component + "/" + DEVICE_ID + "/" + objectId + "/config";
   String payload = "{";
-  payload += "\"name\":\"" + name + "\",";
+  payload += "\"name\":\"" + String(name) + "\",";
   payload += "\"unique_id\":\"" + String(DEVICE_ID) + "_" + objectId + "\",";
-  payload += "\"state_topic\":\"" + stateTopicLocal + "\",";
-  payload += "\"value_template\":\"" + valueTemplate + "\",";
-  if (unit.length()) payload += "\"unit_of_measurement\":\"" + unit + "\",";
-  if (deviceClass.length()) payload += "\"device_class\":\"" + deviceClass + "\",";
+  payload += "\"state_topic\":\"" + stateTopic + "\",";
+  payload += "\"value_template\":\"" + String(valueTemplate) + "\",";
+  if (strlen(unit)) payload += "\"unit_of_measurement\":\"" + String(unit) + "\",";
+  if (strlen(deviceClass)) payload += "\"device_class\":\"" + String(deviceClass) + "\",";
   payload += "\"availability_topic\":\"" + availabilityTopic + "\",";
   payload += "\"payload_available\":\"online\",\"payload_not_available\":\"offline\",";
   payload += "\"device\":{";
@@ -274,58 +249,40 @@ void publishDiscoverySensor(const String& component,
   payload += "\"model\":\"ESP32 SmartRoll\",";
   payload += "\"sw_version\":\"" + String(FW_VERSION) + "\"";
   payload += "}}";
-
-  publishRetained(topic, payload);
+  mqtt.publish(topic.c_str(), payload.c_str(), true);
 }
 
 void publishDiscovery()
 {
-  if (!mqtt.connected()) return;
+  String topic = String("homeassistant/cover/") + DEVICE_ID + "/cover/config";
+  String payload = "{";
+  payload += "\"name\":\"SmartRoll\",";
+  payload += "\"unique_id\":\"" + String(DEVICE_ID) + "_cover\",";
+  payload += "\"command_topic\":\"" + commandTopic + "\",";
+  payload += "\"state_topic\":\"" + baseTopic + "/cover/state\",";
+  payload += "\"payload_open\":\"UP\",\"payload_close\":\"DOWN\",\"payload_stop\":\"STOP\",";
+  payload += "\"state_opening\":\"OPENING\",\"state_closing\":\"CLOSING\",\"state_stopped\":\"STOPPED\",";
+  payload += "\"availability_topic\":\"" + availabilityTopic + "\",";
+  payload += "\"payload_available\":\"online\",\"payload_not_available\":\"offline\",";
+  payload += "\"device\":{";
+  payload += "\"identifiers\":[\"" + String(DEVICE_ID) + "\"],";
+  payload += "\"name\":\"" + String(DEVICE_NAME) + "\",";
+  payload += "\"manufacturer\":\"SmartRoll\",";
+  payload += "\"model\":\"ESP32 SmartRoll\",";
+  payload += "\"sw_version\":\"" + String(FW_VERSION) + "\"";
+  payload += "}}";
+  mqtt.publish(topic.c_str(), payload.c_str(), true);
 
-  // Cover
-  String coverTopic = discoveryPrefix + "/cover/" + DEVICE_ID + "/cover/config";
-  String cover = "{";
-  cover += "\"name\":\"SmartRoll\",";
-  cover += "\"unique_id\":\"" + String(DEVICE_ID) + "_cover\",";
-  cover += "\"command_topic\":\"" + commandTopic + "\",";
-  cover += "\"state_topic\":\"" + baseTopic + "/cover/state\",";
-  cover += "\"payload_open\":\"UP\",\"payload_close\":\"DOWN\",\"payload_stop\":\"STOP\",";
-  cover += "\"state_open\":\"OPEN\",\"state_closed\":\"CLOSED\",\"state_opening\":\"OPENING\",\"state_closing\":\"CLOSING\",\"state_stopped\":\"STOPPED\",";
-  cover += "\"availability_topic\":\"" + availabilityTopic + "\",";
-  cover += "\"payload_available\":\"online\",\"payload_not_available\":\"offline\",";
-  cover += "\"device\":{";
-  cover += "\"identifiers\":[\"" + String(DEVICE_ID) + "\"],";
-  cover += "\"name\":\"" + String(DEVICE_NAME) + "\",";
-  cover += "\"manufacturer\":\"SmartRoll\",";
-  cover += "\"model\":\"ESP32 SmartRoll\",";
-  cover += "\"sw_version\":\"" + String(FW_VERSION) + "\"";
-  cover += "}}";
-  publishRetained(coverTopic, cover);
-
-  publishDiscoverySensor("sensor", "temperature", "SmartRoll Temperature",
-                         stateTopic, "{{ value_json.temperature }}", "°C", "temperature");
-  publishDiscoverySensor("sensor", "illuminance", "SmartRoll Illuminance",
-                         stateTopic, "{{ value_json.lux }}", "lx", "illuminance");
-  publishDiscoverySensor("sensor", "hall_position", "SmartRoll Hall Position",
-                         stateTopic, "{{ value_json.position }}", "", "");
-  publishDiscoverySensor("sensor", "hall_invalid", "SmartRoll Hall Invalid",
-                         stateTopic, "{{ value_json.invalid }}", "", "");
-  publishDiscoverySensor("sensor", "wifi_rssi", "SmartRoll Wi-Fi RSSI",
-                         stateTopic, "{{ value_json.rssi }}", "dBm", "signal_strength");
-
-  publishDiscoverySensor("sensor", "direction", "SmartRoll Direction",
-                         baseTopic + "/direction/state", "{{ value }}", "", "");
-
-  publishDiscoverySensor("binary_sensor", "pir", "SmartRoll Motion",
-                         stateTopic, "{{ 'ON' if value_json.pir == 1 else 'OFF' }}", "", "motion");
-
-  publishDiscoverySensor("sensor", "firmware", "SmartRoll Firmware",
-                         baseTopic + "/firmware/state", "{{ value }}", "", "");
+  discoverySensor("sensor", "temperature", "SmartRoll Temperature", "{{ value_json.temperature }}", "°C", "temperature");
+  discoverySensor("sensor", "illuminance", "SmartRoll Illuminance", "{{ value_json.lux }}", "lx", "illuminance");
+  discoverySensor("sensor", "hall_position", "SmartRoll Hall Position", "{{ value_json.position }}", "", "");
+  discoverySensor("sensor", "hall_invalid", "SmartRoll Hall Invalid", "{{ value_json.invalid }}", "", "");
+  discoverySensor("sensor", "direction", "SmartRoll Direction", "{{ value_json.direction }}", "", "");
+  discoverySensor("sensor", "wifi_rssi", "SmartRoll Wi-Fi RSSI", "{{ value_json.rssi }}", "dBm", "signal_strength");
+  discoverySensor("sensor", "firmware", "SmartRoll Firmware", "{{ value }}", "", "");
 }
 
-// ============================================================
-// MQTT CALLBACK
-// ============================================================
+// ---------- MQTT ----------
 void mqttCallback(char* topic, byte* payload, unsigned int length)
 {
   String message;
@@ -333,24 +290,14 @@ void mqttCallback(char* topic, byte* payload, unsigned int length)
   message.trim();
   message.toUpperCase();
 
-  if (message == "UP") {
-    sendRF("UP", "01C", data_1nahoru, sizeof(data_1nahoru), MOTION_UP);
-  }
-  else if (message == "DOWN") {
-    sendRF("DOWN", "01A", data_1dolu, sizeof(data_1dolu), MOTION_DOWN);
-  }
-  else if (message == "STOP") {
-    sendRF("STOP", "01B", data_1stop, sizeof(data_1stop), MOTION_STOPPED);
-  }
+  if (message == "UP") sendRF("UP", "01C", data_1nahoru, sizeof(data_1nahoru), MOTION_UP);
+  else if (message == "DOWN") sendRF("DOWN", "01A", data_1dolu, sizeof(data_1dolu), MOTION_DOWN);
+  else if (message == "STOP") sendRF("STOP", "01B", data_1stop, sizeof(data_1stop), MOTION_STOPPED);
 }
 
-// ============================================================
-// WIFI / MQTT
-// ============================================================
 void ensureWiFi()
 {
   if (WiFi.status() == WL_CONNECTED) return;
-
   if (millis() - lastWifiAttempt < WIFI_RETRY_MS) return;
   lastWifiAttempt = millis();
 
@@ -366,7 +313,6 @@ void ensureMQTT()
   lastMqttAttempt = millis();
 
   Serial.println("MQTT: connecting...");
-
   String clientId = String(DEVICE_ID) + "_" + String((uint32_t)ESP.getEfuseMac(), HEX);
 
   if (mqtt.connect(clientId.c_str(), MQTT_USER, MQTT_PASSWORD,
@@ -377,32 +323,13 @@ void ensureMQTT()
     publishDiscovery();
     mqtt.publish((baseTopic + "/firmware/state").c_str(), FW_VERSION, true);
     publishState();
-  }
-  else {
+  } else {
     Serial.print("MQTT: failed, state=");
     Serial.println(mqtt.state());
   }
 }
 
-// ============================================================
-// SENSORS
-// ============================================================
-void readSensors()
-{
-  if (millis() - lastSensorRead < SENSOR_INTERVAL_MS) return;
-  lastSensorRead = millis();
-
-  lastLux = lightMeter.readLightLevel();
-
-  tempSensor.requestTemperatures();
-  lastTemperature = tempSensor.getTempCByIndex(0);
-
-  pirState = digitalRead(PIR_PIN);
-}
-
-// ============================================================
-// SERIAL
-// ============================================================
+// ---------- Serial ----------
 void printStatus()
 {
   int32_t p;
@@ -419,18 +346,15 @@ void printStatus()
   interrupts();
 
   Serial.println("--------------------------------------------");
-  Serial.printf("WiFi: %s  RSSI=%d dBm\n",
-                WiFi.status() == WL_CONNECTED ? "connected" : "offline",
-                WiFi.RSSI());
+  Serial.printf("WiFi: %s  RSSI=%d dBm\n", WiFi.status() == WL_CONNECTED ? "connected" : "offline", WiFi.RSSI());
   Serial.printf("MQTT: %s\n", mqtt.connected() ? "connected" : "offline");
   Serial.printf("Hall: A=%d B=%d position=%ld CW=%lu CCW=%lu transitions=%lu invalid=%lu\n",
                 (state >> 1) & 1, state & 1, (long)p,
                 (unsigned long)cw, (unsigned long)ccw,
                 (unsigned long)transitions, (unsigned long)invalid);
   Serial.printf("Direction: %s\n", directionText().c_str());
-  Serial.printf("BH1750: %.2f lx\n", lastLux);
-  Serial.printf("DS18B20: %.2f C\n", lastTemperature);
-  Serial.printf("PIR: %s\n", pirState ? "MOTION" : "clear");
+  Serial.printf("BH1750: %.2f lx (%s)\n", lastLux, bh1750Ok ? "OK" : "ERROR");
+  Serial.printf("DS18B20: %.2f C (%s)\n", lastTemperature, ds18b20Ok ? "OK" : "ERROR");
   Serial.printf("RF motion state: %d\n", (int)motionState);
 }
 
@@ -438,20 +362,13 @@ void printHelp()
 {
   Serial.println();
   Serial.println("SmartRoll TEST 6 - complete firmware");
-  Serial.println("115200 Bd");
-  Serial.println("Commands:");
-  Serial.println("  u = UP");
-  Serial.println("  s = STOP");
-  Serial.println("  d = DOWN");
-  Serial.println("  p = status");
-  Serial.println("  r = reset relative Hall counters");
-  Serial.println("  h = help");
+  Serial.println("Serial Monitor: 115200 Bd");
+  Serial.println("Commands: u=UP  s=STOP  d=DOWN  p=status  r=reset  h=help");
+  Serial.println("MQTT: smartroll/smartroll_01/cover/command");
   Serial.println();
 }
 
-// ============================================================
-// SETUP
-// ============================================================
+// ---------- setup ----------
 void setup()
 {
   Serial.begin(115200);
@@ -465,7 +382,6 @@ void setup()
   pinMode(HALL_A_PIN, INPUT);
   pinMode(HALL_B_PIN, INPUT);
   pinMode(RF_PIN, OUTPUT);
-  pinMode(PIR_PIN, INPUT);
   digitalWrite(RF_PIN, LOW);
 
   previousState = (digitalRead(HALL_A_PIN) << 1) | digitalRead(HALL_B_PIN);
@@ -473,7 +389,7 @@ void setup()
   attachInterrupt(digitalPinToInterrupt(HALL_A_PIN), hallISR, CHANGE);
   attachInterrupt(digitalPinToInterrupt(HALL_B_PIN), hallISR, CHANGE);
 
-  // Proven Test 3 RF configuration - unchanged.
+  // EXACT Test 3 RF configuration - do not change.
   tx_erte = rfsend_builder(
       RfSendEncoding::TRIBIT,
       RF_PIN,
@@ -494,15 +410,9 @@ void setup()
   );
 
   Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
-
-  if (lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE)) {
-    Serial.println("BH1750: OK");
-  } else {
-    Serial.println("BH1750: ERROR / not detected");
-  }
-
+  bh1750Ok = lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE);
   tempSensor.begin();
-  readSensors();
+  ds18b20Ok = (tempSensor.getDeviceCount() > 0);
 
   mqtt.setServer(MQTT_HOST, MQTT_PORT);
   mqtt.setCallback(mqttCallback);
@@ -511,72 +421,60 @@ void setup()
   Serial.println();
   Serial.println("============================================");
   Serial.println("SmartRoll TEST 6");
-  Serial.println("Complete ESP32 firmware");
-  Serial.println("Hall + ERTE RF + BH1750 + DS18B20 + PIR");
+  Serial.println("ESP32 + Hall + ERTE RF + BH1750 + DS18B20");
   Serial.println("Wi-Fi + MQTT + Home Assistant");
+  Serial.println("PIR: NOT USED");
   Serial.println("============================================");
+  Serial.printf("BH1750: %s\n", bh1750Ok ? "OK" : "ERROR / not detected");
+  Serial.printf("DS18B20: %s\n", ds18b20Ok ? "OK" : "ERROR / not detected");
   printHelp();
 
   ensureWiFi();
 }
 
-// ============================================================
-// LOOP
-// ============================================================
+// ---------- loop ----------
 void loop()
 {
   ensureWiFi();
   ensureMQTT();
-
   if (mqtt.connected()) mqtt.loop();
 
   readSensors();
 
-  if (millis() - lastStatePublish >= STATE_INTERVAL_MS) {
-    lastStatePublish = millis();
+  if (millis() - lastPublish >= PUBLISH_INTERVAL_MS) {
+    lastPublish = millis();
     publishState();
     printStatus();
   }
 
   if (Serial.available()) {
     char c = Serial.read();
-
     switch (c) {
-      case 'u':
-      case 'U':
+      case 'u': case 'U':
         sendRF("UP", "01C", data_1nahoru, sizeof(data_1nahoru), MOTION_UP);
         break;
-
-      case 's':
-      case 'S':
+      case 's': case 'S':
         sendRF("STOP", "01B", data_1stop, sizeof(data_1stop), MOTION_STOPPED);
         break;
-
-      case 'd':
-      case 'D':
+      case 'd': case 'D':
         sendRF("DOWN", "01A", data_1dolu, sizeof(data_1dolu), MOTION_DOWN);
         break;
-
-      case 'p':
-      case 'P':
+      case 'p': case 'P':
         printStatus();
         break;
-
-      case 'r':
-      case 'R':
+      case 'r': case 'R':
         noInterrupts();
         position = 0;
         cwCount = 0;
         ccwCount = 0;
         invalidCount = 0;
         transitionCount = 0;
+        lastDirection = 0;
         previousState = (digitalRead(HALL_A_PIN) << 1) | digitalRead(HALL_B_PIN);
         interrupts();
         Serial.println("Hall counters / relative position reset.");
         break;
-
-      case 'h':
-      case 'H':
+      case 'h': case 'H':
         printHelp();
         break;
     }
