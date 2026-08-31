@@ -1,0 +1,139 @@
+--------------------------------------------
+WiFi: connected  RSSI=-78 dBm
+MQTT: connected
+Hall: A=1 B=1 position=-32 CW=117 CCW=149 transitions=266 invalid=0
+Direction: CW  RF motion: UP
+BH1750: 1.67 lx (OK)
+DS18B20: 22.94 C (OK)
+--------------------------------------------
+WiFi: connected  RSSI=-77 dBm
+MQTT: connected
+Hall: A=1 B=1 position=-32 CW=117 CCW=149 transitions=266 invalid=0
+Direction: CW  RF motion: UP
+BH1750: 2.50 lx (OK)
+DS18B20: 22.94 C (OK)
+--------------------------------------------
+WiFi: connected  RSSI=-77 dBm
+MQTT: connected
+Hall: A=1 B=1 position=-32 CW=117 CCW=149 transitions=266 invalid=0
+Direction: CW  RF motion: UP
+BH1750: 2.50 lx (OK)
+DS18B20: 22.94 C (OK)
+--------------------------------------------
+WiFi: connected  RSSI=-78 dBm
+MQTT: connected
+Hall: A=1 B=1 position=-32 CW=117 CCW=149 transitions=266 invalid=0
+Direction: CW  RF motion: UP
+BH1750: 2.50 lx (OK)
+DS18B20: 22.94 C (OK)
+TX 01A DOWN : 33 63 13 79 19
+RF send repetitions: 4
+--------------------------------------------
+WiFi: connected  RSSI=-77 dBm
+MQTT: connected
+Hall: A=1 B=1 position=-32 CW=117 CCW=149 transitions=266 invalid=0
+Direction: CW  RF motion: DOWN
+BH1750: 3.33 lx (OK)
+DS18B20: 22.88 C (OK)
+--------------------------------------------
+WiFi: connected  RSSI=-81 dBm
+MQTT: connected
+Hall: A=1 B=1 position=-28 CW=121 CCW=149 transitions=270 invalid=0
+Direction: CW  RF motion: DOWN
+BH1750: 3.33 lx (OK)
+DS18B20: 22.88 C (OK)
+--------------------------------------------
+WiFi: connected  RSSI=-81 dBm
+MQTT: connected
+Hall: A=1 B=1 position=-20 CW=129 CCW=149 transitions=278 invalid=0
+Direction: CW  RF motion: DOWN
+BH1750: 2.50 lx (OK)
+DS18B20: 22.88 C (OK)
+--------------------------------------------
+WiFi: connected  RSSI=-81 dBm
+MQTT: connected
+Hall: A=0 B=1 position=-15 CW=134 CCW=149 transitions=283 invalid=0
+Direction: CW  RF motion: DOWN
+BH1750: 2.50 lx (OK)
+DS18B20: 22.88 C (OK)
+TX 01B STOP : 33 63 13 79 2A
+RF send repetitions: 4
+--------------------------------------------
+WiFi: connected  RSSI=-80 dBm
+MQTT: connected
+Hall: A=1 B=0 position=-9 CW=140 CCW=149 transitions=289 invalid=0
+Direction: CW  RF motion: STOPPED
+BH1750: 2.50 lx (OK)
+DS18B20: 22.88 C (OK)
+--------------------------------------------
+WiFi: connected  RSSI=-83 dBm
+MQTT: connected
+Hall: A=1 B=0 position=-9 CW=140 CCW=149 transitions=289 invalid=0
+Direction: CW  RF motion: STOPPED
+BH1750: 1.67 lx (OK)
+DS18B20: 22.88 C (OK)
+--------------------------------------------
+WiFi: connected  RSSI=-89 dBm
+MQTT: connected
+Hall: A=1 B=0 position=-9 CW=140 CCW=149 transitions=289 invalid=0
+Direction: CW  RF motion: STOPPED
+BH1750: 1.67 lx (OK)
+DS18B20: 22.88 C (OK)
+--------------------------------------------
+WiFi: connected  RSSI=-85 dBm
+MQTT: connected
+Hall: A=1 B=0 position=-9 CW=140 CCW=149 transitions=289 invalid=0
+Direction: CW  RF motion: STOPPED
+BH1750: 2.50 lx (OK)
+DS18B20: 22.88 C (OK)
+--------------------------------------------
+WiFi: connected  RSSI=-83 dBm
+MQTT: connected
+Hall: A=1 B=0 position=-9 CW=140 CCW=149 transitions=289 invalid=0
+Direction: CW  RF motion: STOPPED
+BH1750: 2.50 lx (OK)
+DS18B20: 22.88 C (OK)
+TX 01C UP : 33 63 13 79 08
+RF send repetitions: 4
+--------------------------------------------
+WiFi: connected  RSSI=-81 dBm
+MQTT: connected
+Hall: A=1 B=0 position=-9 CW=140 CCW=149 transitions=289 invalid=0
+Direction: CW  RF motion: UP
+BH1750: 2.50 lx (OK)
+DS18B20: 22.88 C (OK)
+--------------------------------------------
+WiFi: connected  RSSI=-87 dBm
+MQTT: connected
+Hall: A=1 B=1 position=-16 CW=140 CCW=156 transitions=296 invalid=0
+Direction: CCW  RF motion: UP
+BH1750: 4.17 lx (OK)
+DS18B20: 22.88 C (OK)
+--------------------------------------------
+WiFi: connected  RSSI=-89 dBm
+MQTT: connected
+Hall: A=1 B=1 position=-24 CW=140 CCW=164 transitions=304 invalid=0
+Direction: CCW  RF motion: UP
+BH1750: 4.17 lx (OK)
+DS18B20: 22.88 C (OK)
+--------------------------------------------
+WiFi: connected  RSSI=-89 dBm
+MQTT: connected
+Hall: A=0 B=1 position=-31 CW=140 CCW=171 transitions=311 invalid=0
+Direction: CCW  RF motion: UP
+BH1750: 2.50 lx (OK)
+DS18B20: 22.88 C (OK)
+--------------------------------------------
+WiFi: connected  RSSI=-88 dBm
+MQTT: connected
+Hall: A=1 B=1 position=-36 CW=140 CCW=176 transitions=316 invalid=0
+Direction: CCW  RF motion: UP
+BH1750: 2.50 lx (OK)
+DS18B20: 22.88 C (OK)
+--------------------------------------------
+WiFi: connected  RSSI=-82 dBm
+MQTT: connected
+Hall: A=1 B=1 position=-36 CW=140 CCW=176 transitions=316 invalid=0
+Direction: CCW  RF motion: UP
+BH1750: 2.50 lx (OK)
+DS18B20: 22.88 C (OK)
