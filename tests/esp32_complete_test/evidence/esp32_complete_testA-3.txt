@@ -1,0 +1,213 @@
+...............................
+Wi-Fi: initial connection failed, status=0
+Commands: u=UP d=DOWN s=STOP p=STATUS r=reset Hall h=HELP
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: nan lx [OK]
+DS18B20: nan C [OK]
+Motion command state: STOPPED
+Wi-Fi: connection attempt
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+Wi-Fi: connection attempt
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+Wi-Fi: connection attempt
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+Wi-Fi: connection attempt
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+Wi-Fi: connection attempt
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+Wi-Fi: connection attempt
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+Wi-Fi: connection attempt
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+Wi-Fi: connection attempt
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+Wi-Fi: connection attempt
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.81 C [OK]
+Motion command state: STOPPED
+Wi-Fi: connection attempt
+--------------------------------------------
+Wi-Fi: OFFLINE
+MQTT: OFFLINE
+Hall: A=1 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN
+BH1750: 1.67 lx [OK]
+DS18B20: 23.75 C [OK]
+Motion command state: STOPPED
