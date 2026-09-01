@@ -1,0 +1,96 @@
+ad:0x40078000,len:16532
+load:0x40080400,len:3500
+entry 0x400805b4
+
+SmartRoll TEST 6A boot
+Firmware: 0.6.1-test6a
+BH1750: OK
+DS18B20: OK
+Initial Hall state: 1
+
+============================================
+SmartRoll TEST 6A
+ESP32 + Hall + ERTE RF + BH1750 + DS18B20
+Wi-Fi + basic MQTT telemetry
+PIR: NOT USED
+============================================
+Serial Monitor: 115200 Bd
+Commands:
+  u = UP
+  s = STOP
+  d = DOWN
+  p = status
+  r = reset Hall counters / relative position
+  h = help
+
+MQTT command topic:
+  smartroll/smartroll_01/cover/command
+MQTT state topic:
+  smartroll/smartroll_01/state
+
+--------------------------------------------
+WiFi: offline  RSSI=0 dBm
+MQTT: offline
+Hall: A=0 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN  RF motion: STOPPED
+BH1750: nan lx (OK)
+DS18B20: nan C (OK)
+--------------------------------------------
+WiFi: offline  RSSI=0 dBm
+MQTT: offline
+Hall: A=0 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN  RF motion: STOPPED
+BH1750: nan lx (OK)
+DS18B20: nan C (OK)
+--------------------------------------------
+WiFi: offline  RSSI=0 dBm
+MQTT: offline
+Hall: A=0 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN  RF motion: STOPPED
+BH1750: 0.83 lx (OK)
+DS18B20: 23.25 C (OK)
+--------------------------------------------
+WiFi: offline  RSSI=0 dBm
+MQTT: offline
+Hall: A=0 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN  RF motion: STOPPED
+BH1750: 0.83 lx (OK)
+DS18B20: 23.25 C (OK)
+Wi-Fi: connecting...
+--------------------------------------------
+WiFi: offline  RSSI=0 dBm
+MQTT: offline
+Hall: A=0 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN  RF motion: STOPPED
+BH1750: 0.83 lx (OK)
+DS18B20: 23.25 C (OK)
+MQTT: connecting...
+MQTT: connected
+--------------------------------------------
+WiFi: connected  RSSI=-71 dBm
+MQTT: connected
+Hall: A=0 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN  RF motion: STOPPED
+BH1750: 0.83 lx (OK)
+DS18B20: 23.25 C (OK)
+--------------------------------------------
+WiFi: connected  RSSI=-73 dBm
+MQTT: connected
+Hall: A=0 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN  RF motion: STOPPED
+BH1750: 0.83 lx (OK)
+DS18B20: 23.25 C (OK)
+--------------------------------------------
+WiFi: connected  RSSI=-72 dBm
+MQTT: connected
+Hall: A=0 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN  RF motion: STOPPED
+BH1750: 0.83 lx (OK)
+DS18B20: 23.25 C (OK)
+--------------------------------------------
+WiFi: connected  RSSI=-73 dBm
+MQTT: connected
+Hall: A=0 B=1 position=0 CW=0 CCW=0 transitions=0 invalid=0
+Direction: UNKNOWN  RF motion: STOPPED
+BH1750: 0.83 lx (OK)
+DS18B20: 23.25 C (OK)
