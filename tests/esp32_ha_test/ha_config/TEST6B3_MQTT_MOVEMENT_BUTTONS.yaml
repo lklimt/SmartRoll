@@ -1,0 +1,25 @@
+# SmartRoll – Home Assistant configuration used for laboratory movement control
+# Test phase: 6B.3
+#
+# This is the currently tested MQTT movement configuration.
+# Do not change the topic or payloads without a new test.
+# No credentials/secrets are stored here.
+
+mqtt:
+  - button:
+      name: "SmartRoll Test UP"
+      unique_id: smartroll_test_up
+      command_topic: "smartroll/smartroll_01/cover/command"
+      payload_press: "UP"
+
+  - button:
+      name: "SmartRoll Test STOP"
+      unique_id: smartroll_test_stop
+      command_topic: "smartroll/smartroll_01/cover/command"
+      payload_press: "STOP"
+
+  - button:
+      name: "SmartRoll Test DOWN"
+      unique_id: smartroll_test_down
+      command_topic: "smartroll/smartroll_01/cover/command"
+      payload_press: "DOWN"
