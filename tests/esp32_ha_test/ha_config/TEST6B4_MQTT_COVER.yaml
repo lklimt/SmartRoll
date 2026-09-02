@@ -1,0 +1,17 @@
+# SmartRoll – Home Assistant MQTT Cover
+# Test phase: 6B.4
+#
+# Laboratory test only.
+# This configuration intentionally contains NO position calibration.
+# Do not use Merkur-fixture pulse counts as real roller-blind calibration.
+# No credentials/secrets are stored here.
+
+mqtt:
+  - cover:
+      name: "SmartRoll 01"
+      unique_id: smartroll_01_cover
+      command_topic: "smartroll/smartroll_01/cover/command"
+      payload_open: "UP"
+      payload_close: "DOWN"
+      payload_stop: "STOP"
+      optimistic: true
