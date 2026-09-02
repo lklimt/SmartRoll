@@ -1,0 +1,45 @@
+# SmartRoll – Test 6B.3
+# Home Assistant MQTT sensor entities
+# Reference configuration used for the laboratory test fixture.
+# No credentials are stored here.
+
+mqtt:
+  - sensor:
+      name: "SmartRoll Test Temperature"
+      unique_id: smartroll_test_temperature
+      state_topic: "smartroll/smartroll_01/state"
+      value_template: "{{ value_json.temperature }}"
+      unit_of_measurement: "°C"
+      device_class: temperature
+
+  - sensor:
+      name: "SmartRoll Test Light"
+      unique_id: smartroll_test_light
+      state_topic: "smartroll/smartroll_01/state"
+      value_template: "{{ value_json.lux }}"
+      unit_of_measurement: "lx"
+      device_class: illuminance
+
+  - sensor:
+      name: "SmartRoll Test Hall A"
+      unique_id: smartroll_test_hall_a
+      state_topic: "smartroll/smartroll_01/state"
+      value_template: "{{ value_json.hall_a }}"
+
+  - sensor:
+      name: "SmartRoll Test Hall B"
+      unique_id: smartroll_test_hall_b
+      state_topic: "smartroll/smartroll_01/state"
+      value_template: "{{ value_json.hall_b }}"
+
+  - sensor:
+      name: "SmartRoll Test Position"
+      unique_id: smartroll_test_position
+      state_topic: "smartroll/smartroll_01/state"
+      value_template: "{{ value_json.position }}"
+
+  - sensor:
+      name: "SmartRoll Test Direction"
+      unique_id: smartroll_test_direction
+      state_topic: "smartroll/smartroll_01/state"
+      value_template: "{{ value_json.direction }}"
