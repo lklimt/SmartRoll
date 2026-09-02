@@ -17,7 +17,7 @@ This file is the consolidated measurement register for the mechanical SmartRoll 
 | Application | External roller blind | CONFIRMED | Project specification |
 | Motor | ERTE ET 45E | CONFIRMED | Project specification |
 | Roller shaft | Octagonal | CONFIRMED | Photos + previous measurements |
-| Shaft nominal description | 8 × 20 mm | REFERENCE | `images/roller_blind/rozmery.txt`; this is not the same definition as AF |
+| Shaft nominal description | 8 × 17 mm | REFERENCE | `images/roller_blind/rozmery.txt`; this is not the same definition as AF |
 | Shaft across flats | 16.70 mm | CONFIRMED | Explicitly measured/confirmed during design |
 | Slat-side total width | 5 + 6.7 + 5 mm = 16.7 mm | CONFIRMED | Explicitly corrected during design |
 | Slat feature width | 6.70 mm | CONFIRMED | Explicitly corrected during design; previous 7 mm is obsolete |
