@@ -19,7 +19,7 @@ This file is the consolidated measurement register for the mechanical SmartRoll 
 | Roller shaft | Octagonal | CONFIRMED | Photos + previous measurements |
 | Shaft nominal description | 8 × 17 mm | REFERENCE | `images/roller_blind/rozmery.txt`; this is not the same definition as AF |
 | Shaft across flats | 16.70 mm | CONFIRMED | Explicitly measured/confirmed during design |
-| Slat-side total width | 5 + 6.7 + 5 mm = 16.7 mm | CONFIRMED | Explicitly corrected during design |
+| Slat-side total width | 5 + 7.0 + 5 mm = 17.0 mm | CONFIRMED | Explicitly corrected during design |
 | Slat feature width | 6.70 mm | CONFIRMED | Explicitly corrected during design; previous 7 mm is obsolete |
 | Cabinet depth | 160 mm | CONFIRMED | `rozmery.txt` |
 | Cabinet height | 160 mm | CONFIRMED | `rozmery.txt` |
