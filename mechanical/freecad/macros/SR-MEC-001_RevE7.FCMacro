@@ -1,0 +1,370 @@
+# -*- coding: utf-8 -*-
+# ============================================================
+# SMARTROLL / SR-MEC-001 - Rev.E7
+# Dvoudilny magneticky unasec pro roletovou hridel
+# FreeCAD 1.1
+#
+# E7 - aktualizace podle noveho mereni hridele:
+# - hridel: pravidelny osmihran, cca 17.00 mm pres plochy
+# - svlakova plocha: 5 + 7 + 5 mm
+# - svlak: sirka 7.00 mm, svetlost/vyska 2.50 mm
+# - montazni vule hlavniho otvoru 0.20 mm
+# - montazni vule svlaku 0.20 mm
+# - dve skutecne poloviny objimky, montaz bez demontaze hridele
+# - delici rovina Y=0, kolma na plochu osmihranu se svlakem
+# - 2x M3 sroubove spoje na protilehlych stranach (+X / -X)
+# - upinaci cast 0-6 mm: osmihranny otvor
+# - magneticky limec 6-11 mm: kruhova svetlost Ø21 mm
+# - magnety 4x2 mm radialne z obvodu, 180 deg
+# - zadna prubezna sterbina; poloviny se spojuji pouze srouby
+# ============================================================
+
+import FreeCAD as App
+import FreeCADGui as Gui
+import Part
+import math
+
+DOC_NAME = "SR-MEC-001_RevE7"
+
+# ---------------- PARAMETRY ----------------
+# Skutecne zmerena hridel: cca 17 mm pres protilehle plochy.
+# Zaoblene hrany hridele jsou duvodem, proc pouzivame malou montazni vuli.
+SHAFT_AF = 17.00
+SHAFT_CLEARANCE = 0.20
+
+# Svlak na jedne plose osmihranne hridele.
+# Mereni: 5 mm + 7 mm svlak + 5 mm = cca 17 mm.
+SVLAK_W = 7.00
+SVLAK_H = 2.50
+SVLAK_CLEARANCE = 0.20
+
+CLAMP_W = 6.00
+COLLAR_W = 5.00
+TOTAL_W = 11.00
+
+OD = 26.00
+ROTATION_BORE = 21.00
+
+# M3 spoje - dva protilehle spoje na delici rovine Y=0
+EAR_OUTER_D = 6.80
+EAR_BORE_D = 3.30
+EAR_RING_W = 2.40       # delka oka ve smeru Y
+EAR_RADIAL_LEN = 4.20
+EAR_CENTER_X = 13.10
+EAR_CENTER_Z = TOTAL_W / 2.0
+
+HEAD_D = 6.00
+HEAD_DEPTH = 1.20
+
+NUT_AF = 5.50
+NUT_DEPTH = 2.60
+
+# radialni magnety - zachovano z overene Rev.E6
+MAG_D = 4.00
+MAG_LEN = 2.00
+MAG_POCKET_D = 4.20
+MAG_POCKET_DEPTH = 2.15
+MAG_ANGLES = (90.0, 270.0)
+
+
+def V(x, y, z=0):
+    return App.Vector(float(x), float(y), float(z))
+
+
+def cyl(d, h, z=0):
+    s = Part.makeCylinder(d / 2.0, h)
+    s.translate(V(0, 0, z))
+    return s
+
+
+def oct_prism(flat, h, z=0):
+    """Regular octagonal prism specified by across-flats dimension."""
+    r = flat / (2.0 * math.cos(math.radians(22.5)))
+    p = []
+    for i in range(8):
+        a = math.radians(22.5 + i * 45.0)
+        p.append(V(r * math.cos(a), r * math.sin(a), z))
+    p.append(p[0])
+    return Part.Face(Part.makePolygon(p)).extrude(V(0, 0, h))
+
+
+def radial_cyl(d, length, ang, r, z):
+    a = math.radians(ang)
+    start = V(r * math.cos(a), r * math.sin(a), z)
+    return Part.makeCylinder(
+        d / 2.0, length, start,
+        V(math.cos(a), math.sin(a), 0)
+    )
+
+
+def radial_pocket(d, depth, ang, r, z):
+    a = math.radians(ang)
+    start = V(r * math.cos(a), r * math.sin(a), z)
+    return Part.makeCylinder(
+        d / 2.0, depth, start,
+        V(-math.cos(a), -math.sin(a), 0)
+    )
+
+
+def make_ear(x, y0):
+    # Uzavrene kruhove oko pro M3. Osa sroubu je Y.
+    outer = Part.makeCylinder(
+        EAR_OUTER_D / 2.0, EAR_RING_W,
+        V(x, y0, EAR_CENTER_Z), V(0, 1, 0)
+    )
+    inner = Part.makeCylinder(
+        EAR_BORE_D / 2.0, EAR_RING_W + 0.10,
+        V(x, y0 - 0.05, EAR_CENTER_Z), V(0, 1, 0)
+    )
+    return outer.cut(inner)
+
+
+def make_bridge(x, y0):
+    # Spojovaci mustek mezi obvodem OD26 a okem.
+    length = EAR_RADIAL_LEN
+    if x > 0:
+        bx = OD / 2.0 - 0.10
+    else:
+        bx = -OD / 2.0 + 0.10 - length
+    b = Part.makeBox(length, EAR_RING_W, EAR_RING_W)
+    b.translate(V(bx, y0, EAR_CENTER_Z - EAR_RING_W / 2.0))
+    return b
+
+
+try:
+    App.closeDocument(DOC_NAME)
+except:
+    pass
+
+
+doc = App.newDocument(DOC_NAME)
+
+# ============================================================
+# 1. ZAKLADNI PRSTENEC
+# ============================================================
+body = cyl(OD, TOTAL_W)
+
+# 0-6 mm: pravidelny osmihranny otvor pro hridel.
+# 17.00 mm AF + 0.20 mm montazni vule.
+body = body.cut(
+    oct_prism(SHAFT_AF + SHAFT_CLEARANCE, CLAMP_W + 0.04, -0.02)
+)
+
+# 6-11 mm: kruhova svetlost pro volne otaceni kolem pevne casti.
+body = body.cut(
+    cyl(ROTATION_BORE, COLLAR_W + 0.04, CLAMP_W - 0.02)
+)
+
+# ============================================================
+# 2. VYREZ PRO SVLAK
+# ============================================================
+# Svlak je na +X plose osmihranu.
+# Sirka svlaku = 7.00 mm; svetlost = 2.50 mm.
+# Montazni vule = 0.20 mm.
+svlak_inner_flat = (SHAFT_AF + SHAFT_CLEARANCE) / 2.0
+svlak_depth = SVLAK_H + SVLAK_CLEARANCE
+svlak_width = SVLAK_W + SVLAK_CLEARANCE
+
+svlak_cut = Part.makeBox(
+    svlak_depth + 0.20,
+    svlak_width,
+    CLAMP_W + 0.04
+)
+svlak_cut.translate(
+    V(svlak_inner_flat - 0.02, -svlak_width / 2.0, -0.02)
+)
+body = body.cut(svlak_cut)
+
+# ============================================================
+# 3. ROZDELENI NA DVE SKUTECNE POLOVINY
+# ============================================================
+# Delici rovina Y=0. Poloviny se pri montazi spoji srouby.
+half_box_pos = Part.makeBox(40.0, 20.0, TOTAL_W + 2.0)
+half_box_pos.translate(V(-20.0, 0.0, -1.0))
+
+half_box_neg = Part.makeBox(40.0, 20.0, TOTAL_W + 2.0)
+half_box_neg.translate(V(-20.0, -20.0, -1.0))
+
+half_pos = body.common(half_box_pos)
+half_neg = body.common(half_box_neg)
+
+# ============================================================
+# 4. DVA PROTILEHLE M3 SPOJE
+# ============================================================
+for x in (EAR_CENTER_X, -EAR_CENTER_X):
+    upper_ear = make_ear(x, 0.0)
+    lower_ear = make_ear(x, -EAR_RING_W)
+
+    upper_bridge = make_bridge(x, 0.0)
+    lower_bridge = make_bridge(x, -EAR_RING_W)
+
+    half_pos = half_pos.fuse(upper_ear).fuse(upper_bridge)
+    half_neg = half_neg.fuse(lower_ear).fuse(lower_bridge)
+
+# Otvory pro M3 v obou polovinach.
+for x in (EAR_CENTER_X, -EAR_CENTER_X):
+    through_upper = Part.makeCylinder(
+        EAR_BORE_D / 2.0, EAR_RING_W + 0.30,
+        V(x, -0.05, EAR_CENTER_Z), V(0, 1, 0)
+    )
+    through_lower = Part.makeCylinder(
+        EAR_BORE_D / 2.0, EAR_RING_W + 0.30,
+        V(x, -EAR_RING_W - 0.10, EAR_CENTER_Z), V(0, 1, 0)
+    )
+    half_pos = half_pos.cut(through_upper)
+    half_neg = half_neg.cut(through_lower)
+
+    # Zapusteni hlavy M3 do horni poloviny.
+    head = Part.makeCylinder(
+        HEAD_D / 2.0, HEAD_DEPTH + 0.05,
+        V(x, EAR_RING_W - HEAD_DEPTH, EAR_CENTER_Z), V(0, 1, 0)
+    )
+    half_pos = half_pos.cut(head)
+
+    # Sestihranna kapsa pro matici v dolni polovine.
+    r = NUT_AF / math.sqrt(3.0)
+    pts = []
+    for i in range(6):
+        a = math.radians(30 + i * 60)
+        pts.append(V(
+            x + r * math.cos(a),
+            -EAR_RING_W - 0.05,
+            EAR_CENTER_Z + r * math.sin(a)
+        ))
+    pts.append(pts[0])
+    nutface = Part.Face(Part.makePolygon(pts))
+    nutpocket = nutface.extrude(V(0, NUT_DEPTH, 0))
+    half_neg = half_neg.cut(nutpocket)
+
+# ============================================================
+# 5. RADIALNI MAGNETY 180 DEG
+# ============================================================
+r_outer = OD / 2.0 + 0.01
+zmag = CLAMP_W + COLLAR_W / 2.0
+
+for ang in MAG_ANGLES:
+    pocket = radial_pocket(
+        MAG_POCKET_D, MAG_POCKET_DEPTH,
+        ang, r_outer, zmag
+    )
+    if ang == 90.0:
+        half_pos = half_pos.cut(pocket)
+    else:
+        half_neg = half_neg.cut(pocket)
+
+# ============================================================
+# 6. TISKOVE OBJEKTY - DVE POLOVINY
+# ============================================================
+objA = doc.addObject("PartDesign::Feature", "SR_MEC_001_HALF_A")
+objA.Label = "SR-MEC-001 Rev.E7 - polovina A (+Y)"
+objA.Shape = half_pos
+objA.addProperty("App::PropertyString", "Revision", "Dokumentace")
+objA.Revision = "Rev.E7"
+objA.addProperty("App::PropertyString", "PartName", "Dokumentace")
+objA.PartName = "HALF_A"
+objA.addProperty("App::PropertyStringList", "Notes", "Dokumentace")
+objA.Notes = [
+    "Dvoudilna objimka - polovina A (+Y).",
+    "Skutecna hridel: pravidelny osmihran cca 17.00 mm AF.",
+    "Vnitrni otvor: 17.20 mm AF celkove po zapocitani vule 0.20 mm.",
+    "Svlak: 7.00 mm sirka, 2.50 mm svetlost; montazni vule 0.20 mm.",
+    "Svlakova plocha hridele: 5 + 7 + 5 = cca 17 mm.",
+    "Upinaci delka 6.00 mm; magneticky limec 5.00 mm; celkem 11.00 mm.",
+    "Kruhova svetlost magnetickeho limece Ø21.00 mm.",
+    "Dva protilehle M3 spoje na X=+13.10 a X=-13.10 mm.",
+    "Magnet: 4x2 mm radialne, strana +Y."
+]
+
+objB = doc.addObject("PartDesign::Feature", "SR_MEC_001_HALF_B")
+objB.Label = "SR-MEC-001 Rev.E7 - polovina B (-Y)"
+objB.Shape = half_neg
+objB.addProperty("App::PropertyString", "Revision", "Dokumentace")
+objB.Revision = "Rev.E7"
+objB.addProperty("App::PropertyString", "PartName", "Dokumentace")
+objB.PartName = "HALF_B"
+objB.addProperty("App::PropertyStringList", "Notes", "Dokumentace")
+objB.Notes = [
+    "Dvoudilna objimka - polovina B (-Y).",
+    "Skutecna hridel: pravidelny osmihran cca 17.00 mm AF.",
+    "Vnitrni otvor: 17.20 mm AF celkove po zapocitani vule 0.20 mm.",
+    "Svlak: 7.00 mm sirka, 2.50 mm svetlost; montazni vule 0.20 mm.",
+    "Svlakova plocha hridele: 5 + 7 + 5 = cca 17 mm.",
+    "Upinaci delka 6.00 mm; magneticky limec 5.00 mm; celkem 11.00 mm.",
+    "Kruhova svetlost magnetickeho limece Ø21.00 mm.",
+    "Dva protilehle M3 spoje na X=+13.10 a X=-13.10 mm.",
+    "Magnet: 4x2 mm radialne, strana -Y."
+]
+
+for obj in (objA, objB):
+    for n, v in [
+        ("OuterDiameter", OD),
+        ("ShaftAcrossFlats", SHAFT_AF),
+        ("ShaftClearance", SHAFT_CLEARANCE),
+        ("SvlakWidth", SVLAK_W),
+        ("SvlakHeight", SVLAK_H),
+        ("SvlakClearance", SVLAK_CLEARANCE),
+        ("ClampWidth", CLAMP_W),
+        ("CollarWidth", COLLAR_W),
+        ("RotationBore", ROTATION_BORE),
+        ("M3Clearance", EAR_BORE_D),
+        ("EarOuterDiameter", EAR_OUTER_D),
+        ("HeadRecess", HEAD_DEPTH),
+        ("NutAcrossFlats", NUT_AF),
+        ("MagnetDiameter", MAG_D),
+        ("MagnetPocketDiameter", MAG_POCKET_D)
+    ]:
+        obj.addProperty("App::PropertyLength", n, "Parametry")
+        setattr(obj, n, v)
+
+objA.ViewObject.ShapeColor = (0.20, 0.20, 0.20)
+objB.ViewObject.ShapeColor = (0.35, 0.35, 0.35)
+objA.ViewObject.LineColor = (0.05, 0.05, 0.05)
+objB.ViewObject.LineColor = (0.05, 0.05, 0.05)
+
+# ============================================================
+# 7. REFERENCE - KONTROLNI HRIDEL + SVLAK
+# ============================================================
+ref = doc.addObject("App::Part", "REFERENCE")
+ref.Label = "REFERENCE - kontrola Rev.E7"
+
+shaft = doc.addObject("PartDesign::Feature", "ReferenceShaft")
+shaft.Label = "Osmihranna hridel cca 17.00 mm AF + svlak 7x2.5 mm"
+shaft.Shape = oct_prism(SHAFT_AF, CLAMP_W)
+
+# Kontrolni teleso svlaku na +X plose.
+shaft_r = SHAFT_AF / (2.0 * math.cos(math.radians(22.5)))
+svlak_ref = Part.makeBox(SVLAK_H, SVLAK_W, CLAMP_W)
+svlak_ref.translate(V(shaft_r - 0.02, -SVLAK_W / 2.0, 0))
+shaft.Shape = shaft.Shape.fuse(svlak_ref)
+ref.addObject(shaft)
+
+holder = doc.addObject("PartDesign::Feature", "ReferenceHolder")
+holder.Label = "Pevny uchyt Ø20.60 mm"
+holder.Shape = cyl(20.60, TOTAL_W)
+ref.addObject(holder)
+
+mags = doc.addObject("App::Part", "ReferenceMagnets")
+mags.Label = "Magnety radialne 180 deg"
+ref.addObject(mags)
+
+for i, ang in enumerate(MAG_ANGLES, 1):
+    mo = doc.addObject("PartDesign::Feature", "ReferenceMagnet%d" % i)
+    mo.Label = "Magnet %d - radialni" % i
+    mo.Shape = radial_cyl(
+        MAG_D, MAG_LEN, ang,
+        OD / 2.0 - MAG_POCKET_DEPTH, zmag
+    )
+    mags.addObject(mo)
+
+# Reference je pouze kontrolni geometrie.
+ref.Visibility = False
+
+doc.recompute()
+
+try:
+    doc.saveAs(App.getUserAppDataDir() + DOC_NAME + ".FCStd")
+except:
+    pass
+
+Gui.activeDocument().activeView().viewAxonometric()
+Gui.activeDocument().activeView().fitAll()
