@@ -1,0 +1,65 @@
+import FreeCAD as App
+import Part
+
+# Vytvoření nového dokumentu
+doc = App.newDocument("SmartRoll_Drzak_Hall_v2")
+
+# ==========================================
+# PARAMETRY (podle skici + přesný výpočet v mm)
+# ==========================================
+sirka_profilu = 18.0       # Vnitřní šířka mezi nožkami
+vyska_nohy = 14.0          # Výška spodních noh (délka boku u profilu)
+stena = 3.5                # Zesílená stěna pro odolnost vůči závlačce
+hloubka = 8.0              # Hloubka/šířka celého držáku
+
+pcb_sirka = 20.0 + 0.3     # Šířka PCB + vůle pro tisk (20.3 mm)
+pcb_tloustka = 1.5 + 0.2   # Tloušťka PCB + vůle pro tisk (1.7 mm)
+
+# Vzdálenost od horní dosedací plochy nosníku ke spodní hraně kapsy na PCB:
+# 3 mm (magnet -> dosedací plocha) + 5 mm (požadovaná mezera) + 2 mm (tloušťka Hallu) = 10 mm
+vzdalenost_dno_kapsy_od_nosniku = 10.0
+
+# Výška plného horního nosníku, aby se do něj vešla celá kapsa na PCB
+nosnik_vyska = vzdalenost_dno_kapsy_od_nosniku + pcb_tloustka + 3.0 # + 3 mm horní krytí
+
+zavlacka_prumer = 3.2      # Průměr otvoru pro závlačku (M3 / závlačka)
+zavlacka_vyska = 6.0       # Výška středu otvoru od spodku nožek
+
+# ==========================================
+# MODELOVÁNÍ
+# ==========================================
+sirka_zakladny = sirka_profilu + (2 * stena)
+
+# 1. Spodní tělo s nožkami a základnou
+zakladna_vyska = vyska_nohy + stena
+zakladna = Part.makeBox(sirka_zakladny, hloubka, zakladna_vyska)
+
+# Vyříznutí prostoru pro kovový profil (vytvoření tvaru "U")
+vyrez_profil = Part.makeBox(sirka_profilu, hloubka + 2, vyska_nohy)
+vyrez_profil.translate(App.Vector(stena, -1, 0))
+telo_u = zakladna.cut(vyrez_profil)
+
+# 2. Otvor pro závlačku (prochází napříč oběma nožkami)
+otvor_zavlacka = Part.makeCylinder(zavlacka_prumer / 2.0, sirka_zakladny + 2)
+otvor_zavlacka.rotate(App.Vector(0,0,0), App.Vector(0,1,0), 90)
+otvor_zavlacka.translate(App.Vector(-1, hloubka / 2.0, zavlacka_vyska))
+telo_s_otvorem = telo_u.cut(otvor_zavlacka)
+
+# 3. Horní plný nosník s drážkou pro PCB
+nosnik = Part.makeBox(sirka_zakladny, hloubka, nosnik_vyska)
+nosnik.translate(App.Vector(0, 0, zakladna_vyska))
+
+# Drážka/šachta pro zasunutí PCB
+drazka_pcb = Part.makeBox(pcb_sirka, hloubka + 2, pcb_tloustka)
+posun_x = (sirka_zakladny - pcb_sirka) / 2.0
+posun_z = zakladna_vyska + vzdalenost_dno_kapsy_od_nosniku
+drazka_pcb.translate(App.Vector(posun_x, -1, posun_z))
+
+nosnik_s_drazkou = nosnik.cut(drazka_pcb)
+
+# 4. Sloučení do jednoho finálního dílu
+drzak_final = telo_s_otvorem.fuse(nosnik_s_drazkou)
+
+# Zobrazení ve FreeCADu
+Part.show(drzak_final)
+doc.recompute()
