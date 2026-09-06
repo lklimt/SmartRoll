@@ -1,0 +1,250 @@
+# -*- coding: utf-8 -*-
+# ============================================================
+# SMARTROLL / SR-MEC-001 - Rev.E14 (Rovná plocha pro matici M3)
+# Dvoudilny magneticky unasec pro roletovou hridel
+# FreeCAD 1.1
+# ============================================================
+
+import FreeCAD as App
+import FreeCADGui as Gui
+import Part
+import math
+
+DOC_NAME = "SR-MEC-001_RevE14"
+
+# ---------------- PARAMETRY ----------------
+# Strana osmiúhelníku a = 17.00 mm
+SHAFT_SIDE = 17.00
+SHAFT_AF = SHAFT_SIDE / math.tan(math.radians(22.5))  # cca 41.04 mm
+SHAFT_CLEARANCE = 0.20
+
+# Svlak na jedné ploše
+SVLAK_W = 7.00
+SVLAK_H = 2.50
+SVLAK_CLEARANCE = 0.20
+
+CLAMP_W = 6.00
+COLLAR_W = 5.00
+TOTAL_W = 11.00
+
+# Vnější průměr prstence
+OD = 52.00
+ROTATION_BORE = 45.00
+
+# Vnější M3 spoje
+EAR_OUTER_D = 8.00
+EAR_BORE_D = 3.30
+EAR_RING_W = 3.00
+EAR_CENTER_X = OD / 2.0 + EAR_OUTER_D / 2.0
+EAR_CENTER_Z = TOTAL_W / 2.0
+
+# Hlavička šroubu zůstává zapuštěná
+HEAD_D = 6.00
+HEAD_DEPTH = 1.50
+
+# Magnety Ø5x3 mm
+MAG_D = 5.00
+MAG_DEPTH = 3.00
+MAG_ANGLES = (90.0, 270.0)
+
+# Výstupek pro magnet na R vnějších uší
+OUTER_EAR_RADIUS = EAR_CENTER_X + EAR_OUTER_D / 2.0  # 30.0 mm
+MAG_BOSS_WIDTH = 10.00
+
+PRINT_SPACING = 15.00
+
+
+def V(x, y, z=0):
+    return App.Vector(float(x), float(y), float(z))
+
+
+def cyl(d, h, z=0):
+    s = Part.makeCylinder(d / 2.0, h)
+    s.translate(V(0, 0, z))
+    return s
+
+
+def oct_prism(flat, h, z=0):
+    """Regular octagonal prism specified by across-flats dimension."""
+    r = flat / (2.0 * math.cos(math.radians(22.5)))
+    p = []
+    for i in range(8):
+        a = math.radians(22.5 + i * 45.0)
+        p.append(V(r * math.cos(a), r * math.sin(a), z))
+    p.append(p[0])
+    return Part.Face(Part.makePolygon(p)).extrude(V(0, 0, h))
+
+
+def make_external_ear(x, y0):
+    ear = Part.makeCylinder(
+        EAR_OUTER_D / 2.0, EAR_RING_W,
+        V(x, y0, EAR_CENTER_Z), V(0, 1, 0)
+    )
+    
+    bridge_w = EAR_OUTER_D
+    if x > 0:
+        bx_start = OD / 2.0 - 0.5
+        bx_len = EAR_CENTER_X - bx_start
+    else:
+        bx_start = -EAR_CENTER_X
+        bx_len = EAR_CENTER_X - (OD / 2.0 - 0.5)
+
+    bridge = Part.makeBox(bx_len, EAR_RING_W, bridge_w)
+    bridge.translate(V(bx_start, y0, EAR_CENTER_Z - bridge_w / 2.0))
+    
+    return ear.fuse(bridge)
+
+
+def make_magnet_boss(ang):
+    box_h = OUTER_EAR_RADIUS - OD / 2.0 + 1.0
+    boss = Part.makeBox(MAG_BOSS_WIDTH, box_h, TOTAL_W)
+    boss.translate(V(-MAG_BOSS_WIDTH / 2.0, OD / 2.0 - 0.5, 0))
+    boss.rotate(V(0, 0, 0), V(0, 0, 1), ang - 90.0)
+    return boss
+
+
+def radial_pocket_from_radius(d, depth, ang, r_start, z):
+    a = math.radians(ang)
+    start = V(r_start * math.cos(a), r_start * math.sin(a), z)
+    direction = V(-math.cos(a), -math.sin(a), 0)
+    return Part.makeCylinder(d / 2.0, depth, start, direction)
+
+
+try:
+    App.closeDocument(DOC_NAME)
+except:
+    pass
+
+
+doc = App.newDocument(DOC_NAME)
+
+# ============================================================
+# 1. ZÁKLADNÍ PRSTENEC A OTVORY
+# ============================================================
+body = cyl(OD, TOTAL_W)
+
+# Vnitřní osmihran
+body = body.cut(
+    oct_prism(SHAFT_AF + SHAFT_CLEARANCE, CLAMP_W + 0.04, -0.02)
+)
+
+# Kruhová světlost
+body = body.cut(
+    cyl(ROTATION_BORE, COLLAR_W + 0.04, CLAMP_W - 0.02)
+)
+
+# Svlak
+svlak_inner_flat = (SHAFT_AF + SHAFT_CLEARANCE) / 2.0
+svlak_depth = SVLAK_H + SVLAK_CLEARANCE
+svlak_width = SVLAK_W + SVLAK_CLEARANCE
+
+svlak_cut = Part.makeBox(
+    svlak_depth + 0.20,
+    svlak_width,
+    CLAMP_W + 0.04
+)
+svlak_cut.translate(
+    V(svlak_inner_flat - 0.02, -svlak_width / 2.0, -0.02)
+)
+body = body.cut(svlak_cut)
+
+# ============================================================
+# 2. VÝSTUPKY PRO MAGNETY
+# ============================================================
+for ang in MAG_ANGLES:
+    boss = make_magnet_boss(ang)
+    body = body.fuse(boss)
+
+outer_trim = cyl(OUTER_EAR_RADIUS * 2.0, TOTAL_W + 2.0, -1.0)
+body = body.common(outer_trim)
+
+# ============================================================
+# 3. ROZDĚLENÍ NA DVĚ POLOVINY
+# ============================================================
+box_size = OUTER_EAR_RADIUS * 2.0 + 20.0
+half_box_pos = Part.makeBox(box_size, box_size / 2.0, TOTAL_W + 2.0)
+half_box_pos.translate(V(-box_size / 2.0, 0.0, -1.0))
+
+half_box_neg = Part.makeBox(box_size, box_size / 2.0, TOTAL_W + 2.0)
+half_box_neg.translate(V(-box_size / 2.0, -box_size / 2.0, -1.0))
+
+half_pos = body.common(half_box_pos)
+half_neg = body.common(half_box_neg)
+
+# ============================================================
+# 4. VNĚJŠÍ M3 SPOJE (ZAPUŠTĚNÍ JEN PRO HLAVU, ROVNÁ PLOCHA PRO MATICI)
+# ============================================================
+for x in (EAR_CENTER_X, -EAR_CENTER_X):
+    upper_ear = make_external_ear(x, 0.0)
+    lower_ear = make_external_ear(x, -EAR_RING_W)
+
+    half_pos = half_pos.fuse(upper_ear)
+    half_neg = half_neg.fuse(lower_ear)
+
+for x in (EAR_CENTER_X, -EAR_CENTER_X):
+    # Průchozí otvory Ø3.3 mm pro M3
+    through_upper = Part.makeCylinder(
+        EAR_BORE_D / 2.0, EAR_RING_W + 0.30,
+        V(x, -0.05, EAR_CENTER_Z), V(0, 1, 0)
+    )
+    through_lower = Part.makeCylinder(
+        EAR_BORE_D / 2.0, EAR_RING_W + 0.30,
+        V(x, -EAR_RING_W - 0.10, EAR_CENTER_Z), V(0, 1, 0)
+    )
+    half_pos = half_pos.cut(through_upper)
+    half_neg = half_neg.cut(through_lower)
+
+    # Zapuštění pro hlavičku M3 šroubu v polovině A
+    head = Part.makeCylinder(
+        HEAD_D / 2.0, HEAD_DEPTH + 0.05,
+        V(x, EAR_RING_W - HEAD_DEPTH, EAR_CENTER_Z), V(0, 1, 0)
+    )
+    half_pos = half_pos.cut(head)
+    
+    # Poznámka: Kapsa pro matici v polovině B byla zcela odstraněna.
+    # Matice dosedá přímo na rovný plný povrch ucha.
+
+# ============================================================
+# 5. KAPSY PRO MAGNETY Ø5.0 x 3.0 mm
+# ============================================================
+zmag = TOTAL_W / 2.0
+
+for ang in MAG_ANGLES:
+    pocket = radial_pocket_from_radius(
+        MAG_D, MAG_DEPTH,
+        ang, OUTER_EAR_RADIUS + 0.01, zmag
+    )
+    if ang == 90.0:
+        half_pos = half_pos.cut(pocket)
+    else:
+        half_neg = half_neg.cut(pocket)
+
+# ============================================================
+# 6. POLOHOVÁNÍ PRO 3D TISK (Z=0)
+# ============================================================
+half_pos_print = half_pos.copy()
+half_pos_print.rotate(V(0, 0, 0), V(1, 0, 0), -90)
+
+half_neg_print = half_neg.copy()
+half_neg_print.rotate(V(0, 0, 0), V(1, 0, 0), 90)
+shift_x = OUTER_EAR_RADIUS * 2.0 + PRINT_SPACING
+half_neg_print.translate(V(shift_x, 0, 0))
+
+# ============================================================
+# 7. TISKOVÉ OBJEKTY
+# ============================================================
+objA = doc.addObject("PartDesign::Feature", "SR_MEC_001_HALF_A")
+objA.Label = "SR-MEC-001 - Polovina A (Zapuštěná hlava)"
+objA.Shape = half_pos_print
+
+objB = doc.addObject("PartDesign::Feature", "SR_MEC_001_HALF_B")
+objB.Label = "SR-MEC-001 - Polovina B (Rovná plocha matice)"
+objB.Shape = half_neg_print
+
+objA.ViewObject.ShapeColor = (0.20, 0.20, 0.20)
+objB.ViewObject.ShapeColor = (0.35, 0.35, 0.35)
+
+doc.recompute()
+
+Gui.activeDocument().activeView().viewTop()
+Gui.activeDocument().activeView().fitAll()
